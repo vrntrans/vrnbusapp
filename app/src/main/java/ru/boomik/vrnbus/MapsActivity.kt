@@ -1,31 +1,33 @@
 package ru.boomik.vrnbus
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.SearchView
 import android.util.Log
-import com.beust.klaxon.Klaxon
+import android.view.Menu
+import android.view.MenuItem
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import com.google.maps.android.ui.IconGenerator
 import ru.boomik.vrnbus.objects.Station
-import ru.boomik.vrnbus.utils.loadJSONFromAsset
 
 
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var mRoutes: String? = null
     private lateinit var mMap: GoogleMap
-    private lateinit var mClusterManager : ClusterManager<Station>
+    private var mBusesMarkers: List<Marker>? = null
+    private lateinit var mClusterManager: ClusterManager<Station>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +37,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.map_menu, menu)
+
+        // Associate searchable configuration with the SearchView
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchView = menu.findItem(R.id.search).actionView as SearchView
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.setOnSearchClickListener {
+
+        }
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                Log.e("onQueryTextChange", "called")
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                mRoutes=query
+                showBuses(query)
+                return false
+            }
+
+        })
+
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        when (item.getItemId()) {
+            R.id.refresh -> {
+                if (mRoutes!=null) showBuses(mRoutes!!)
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     /**
@@ -50,23 +94,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         val vrn = LatLng(51.6754966, 39.2088823)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(vrn,14f))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(vrn, 14f))
         mMap.setOnCameraIdleListener { mClusterManager.cluster() }
-        mClusterManager  = ClusterManager(this, mMap)
+        mClusterManager = ClusterManager(this, mMap)
         mClusterManager.renderer = StationRenderer()
         showBusStations()
+
+    }
+
+    private fun showBuses(q : String) {
+        if (!q.isNotEmpty()) return
+        try {
+            val bus: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.bus_round)
+
+            mBusesMarkers?.forEach { it.remove() }
+            DataService.loadBusInfo("54,59а") {
+                if (it!=null) {
+                    var newBusesMarkers = it?.map {
+                        mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(bus))
+                    }
+                    mBusesMarkers = newBusesMarkers
+                }
+            }
+        } catch (exception: Throwable) {
+            Log.e("VrnBus", "Hm..", exception)
+        }
     }
 
     private fun showBusStations() {
         try {
-            val json = loadJSONFromAsset(this, "bus_stops.json")
-            val stations = Klaxon().parseArray<Station>(json) ?: return
-
-            stations.filter { it.lat != 0.0 && it.lon != 0.0 }
-                    .forEach { mClusterManager.addItem(it) }
+            DataService.loadBusStations(this)?.forEach { mClusterManager.addItem(it) }
             mClusterManager.cluster()
-        } catch (exception : Throwable) {
-            Log.e("VrnBus", "Hm..",exception);
+        } catch (exception: Throwable) {
+            Log.e("VrnBus", "Hm..", exception)
         }
     }
 
