@@ -111,7 +111,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             DataService.loadBusInfo("54,59а") {
                 if (it!=null) {
                     var newBusesMarkers = it?.map {
-                        mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(bus))
+                        mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(bus).zIndex(1.0f))
                     }
                     mBusesMarkers = newBusesMarkers
                 }
