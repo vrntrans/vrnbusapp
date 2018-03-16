@@ -109,12 +109,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val bus: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.bus_round)
 
             mBusesMarkers?.forEach { it.remove() }
+            Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
             DataService.loadBusInfo(q) {
                 if (it!=null) {
+                    if (it.count()==0)
+                        Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
+                    else  Toast.makeText(this, "Загружено ${it.count()} МТС ", Toast.LENGTH_SHORT).show()
                     var newBusesMarkers = it.map {
                         mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(bus).zIndex(1.0f)).installTag(it)
                     }
                     mBusesMarkers = newBusesMarkers
+                } else {
+                    Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
                 }
             }
         } catch (exception: Throwable) {
