@@ -8,6 +8,7 @@ import com.github.kittinunf.fuel.httpGet
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ru.boomik.vrnbus.dto.BusInfoDto
+import ru.boomik.vrnbus.dto.BusStopInfoDto
 import ru.boomik.vrnbus.dto.StationDto
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Station
@@ -49,15 +50,35 @@ class DataService {
                     callback(null)
                 }
             }
+        }
+        fun loadBusStopInfo(station: String, callback: (String?) -> Unit) {
 
+            Consts.API_BUS_STOP_INFO.httpGet(listOf(Pair("station", station), Pair("q",""))).responseObject<BusStopInfoDto> { request, response, result ->
+                //make a GET to http://httpbin.org/get and do something with response
+                Log.d("log", request.toString())
+                Log.d("log", response.toString())
+                val (_, error) = result
+                if (error == null) {
 
+                    try {
+                        val info = result.get()
+                        callback(info.text)
+
+                    } catch (exception: Throwable) {
+                        Log.e("VrnBus", "Hm..", exception)
+                        callback(null)
+                    }
+                } else {
+                    callback(null)
+                }
+            }
         }
 
         fun loadBusStations(activity: Activity): List<Station>? {
             try {
                 val json = loadJSONFromAsset(activity, "bus_stops.json")
                 var stations: List<StationDto> = gson.fromJson(json, object : TypeToken<List<StationDto>>() {}.type)
-                return stations.filter { it.lat != 0.0 && it.lon != 0.0 }.map { Station(it.name, it.lat, it.lon) }
+                return stations.filter { it.lat != 0.0 && it.lon != 0.0 }.map { Station(it.name.trim(), it.lat, it.lon) }
             } catch (exception: Throwable) {
                 Log.e("VrnBus", "Hm..", exception);
             }

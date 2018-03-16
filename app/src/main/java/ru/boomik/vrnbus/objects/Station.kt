@@ -5,6 +5,8 @@ import com.google.maps.android.clustering.ClusterItem
 
 
 class Station(val name: String, var lat: Double, var lon: Double) : ClusterItem {
+
+
     override fun getSnippet(): String? {
         return null
     }

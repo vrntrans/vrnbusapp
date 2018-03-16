@@ -8,6 +8,7 @@ import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -47,15 +48,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchView = menu.findItem(R.id.search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchView.setOnSearchClickListener {
-
-        }
-
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                Log.e("onQueryTextChange", "called")
-                return false
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -63,21 +58,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 showBuses(query)
                 return false
             }
-
         })
-
-
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection
-        when (item.getItemId()) {
+        return when (item.itemId) {
             R.id.refresh -> {
                 if (mRoutes!=null) showBuses(mRoutes!!)
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -99,6 +91,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mClusterManager = ClusterManager(this, mMap)
         mClusterManager.renderer = StationRenderer()
         showBusStations()
+        mMap.setOnInfoWindowClickListener {
+            if (it.snippet.isNullOrEmpty()) {
+                //station
+                Toast.makeText(this, "${it.title}\n\n загрузка...", Toast.LENGTH_SHORT).show()
+                DataService.loadBusStopInfo(it.title){
+                    if (!it.isNullOrEmpty()) Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                }
+            } else Toast.makeText(this, it.snippet, Toast.LENGTH_LONG).show()
+        }
 
     }
 
@@ -108,10 +109,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val bus: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.bus_round)
 
             mBusesMarkers?.forEach { it.remove() }
-            DataService.loadBusInfo("54,59а") {
+            DataService.loadBusInfo(q) {
                 if (it!=null) {
-                    var newBusesMarkers = it?.map {
-                        mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(bus).zIndex(1.0f))
+                    var newBusesMarkers = it.map {
+                        mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(bus).zIndex(1.0f)).installTag(it)
                     }
                     mBusesMarkers = newBusesMarkers
                 }
@@ -145,5 +146,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon))
         }
     }
+}
+
+private fun Marker.installTag(it: Any): Marker {
+    this.tag=it
+    return this
 }
 

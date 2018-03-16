@@ -18,7 +18,7 @@ class Bus(
         var lastLon: Double) {
 
     fun getSnippet(): String? {
-        return "$nextStationName\n$number";
+        return "$nextStationName\nгос. номер: $number\nскорость: $lastSpeed"
     }
 
     fun getPosition(): LatLng {
