@@ -4,11 +4,17 @@
     <item
         android:id="@+id/search"
         android:icon="@drawable/ic_search"
-        android:title="Search"
+        android:title="@string/search"
         app:showAsAction="collapseActionView|always"
         app:actionViewClass="android.support.v7.widget.SearchView" />
-    <item android:id="@+id/refresh"
+    <item
+        android:id="@+id/refresh"
+        android:title="@string/action_refresh"
         android:icon="@drawable/ic_refresh"
-        android:title="new"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/select_bus"
+        android:title="@string/select_buses"
+        android:icon="@drawable/ic_bus"
         app:showAsAction="ifRoom" />
 </menu>

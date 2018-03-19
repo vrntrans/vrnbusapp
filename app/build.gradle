@@ -4,6 +4,9 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'let'
+
+
 android {
     signingConfigs {
         release {
@@ -13,6 +16,7 @@ android {
             storePassword 'vrnbus'
         }
     }
+    buildToolsVersion '26.0.2'
     compileSdkVersion 26
     defaultConfig {
         applicationId "ru.boomik.vrnbus"
@@ -33,17 +37,19 @@ android {
             signingConfig signingConfigs.release
         }
     }
-    buildToolsVersion '26.0.2'
-    productFlavors {
-    }
 }
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.google.android.gms:play-services-maps:11.8.0'
+
+    implementation "com.google.android.gms:play-services-base:$gms_version"
+    implementation "com.google.android.gms:play-services-maps:$gms_version"
+    implementation "com.google.android.gms:play-services-location:$gms_version"
+
     implementation 'com.google.maps.android:android-maps-utils:0.5'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:design:26.1.0'
@@ -59,4 +65,7 @@ dependencies {
     //for Android
     implementation "org.jetbrains.anko:anko-coroutines:$anko_version"
     implementation 'com.google.code.gson:gson:2.8.2'
+
+    implementation 'com.orhanobut:dialogplus:1.11@aar'
+    implementation "com.hootsuite.android:nachos:1.1.1"
 }

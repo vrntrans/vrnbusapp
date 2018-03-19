@@ -1,7 +1,6 @@
 package ru.boomik.vrnbus
 
 import android.app.Activity
-import android.util.Log
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
@@ -51,9 +50,10 @@ class DataService {
                 }
             }
         }
+
         fun loadBusStopInfo(station: String, callback: (String?) -> Unit) {
 
-            Consts.API_BUS_STOP_INFO.httpGet(listOf(Pair("station", station), Pair("q",""))).responseObject<BusStopInfoDto> { request, response, result ->
+            Consts.API_BUS_STOP_INFO.httpGet(listOf(Pair("station", station), Pair("q", ""))).responseObject<BusStopInfoDto> { request, response, result ->
                 //make a GET to http://httpbin.org/get and do something with response
                 Log.d("log", request.toString())
                 Log.d("log", response.toString())
@@ -74,15 +74,15 @@ class DataService {
             }
         }
 
-        fun loadBusStations(activity: Activity): List<Station>? {
+        fun loadBusStations(activity: Activity, loaded: (List<Station>) -> Unit) {
             try {
-                val json = loadJSONFromAsset(activity, "bus_stops.json")
-                var stations: List<StationDto> = gson.fromJson(json, object : TypeToken<List<StationDto>>() {}.type)
-                return stations.filter { it.lat != 0.0 && it.lon != 0.0 }.map { Station(it.name.trim(), it.lat, it.lon) }
+                loadJSONFromAsset(activity, "bus_stops.json") {
+                    val stations: List<StationDto> = gson.fromJson(it, object : TypeToken<List<StationDto>>() {}.type)
+                    loaded(stations.filter { it.lat != 0.0 && it.lon != 0.0 }.map { Station(it.name.trim(), it.lat, it.lon) })
+                }
             } catch (exception: Throwable) {
-                Log.e("VrnBus", "Hm..", exception);
+                Log.e("Hm..", exception);
             }
-            return null
         }
     }
 }
