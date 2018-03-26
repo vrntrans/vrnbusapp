@@ -27,7 +27,7 @@ class DataService {
 
         fun loadBusInfo(q: String, callback: (List<Bus>?) -> Unit) {
 
-            Consts.API_BUS_INFO.httpGet(listOf(Pair("q", q))).responseObject<BusInfoDto> { request, response, result ->
+            Consts.API_BUS_INFO.httpGet(listOf(Pair("q", q),Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
                 //make a GET to http://httpbin.org/get and do something with response
                 Log.d("log", request.toString())
                 Log.d("log", response.toString())
@@ -81,7 +81,18 @@ class DataService {
                     loaded(stations.filter { it.lat != 0.0 && it.lon != 0.0 }.map { Station(it.name.trim(), it.lat, it.lon) })
                 }
             } catch (exception: Throwable) {
-                Log.e("Hm..", exception);
+                Log.e("Hm..", exception)
+            }
+        }
+
+        fun loadRoutes(activity: Activity, loaded: (List<String>) -> Unit) {
+            try {
+                loadJSONFromAsset(activity, "routes.json") {
+                    val routes: List<String> = gson.fromJson(it, object : TypeToken<List<String>>() {}.type)
+                    loaded(routes)
+                }
+            } catch (exception: Throwable) {
+                Log.e("Hm..", exception)
             }
         }
     }

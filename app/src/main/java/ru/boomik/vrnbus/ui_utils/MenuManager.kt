@@ -1,9 +1,7 @@
 package ru.boomik.vrnbus.ui_utils
 
 import android.app.Activity
-import android.app.SearchManager
 import android.content.Context
-import android.support.v7.widget.SearchView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -16,13 +14,11 @@ class MenuManager(activity: Activity) {
 
 
     private lateinit var mRefreshMenuItem: MenuItem
-    private lateinit var mSearchView: SearchView
     private lateinit var mRotationRefreshAnimation: Animation
     private var mActivity: Activity = activity
 
     private lateinit var mRefreshClickedCallback: () -> Unit
     private lateinit var mBusClickedCallback: () -> Unit
-    private lateinit var mQuerySubmitCallback: (String) -> Unit
 
     fun createOptionsMenu(menu: Menu) {
         val menuInflater = mActivity.menuInflater
@@ -35,20 +31,7 @@ class MenuManager(activity: Activity) {
         mRotationRefreshAnimation = AnimationUtils.loadAnimation(mActivity, R.anim.rotate_refresh)
         mRotationRefreshAnimation.repeatCount = Animation.INFINITE
 
-        // Associate searchable configuration with the SearchView
-        val searchManager = mActivity.getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        mSearchView = menu.findItem(R.id.search).actionView as SearchView
-        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(mActivity.componentName))
-        mSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return true
-            }
 
-            override fun onQueryTextSubmit(query: String): Boolean {
-                mQuerySubmitCallback(query)
-                return false
-            }
-        })
     }
 
     fun subscribeRefresh(callback: () -> Unit) {
@@ -58,13 +41,6 @@ class MenuManager(activity: Activity) {
     fun subscribeBus(callback: () -> Unit) {
         mBusClickedCallback = callback
     }
-
-
-    fun subscribeQuerySubmit(callback: (String) -> Unit) {
-        mQuerySubmitCallback = callback
-    }
-
-
 
     fun startUpdate() {
         mRefreshMenuItem.actionView.startAnimation(mRotationRefreshAnimation)

@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="16dp">
+    android:padding="16dp">
 
     <com.hootsuite.nachos.NachoTextView
         android:id="@+id/nacho_text_view"
+        android:completionThreshold="1"
+        android:hint="@string/enter_routes"
+        android:inputType="textMultiLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-
-    <LinearLayout
+    <Button
+        android:id="@+id/search"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/bus_select_edittext"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="Name" />
-
-
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button" />
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="@string/search"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
 
 </LinearLayout>

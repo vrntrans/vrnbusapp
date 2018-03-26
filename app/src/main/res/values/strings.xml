@@ -5,4 +5,5 @@
     <string name="action_refresh">Refresh</string>
     <string name="search">Search</string>
     <string name="select_buses">Select buses</string>
+    <string name="enter_routes">Введите номера маршрутов</string>
 </resources>
