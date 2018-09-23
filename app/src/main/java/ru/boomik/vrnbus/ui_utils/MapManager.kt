@@ -5,10 +5,7 @@ import android.app.Activity
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
@@ -18,6 +15,7 @@ import ru.boomik.vrnbus.DataService
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Station
+
 
 /**
  * Created by boomv on 18.03.2018.
@@ -65,9 +63,27 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 }
             } else Toast.makeText(mActivity, it.snippet, Toast.LENGTH_LONG).show()
         }
+        mClusterManager.setOnClusterClickListener { cluster ->
+            mMap.animateCamera(getMapCameraUpdateFromCluster(cluster), 300, null)
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.position, mMap.cameraPosition.zoom + 1.toFloat()), 300, null)
+            true
+        }
+
+        mMap.setOnMarkerClickListener(mClusterManager);
         mReadyCallback()
     }
 
+    private fun getMapCameraUpdateFromCluster(cluster : Cluster<Station> ) : CameraUpdate{
+
+        val list = cluster.items
+        if (list == null || list.count()==0) return CameraUpdateFactory.newLatLngZoom(cluster.position, mMap.cameraPosition.zoom + 1.toFloat())
+        val minLat = list.minBy { it.lat }!!.lat
+        val minLon = list.minBy { it.lon }!!.lon
+        val maxLat = list.maxBy { it.lat }!!.lat
+        val maxLon = list.maxBy { it.lon }!!.lon
+
+        return CameraUpdateFactory.newLatLngBounds(LatLngBounds(LatLng(minLat, minLon), LatLng(maxLat, maxLon)), 16)
+    }
 
     fun clearBusesOnMap(){
         mBusesMarkers?.forEach { it.remove() }

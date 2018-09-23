@@ -4,14 +4,13 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Toast
+import android.widget.*
 import com.canelmas.let.AskPermission
 import com.canelmas.let.Let
 import com.google.android.gms.maps.SupportMapFragment
@@ -21,6 +20,7 @@ import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
 import ru.boomik.vrnbus.ui_utils.MapManager
 import ru.boomik.vrnbus.ui_utils.MenuManager
+import ru.boomik.vrnbus.ui_utils.alertMultipleChoiceItems
 
 
 class MapsActivity : AppCompatActivity() {
@@ -33,29 +33,38 @@ class MapsActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
-        menuManager = MenuManager(this)
         mapManager = MapManager(this, mapFragment)
-
-        menuManager.subscribeRefresh { onRefresh() }
-        menuManager.subscribeBus { onSelectBus() }
-
         mapManager.subscribeReady { onReady() }
 
+        menuManager = MenuManager(this)
+        menuManager.subscribeRefresh { onRefresh() }
+        menuManager.subscribeBus { onSelectBus() }
 
         DataService.loadRoutes(this) {
             mRoutesList = it
         }
     }
 
+    public override fun onDestroy() {
+        super.onDestroy()
+        val fragment = supportFragmentManager?.findFragmentById(R.id.map) as Fragment
+        supportFragmentManager?.beginTransaction()?.remove(fragment)?.commit()
+    }
 
     private fun onSelectBus() {
 
+        if (mRoutesList == null) {
+            Toast.makeText(this, "Дождитесь загрузки данных", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val dialogView = View.inflate(this, R.layout.select_bus_dialog, null)
-        val adapter = ArrayAdapter(this, R.layout.bus_complete_view, mRoutesList)
+        val adapter = ArrayAdapter(this, R.layout.bus_complete_view, mRoutesList!!)
         val nachos = dialogView.findViewById<NachoTextView>(R.id.nacho_text_view)
         nachos.setAdapter(adapter)
         nachos.addChipTerminator(',', BEHAVIOR_CHIPIFY_ALL)
@@ -81,14 +90,15 @@ class MapsActivity : AppCompatActivity() {
                     nachos.clearFocus()
                 }
                 .setContentHolder(ViewHolder(dialogView))
+                .setContentBackgroundResource(android.R.color.transparent)
                 .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
-                //.setOverlayBackgroundResource(R.drawable.corner_background)
                 .create()
+
 
         nachos.setOnEditorActionListener { _, actionId, _ ->
 
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val routes = nachos.chipAndTokenValues.joinToString(",")
+                val routes = nachos.chipValues.distinct().joinToString(",")
                 onQuerySubmit(routes)
                 dialog.dismiss()
                 nachos.clearFocus()
@@ -101,9 +111,23 @@ class MapsActivity : AppCompatActivity() {
 
         val searchButton = dialogView.findViewById<Button>(R.id.search)
         searchButton.setOnClickListener {
-            val routes = nachos.chipAndTokenValues.joinToString(",")
+            val routes = nachos.chipValues.distinct().joinToString(",")
             onQuerySubmit(routes)
             dialog.dismiss()
+            imm.hideSoftInputFromWindow(nachos.windowToken, 0)
+        }
+
+
+        val showList = dialogView.findViewById<ImageButton>(R.id.showList)
+        showList.setOnClickListener {
+            alertMultipleChoiceItems(this, mRoutesList!!) {
+                if (it != null) {
+                    val buses = nachos.chipValues
+                    buses.addAll(it)
+                    var uniqBuses = buses.distinct()
+                    nachos.setText(uniqBuses)
+                }
+            }
         }
 
         dialog.show()
@@ -114,10 +138,9 @@ class MapsActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (mSelectBusDialog!=null && mSelectBusDialog!!.isShowing) mSelectBusDialog?.dismiss()
+        if (mSelectBusDialog != null && mSelectBusDialog!!.isShowing) mSelectBusDialog?.dismiss()
         else super.onBackPressed()
     }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         Let.handle(this, requestCode, permissions, grantResults)
@@ -133,7 +156,6 @@ class MapsActivity : AppCompatActivity() {
         return if (!value) super.onOptionsItemSelected(item)
         else true
     }
-
 
     private fun onReady() {
         enableMyLocation()
