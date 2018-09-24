@@ -30,8 +30,6 @@ class MenuManager(activity: Activity) {
 
         mRotationRefreshAnimation = AnimationUtils.loadAnimation(mActivity, R.anim.rotate_refresh)
         mRotationRefreshAnimation.repeatCount = Animation.INFINITE
-
-
     }
 
     fun subscribeRefresh(callback: () -> Unit) {

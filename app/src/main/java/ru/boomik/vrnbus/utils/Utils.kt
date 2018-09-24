@@ -1,9 +1,14 @@
 package ru.boomik.vrnbus.utils
 
 import android.app.Activity
+import android.content.Context
+import android.graphics.*
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import ru.boomik.vrnbus.Log
 import java.io.IOException
 import java.nio.charset.Charset
+
 
 fun loadJSONFromAsset(activity : Activity, fileName: String, loaded: (String) -> Unit){
     Thread {
@@ -19,4 +24,44 @@ fun loadJSONFromAsset(activity : Activity, fileName: String, loaded: (String) ->
             ""
         })
     }.run()
+}
+
+fun createImageRounded(context: Context, width: Int, height: Int, name: String, azimuth : Double): BitmapDescriptor? {
+    val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(output)
+    canvas.save()
+    canvas.rotate(azimuth.toFloat(),width/2F,height/2F)
+
+    val paintCircle = Paint()
+    val paintText = Paint()
+
+    val density = context.resources.displayMetrics.density
+
+    paintCircle.color = Color.BLUE
+    paintCircle.isAntiAlias = true
+    paintCircle.style = Paint.Style.FILL
+
+    val arrowSize = width*0.2F
+
+    canvas.drawCircle(width/2F,height/2F, width/2F - arrowSize, paintCircle)
+
+    val path = Path()
+    path.moveTo(width/2F - arrowSize/2f,arrowSize)
+    path.lineTo(width/2F + arrowSize/2f,arrowSize)
+    path.lineTo(width/2F,0F)
+    path.lineTo(width/2F - arrowSize/2f,arrowSize)
+    path.close()
+    canvas.drawPath(path, paintCircle)
+
+    canvas.restore()
+
+    paintText.color = Color.WHITE
+    paintText.textSize = width/3.2F
+
+    val textWidth = paintText.measureText(name)
+
+    canvas.drawText(name, (width-textWidth)/2, height.toFloat()/2F+arrowSize/2, paintText)
+
+
+    return BitmapDescriptorFactory.fromBitmap(output)
 }

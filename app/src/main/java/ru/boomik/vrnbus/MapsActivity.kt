@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import android.view.*
@@ -18,6 +17,7 @@ import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
+import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.ui_utils.MapManager
 import ru.boomik.vrnbus.ui_utils.MenuManager
 import ru.boomik.vrnbus.ui_utils.alertMultipleChoiceItems
@@ -40,6 +40,9 @@ class MapsActivity : AppCompatActivity() {
 
         mapManager = MapManager(this, mapFragment)
         mapManager.subscribeReady { onReady() }
+        mapManager.subscribeBusClick { onBusClicked(it) }
+        mapManager.subscribeStationClick { onStationClicked(it) }
+
 
         menuManager = MenuManager(this)
         menuManager.subscribeRefresh { onRefresh() }
@@ -50,10 +53,61 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
+    private fun onStationClicked(station : String) {
+        Toast.makeText(this, "$station\n\n загрузка...", Toast.LENGTH_SHORT).show()
+
+        val dialogView = View.inflate(this, R.layout.station_view2, null)
+        val time : TextView = dialogView.findViewById(R.id.time)
+        val title : TextView = dialogView.findViewById(R.id.title)
+        val list : ListView = dialogView.findViewById(R.id.list)
+        val findAll : Button = dialogView.findViewById(R.id.findAll)
+        findAll.visibility = View.GONE
+        title.text = station
+
+        val dialog = DialogPlus.newDialog(this)
+                .setGravity(Gravity.BOTTOM)
+                .setCancelable(true)
+                .setContentHolder(ViewHolder(dialogView))
+                .setContentBackgroundResource(android.R.color.transparent)
+                .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
+                .create()
+        dialog.show()
+        DataService.loadBusStopInfo(station){
+            if (it==null) {
+                Toast.makeText(this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+                findAll.visibility = View.GONE
+            } else {
+                time.text = it.header
+                val adapter = ArrayAdapter(this, R.layout.bus_complete_view, it.routes)
+                list.adapter=adapter
+                findAll.visibility = View.VISIBLE
+                findAll.tag = it.routes.joinToString { it.route }
+            }
+        }
+        findAll.setOnClickListener {
+            onQuerySubmit(it.tag as String)
+            dialog.dismiss()
+        }
+        list.setOnItemClickListener { parent, _, position, _ ->
+            run {
+                val item = parent.adapter.getItem(position) as Bus
+                onQuerySubmit(item.route)
+                dialog.dismiss()
+            }
+        }
+
+    }
+
+    private fun onBusClicked(bus : String) {
+        Toast.makeText(this, bus, Toast.LENGTH_LONG).show()
+    }
+
     public override fun onDestroy() {
         super.onDestroy()
-        val fragment = supportFragmentManager?.findFragmentById(R.id.map) as Fragment
-        supportFragmentManager?.beginTransaction()?.remove(fragment)?.commit()
+        val map = supportFragmentManager?.findFragmentById(R.id.map)
+        if (map!=null) supportFragmentManager.beginTransaction().remove(map).commit()
+
     }
 
     private fun onSelectBus() {
@@ -86,7 +140,8 @@ class MapsActivity : AppCompatActivity() {
                 .setGravity(Gravity.TOP)
                 .setCancelable(true)
                 .setOnDismissListener {
-                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                    //imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                    imm.hideSoftInputFromWindow(nachos.windowToken, 0)
                     nachos.clearFocus()
                 }
                 .setContentHolder(ViewHolder(dialogView))
@@ -96,7 +151,6 @@ class MapsActivity : AppCompatActivity() {
 
 
         nachos.setOnEditorActionListener { _, actionId, _ ->
-
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val routes = nachos.chipValues.distinct().joinToString(",")
                 onQuerySubmit(routes)
@@ -106,7 +160,6 @@ class MapsActivity : AppCompatActivity() {
                 true
             } else
                 false
-
         }
 
         val searchButton = dialogView.findViewById<Button>(R.id.search)
@@ -124,8 +177,7 @@ class MapsActivity : AppCompatActivity() {
                 if (it != null) {
                     val buses = nachos.chipValues
                     buses.addAll(it)
-                    var uniqBuses = buses.distinct()
-                    nachos.setText(uniqBuses)
+                    nachos.setText(buses.distinct())
                 }
             }
         }
@@ -220,5 +272,3 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 }
-
-
