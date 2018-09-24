@@ -10,6 +10,7 @@ import ru.boomik.vrnbus.dto.BusInfoDto
 import ru.boomik.vrnbus.dto.BusStopInfoDto
 import ru.boomik.vrnbus.dto.StationDto
 import ru.boomik.vrnbus.objects.Bus
+import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.loadJSONFromAsset
@@ -60,7 +61,7 @@ class DataService {
 
                     try {
                         val info = result.get()
-                        val station = Station.parseDto(info)
+                        val station = Station.parseDto(info, station)
                         callback(station)
 
                     } catch (exception: Throwable) {
@@ -84,7 +85,7 @@ class DataService {
             }
         }
 
-        fun loadRoutes(activity: Activity, loaded: (List<String>) -> Unit) {
+        fun loadRoutes(activity: Activity, loaded: (List<String>?) -> Unit) {
             try {
                 loadJSONFromAsset(activity, "routes.json") {
                     val routes: List<String> = gson.fromJson(it, object : TypeToken<List<String>>() {}.type)
@@ -92,6 +93,30 @@ class DataService {
                 }
             } catch (exception: Throwable) {
                 Log.e("Hm..", exception)
+            }
+        }
+
+        fun loadRouteByName(activity: Activity, route : String, loaded: (Route?) -> Unit) {
+            try {
+                loadJSONFromAsset(activity, "bus_stations.json") {
+
+                    val routes: Map<String, List<List<Object>>> = gson.fromJson(it, object : TypeToken<Map<String, List<List<Object>>>>() {}.type)
+
+                    val stations : List<StationOnMap>?
+                    // loaded(routes)
+                    stations = if (routes.containsKey(route)) {
+                        routes[route]?.map {
+                            StationOnMap(it[1] as String,it[2] as Double, it[3] as Double)
+                        }?.toList()
+                    } else null
+
+                    if (stations!=null) {
+                        loaded(Route(route, stations))
+                    } else loaded(null)
+                }
+            } catch (exception: Throwable) {
+                Log.e("Hm..", exception)
+                loaded(null)
             }
         }
     }

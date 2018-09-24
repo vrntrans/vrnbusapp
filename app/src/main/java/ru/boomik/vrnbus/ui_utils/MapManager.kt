@@ -2,6 +2,7 @@ package ru.boomik.vrnbus.ui_utils
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.Color
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
@@ -12,6 +13,7 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import com.google.maps.android.ui.IconGenerator
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.Bus
+import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.createImageRounded
 
@@ -22,8 +24,8 @@ import ru.boomik.vrnbus.utils.createImageRounded
 class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapReadyCallback {
     private var mActivity: Activity = activity
     private var mMapFragment: SupportMapFragment = mapFragment
+    private var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mMap: GoogleMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var mClusterManager: ClusterManager<StationOnMap>
     private lateinit var mReadyCallback: () -> Unit
@@ -31,6 +33,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private lateinit var mStationClickedCallback: (String) -> Unit
 
     private var mBusesMarkers: List<Marker>? = null
+    private var mRouteOnMap: Polyline? = null
     private val mBusIcon: BitmapDescriptor
 
     init {
@@ -140,5 +143,21 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         }
 
 
+    }
+
+    fun clearRoutes() {
+        mRouteOnMap?.remove()
+    }
+
+
+    fun showRoute(route: Route) {
+        val line = PolylineOptions()
+        val points = route.stations.map{LatLng(it.lat, it.lon)}
+        line.addAll(points)
+        val d = mActivity.resources.displayMetrics.density
+        line.width(2*d)
+        line.color(Color.BLUE)
+        PolylineOptions()
+        mRouteOnMap = mMap.addPolyline(line)
     }
 }

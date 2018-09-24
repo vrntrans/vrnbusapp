@@ -53,14 +53,15 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
-    private fun onStationClicked(station : String) {
+    private fun onStationClicked(station: String) {
         Toast.makeText(this, "$station\n\n загрузка...", Toast.LENGTH_SHORT).show()
 
-        val dialogView = View.inflate(this, R.layout.station_view2, null)
-        val time : TextView = dialogView.findViewById(R.id.time)
-        val title : TextView = dialogView.findViewById(R.id.title)
-        val list : ListView = dialogView.findViewById(R.id.list)
-        val findAll : Button = dialogView.findViewById(R.id.findAll)
+        val dialogView = View.inflate(this, R.layout.station_view, null)
+        val time: TextView = dialogView.findViewById(R.id.time)
+        val title: TextView = dialogView.findViewById(R.id.title)
+        val list: ListView = dialogView.findViewById(R.id.list)
+        val findAll: Button = dialogView.findViewById(R.id.findAll)
+        val close: ImageButton = dialogView.findViewById(R.id.close)
         findAll.visibility = View.GONE
         title.text = station
 
@@ -72,21 +73,24 @@ class MapsActivity : AppCompatActivity() {
                 .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
                 .create()
         dialog.show()
-        DataService.loadBusStopInfo(station){
-            if (it==null) {
+        DataService.loadBusStopInfo(station) {
+            if (it == null) {
                 Toast.makeText(this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
                 findAll.visibility = View.GONE
             } else {
                 time.text = it.header
                 val adapter = ArrayAdapter(this, R.layout.bus_complete_view, it.routes)
-                list.adapter=adapter
+                list.adapter = adapter
                 findAll.visibility = View.VISIBLE
                 findAll.tag = it.routes.joinToString { it.route }
             }
         }
         findAll.setOnClickListener {
             onQuerySubmit(it.tag as String)
+            dialog.dismiss()
+        }
+        close.setOnClickListener {
             dialog.dismiss()
         }
         list.setOnItemClickListener { parent, _, position, _ ->
@@ -99,14 +103,14 @@ class MapsActivity : AppCompatActivity() {
 
     }
 
-    private fun onBusClicked(bus : String) {
+    private fun onBusClicked(bus: String) {
         Toast.makeText(this, bus, Toast.LENGTH_LONG).show()
     }
 
     public override fun onDestroy() {
         super.onDestroy()
         val map = supportFragmentManager?.findFragmentById(R.id.map)
-        if (map!=null) supportFragmentManager.beginTransaction().remove(map).commit()
+        if (map != null) supportFragmentManager.beginTransaction().remove(map).commit()
 
     }
 
@@ -234,11 +238,21 @@ class MapsActivity : AppCompatActivity() {
     private fun showBuses(q: String) {
         if (!q.isNotEmpty()) {
             mapManager.clearBusesOnMap()
+            mapManager.clearRoutes()
             return
         }
         try {
+
             menuManager.startUpdate()
             Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
+            if (!q.contains(',')) {
+                DataService.loadRouteByName(this, q.trim()) {
+                    runOnUiThread {
+                        mapManager.clearRoutes()
+                        if (it != null) mapManager.showRoute(it)
+                    }
+                }
+            }
             DataService.loadBusInfo(q) {
                 if (it != null) {
                     if (it.count() == 0)
