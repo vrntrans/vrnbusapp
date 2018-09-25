@@ -13,11 +13,11 @@ class Station(
             val header = info.header
 
             val routes = info.busStops.filter {
-                it.key != station
+                it.key == station
             }.map {
                 it.value
             }.map {
-                it.trim().split("\n").map {
+                it.trim().replace("  "," ").split("\n").map {
                     it.trim().split(" ")
                 }.filter {
                     !it.isEmpty()

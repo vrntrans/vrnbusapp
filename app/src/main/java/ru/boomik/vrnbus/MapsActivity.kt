@@ -244,6 +244,7 @@ class MapsActivity : AppCompatActivity() {
         try {
 
             menuManager.startUpdate()
+            mapManager.clearRoutes()
             Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
             if (!q.contains(',')) {
                 DataService.loadRouteByName(this, q.trim()) {
