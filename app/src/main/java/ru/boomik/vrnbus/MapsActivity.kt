@@ -10,20 +10,41 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import com.canelmas.let.AskPermission
-import com.canelmas.let.Let
+import com.canelmas.let.*
 import com.google.android.gms.maps.SupportMapFragment
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
+import kotlinx.android.synthetic.main.activity_maps.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.ui_utils.MapManager
 import ru.boomik.vrnbus.ui_utils.MenuManager
 import ru.boomik.vrnbus.ui_utils.alertMultipleChoiceItems
+import android.view.ViewGroup
+import android.support.v4.view.ViewCompat
+import android.support.v4.view.ViewCompat.dispatchApplyWindowInsets
+import android.view.WindowInsets
+import android.os.Build
+import android.annotation.TargetApi
+import android.graphics.Color
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+import android.view.WindowManager
 
 
-class MapsActivity : AppCompatActivity() {
+
+
+
+
+
+
+class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
+    override fun onShowPermissionRationale(permissionList: MutableList<String>?, permissionRequest: RuntimePermissionRequest?) {
+    }
+
+    override fun onPermissionDenied(deniedPermissionList: MutableList<DeniedPermission>?) {
+    }
 
     private var mRoutes: String? = null
     private lateinit var menuManager: MenuManager
@@ -34,9 +55,17 @@ class MapsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
+
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_maps)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+
+        ViewCompat.setOnApplyWindowInsetsListener(progress) { v, insets ->
+            val params = v.layoutParams as ViewGroup.MarginLayoutParams
+            params.topMargin = insets.systemWindowInsetTop
+            insets.consumeSystemWindowInsets()
+        }
 
         mapManager = MapManager(this, mapFragment)
         mapManager.subscribeReady { onReady() }
@@ -51,7 +80,9 @@ class MapsActivity : AppCompatActivity() {
         DataService.loadRoutes(this) {
             mRoutesList = it
         }
+
     }
+
 
     private fun onStationClicked(station: String) {
         Toast.makeText(this, "$station\n\n загрузка...", Toast.LENGTH_SHORT).show()
@@ -243,12 +274,12 @@ class MapsActivity : AppCompatActivity() {
         }
         try {
 
+            mapManager.clearRoutes()
             menuManager.startUpdate()
             Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
             if (!q.contains(',')) {
                 DataService.loadRouteByName(this, q.trim()) {
                     runOnUiThread {
-                        mapManager.clearRoutes()
                         if (it != null) mapManager.showRoute(it)
                     }
                 }

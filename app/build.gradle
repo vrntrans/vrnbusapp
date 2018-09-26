@@ -6,6 +6,7 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'let'
 
+apply plugin: 'idea'
 
 android {
     signingConfigs {
@@ -35,17 +36,18 @@ android {
         }
         debug {
             signingConfig signingConfigs.release
+            splits.abi.enable = false
+            splits.density.enable = false
+            aaptOptions.cruncherEnabled = false
         }
-    }
-    if (project.hasProperty('devBuild')) {
-        splits.abi.enable = false
-        splits.density.enable = false
-        aaptOptions.cruncherEnabled = false
-    }
-    dexOptions {
     }
 }
 
+idea {
+    module {
+        downloadJavadoc = true
+    }
+}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -75,4 +77,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.orhanobut:dialogplus:1.11@aar'
     implementation 'com.hootsuite.android:nachos:1.1.2'
+
+    implementation 'konifar:fab-transformation:1.0.0'
 }

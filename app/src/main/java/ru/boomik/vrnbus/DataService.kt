@@ -61,8 +61,8 @@ class DataService {
 
                     try {
                         val info = result.get()
-                        val station = Station.parseDto(info, station)
-                        callback(station)
+                        val stationObject = Station.parseDto(info, station)
+                        callback(stationObject)
 
                     } catch (exception: Throwable) {
                         Log.e("VrnBus", "Hm..", exception)
@@ -100,10 +100,9 @@ class DataService {
             try {
                 loadJSONFromAsset(activity, "bus_stations.json") {
 
-                    val routes: Map<String, List<List<Object>>> = gson.fromJson(it, object : TypeToken<Map<String, List<List<Object>>>>() {}.type)
+                    val routes: Map<String, List<List<Any>>> = gson.fromJson(it, object : TypeToken<Map<String, List<List<Any>>>>() {}.type)
 
                     val stations : List<StationOnMap>?
-                    // loaded(routes)
                     stations = if (routes.containsKey(route)) {
                         routes[route]?.map {
                             StationOnMap(it[1] as String,it[2] as Double, it[3] as Double)

@@ -41,11 +41,15 @@ class MenuManager(activity: Activity) {
     }
 
     fun startUpdate() {
-        mRefreshMenuItem.actionView.startAnimation(mRotationRefreshAnimation)
+        mActivity.runOnUiThread {
+            mRefreshMenuItem.actionView.startAnimation(mRotationRefreshAnimation)
+        }
     }
 
     fun stopUpdate() {
-        mRefreshMenuItem.actionView?.clearAnimation()
+        mActivity.runOnUiThread {
+            mRefreshMenuItem.actionView?.clearAnimation()
+        }
     }
 
     fun optionsItemSelected(item: MenuItem): Boolean {

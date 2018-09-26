@@ -35,13 +35,12 @@ fun createImageRounded(context: Context, width: Int, height: Int, name: String, 
     val paintCircle = Paint()
     val paintText = Paint()
 
-    val density = context.resources.displayMetrics.density
-
     paintCircle.color = Color.BLUE
     paintCircle.isAntiAlias = true
     paintCircle.style = Paint.Style.FILL
 
     val arrowSize = width*0.2F
+    val circleSize = width-arrowSize*2
 
     canvas.drawCircle(width/2F,height/2F, width/2F - arrowSize, paintCircle)
 
@@ -58,10 +57,14 @@ fun createImageRounded(context: Context, width: Int, height: Int, name: String, 
     paintText.color = Color.WHITE
     paintText.textSize = width/3.2F
 
-    val textWidth = paintText.measureText(name)
+    var textWidth = paintText.measureText(name)
+
+    while (textWidth>circleSize) {
+        paintText.textSize = paintText.textSize-0.2f
+        textWidth = paintText.measureText(name)
+    }
 
     canvas.drawText(name, (width-textWidth)/2, height.toFloat()/2F+arrowSize/2, paintText)
-
 
     return BitmapDescriptorFactory.fromBitmap(output)
 }
