@@ -299,9 +299,8 @@ class MapsActivity : AppCompatActivity() {
             return
         }
         try {
-
-            mapManager.clearRoutes()
             progress.startAnimate()
+            mapManager.clearRoutes()
             Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
             if (!q.contains(',')) {
                 DataService.loadRouteByName(this, q.trim()) {
@@ -318,7 +317,6 @@ class MapsActivity : AppCompatActivity() {
                     runOnUiThread {
                         mapManager.clearBusesOnMap()
                         mapManager.showBusesOnMap(it)
-                        menuManager.stopUpdate()
                     }
                 } else {
                     Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
