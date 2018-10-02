@@ -21,6 +21,7 @@ public class RectangleContourProgressView extends View {
     private float mProgressLength;
     private Paint mPaintProgress;
     private int mDuration = 2000;
+    private boolean mAnimated;
 
     public RectangleContourProgressView(Context context) {
         super(context);
@@ -60,23 +61,15 @@ public class RectangleContourProgressView extends View {
         mPaintProgress.setShader(mGradientForPaint);
 
     }
-/*
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        mOffsetter.forceFinished();
-        mOffsetter.startChange((int) -mProgressLength, width * 2 + height * 2, mDuration);
-    }*/
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (!mAnimated) return;
         canvas.save();
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
+        int width = getWidth();
+        int height = getHeight();
 
         if (mOffsetter.computeValue()) {
             int offset = mOffsetter.getCurrValue();
@@ -124,6 +117,20 @@ public class RectangleContourProgressView extends View {
             invalidate();
         }
     }
+
+    public void startAnimate() {
+        mAnimated = true;
+
+        int width = getWidth();
+        int height = getHeight();
+        mOffsetter.startChange(0, width * 2 + height * 2, mDuration);
+        invalidate();
+    }
+
+    public void stopAnimate() {
+        mAnimated=false;
+    }
+
 
     class Offsetter {
         long startTime = -1;

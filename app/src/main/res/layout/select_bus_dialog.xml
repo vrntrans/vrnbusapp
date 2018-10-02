@@ -1,43 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@drawable/corner_background"
-    android:padding="16dp">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_margin="16dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:background="@drawable/corner_background"
+        android:orientation="vertical">
 
-        <com.hootsuite.nachos.NachoTextView
-            android:id="@+id/nacho_text_view"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:completionThreshold="1"
-            android:layout_weight="1"
-            android:hint="@string/enter_routes"
-            android:inputType="textMultiLine" />
+            android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/showList"
+            <com.hootsuite.nachos.NachoTextView
+                android:id="@+id/nacho_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:completionThreshold="1"
+                android:hint="@string/enter_routes"
+                android:inputType="textMultiLine" />
+
+            <ImageButton
+                android:id="@+id/showList"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="44dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0"
+                android:minHeight="44dp"
+                android:src="@drawable/ic_list" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/search"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="44dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="44dp"
-            android:layout_gravity="center"
             android:layout_weight="0"
-            android:src="@drawable/ic_list" />
+            android:text="@string/search" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/search"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:text="@string/search" />
-
 </LinearLayout>

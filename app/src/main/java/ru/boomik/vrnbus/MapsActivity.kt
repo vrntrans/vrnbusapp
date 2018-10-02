@@ -3,48 +3,32 @@ package ru.boomik.vrnbus
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import com.canelmas.let.*
 import com.google.android.gms.maps.SupportMapFragment
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
-import kotlinx.android.synthetic.main.activity_maps.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.ui_utils.MapManager
 import ru.boomik.vrnbus.ui_utils.MenuManager
 import ru.boomik.vrnbus.ui_utils.alertMultipleChoiceItems
 import android.view.ViewGroup
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.ViewCompat.dispatchApplyWindowInsets
-import android.view.WindowInsets
-import android.os.Build
-import android.annotation.TargetApi
-import android.graphics.Color
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import kotlinx.android.synthetic.main.activity_maps.*
+import ru.boomik.vrnbus.utils.requestPermission
 
 
-
-
-
-
-
-
-class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
-    override fun onShowPermissionRationale(permissionList: MutableList<String>?, permissionRequest: RuntimePermissionRequest?) {
-    }
-
-    override fun onPermissionDenied(deniedPermissionList: MutableList<DeniedPermission>?) {
-    }
+class MapsActivity : AppCompatActivity() {
 
     private var mRoutes: String? = null
     private lateinit var menuManager: MenuManager
@@ -53,6 +37,8 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
     private var mRoutesList: List<String>? = null
 
 
+    private lateinit var mInsets: WindowInsetsCompat
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
 
@@ -60,10 +46,17 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
 
         setContentView(R.layout.activity_maps)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        val container = findViewById<ConstraintLayout>(R.id.container)
 
-        ViewCompat.setOnApplyWindowInsetsListener(progress) { v, insets ->
+
+        ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
+            mInsets=insets
             val params = v.layoutParams as ViewGroup.MarginLayoutParams
             params.topMargin = insets.systemWindowInsetTop
+            params.bottomMargin = insets.systemWindowInsetBottom
+            mapFragment.getMapAsync{
+                it.setPadding(insets.systemWindowInsetLeft,insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+            }
             insets.consumeSystemWindowInsets()
         }
 
@@ -81,13 +74,20 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
             mRoutesList = it
         }
 
+        busButton.setOnClickListener {
+            onSelectBus()
+        }
+
     }
 
 
     private fun onStationClicked(station: String) {
-        Toast.makeText(this, "$station\n\n загрузка...", Toast.LENGTH_SHORT).show()
 
-        val dialogView = View.inflate(this, R.layout.station_view, null)
+        val dialogView = View.inflate(this, R.layout.station_view, null) as LinearLayout
+
+        val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
+        params.bottomMargin += mInsets.systemWindowInsetBottom
+
         val time: TextView = dialogView.findViewById(R.id.time)
         val title: TextView = dialogView.findViewById(R.id.title)
         val list: ListView = dialogView.findViewById(R.id.list)
@@ -95,6 +95,7 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
         val close: ImageButton = dialogView.findViewById(R.id.close)
         findAll.visibility = View.GONE
         title.text = station
+
 
         val dialog = DialogPlus.newDialog(this)
                 .setGravity(Gravity.BOTTOM)
@@ -104,17 +105,18 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
                 .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
                 .create()
         dialog.show()
-        DataService.loadBusStopInfo(station) {
-            if (it == null) {
+
+        DataService.loadBusStopInfo(station) { stationInfo ->
+            if (stationInfo == null) {
                 Toast.makeText(this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
                 findAll.visibility = View.GONE
             } else {
-                time.text = it.header
-                val adapter = ArrayAdapter(this, R.layout.bus_complete_view, it.routes)
+                time.text = stationInfo.header
+                val adapter = ArrayAdapter(this, R.layout.bus_complete_view, stationInfo.routes)
                 list.adapter = adapter
                 findAll.visibility = View.VISIBLE
-                findAll.tag = it.routes.joinToString { it.route }
+                findAll.tag = stationInfo.routes.map { it.route }.distinct().joinToString()
             }
         }
         findAll.setOnClickListener {
@@ -152,7 +154,11 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
             return
         }
 
-        val dialogView = View.inflate(this, R.layout.select_bus_dialog, null)
+        val dialogView = View.inflate(this, R.layout.select_bus_dialog, null) as LinearLayout
+        val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
+        params.topMargin += mInsets.systemWindowInsetTop
+
+
         val adapter = ArrayAdapter(this, R.layout.bus_complete_view, mRoutesList!!)
         val nachos = dialogView.findViewById<NachoTextView>(R.id.nacho_text_view)
         nachos.setAdapter(adapter)
@@ -175,7 +181,10 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
                 .setGravity(Gravity.TOP)
                 .setCancelable(true)
                 .setOnDismissListener {
-                    //imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                    imm.hideSoftInputFromWindow(nachos.windowToken, 0)
+                    nachos.clearFocus()
+                }
+                .setOnCancelListener {
                     imm.hideSoftInputFromWindow(nachos.windowToken, 0)
                     nachos.clearFocus()
                 }
@@ -229,8 +238,26 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
         else super.onBackPressed()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        Let.handle(this, requestCode, permissions, grantResults)
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            Consts.LOCATION_PERMISSION_REQUEST -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    enableMyLocation()
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+
+            // Add other 'when' lines to check for other
+            // permissions this app might request.
+            else -> {
+                // Ignore all other requests.
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -251,9 +278,8 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
 
 
     @SuppressLint("MissingPermission")
-    @AskPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     private fun enableMyLocation() {
-        mapManager.enableMyLocation()
+        if (requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, Consts.LOCATION_PERMISSION_REQUEST))     mapManager.enableMyLocation()
     }
 
     private fun onQuerySubmit(query: String) {
@@ -275,7 +301,7 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
         try {
 
             mapManager.clearRoutes()
-            menuManager.startUpdate()
+            progress.startAnimate()
             Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
             if (!q.contains(',')) {
                 DataService.loadRouteByName(this, q.trim()) {
@@ -297,7 +323,7 @@ class MapsActivity : AppCompatActivity(), RuntimePermissionListener {
                 } else {
                     Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
                 }
-                menuManager.stopUpdate()
+                progress.stopAnimate()
             }
         } catch (exception: Throwable) {
             Log.e("Hm..", exception)

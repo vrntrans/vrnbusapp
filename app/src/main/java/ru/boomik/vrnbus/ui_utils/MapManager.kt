@@ -120,7 +120,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val size = (36*d).toInt()
         val newBusesMarkers = it.map {
             //mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(mBusIcon).zIndex(1.0f))
-            mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(mActivity, size, size, it.route, it.getAzimuth())).zIndex(1.0f))
+            mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(size, size, it.route, it.getAzimuth())).zIndex(1.0f))
         }
         mBusesMarkers = newBusesMarkers
     }

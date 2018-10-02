@@ -1,8 +1,7 @@
 package ru.boomik.vrnbus.ui_utils
 
 import android.app.Activity
-import android.content.DialogInterface
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 
 
 fun alertMultipleChoiceItems(activity: Activity, items: List<String>, selected: (ArrayList<String>?) -> Unit) {
