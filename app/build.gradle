@@ -77,3 +77,8 @@ dependencies {
 
     implementation 'konifar:fab-transformation:1.0.0'
 }
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

@@ -25,6 +25,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
+import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.requestPermission
 
 
@@ -50,12 +53,12 @@ class MapsActivity : AppCompatActivity() {
 
 
         ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
-            mInsets=insets
+            mInsets = insets
             val params = v.layoutParams as ViewGroup.MarginLayoutParams
             params.topMargin = insets.systemWindowInsetTop
             params.bottomMargin = insets.systemWindowInsetBottom
-            mapFragment.getMapAsync{
-                it.setPadding(insets.systemWindowInsetLeft,insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+            mapFragment.getMapAsync {
+                it.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             }
             insets.consumeSystemWindowInsets()
         }
@@ -81,7 +84,7 @@ class MapsActivity : AppCompatActivity() {
     }
 
 
-    private fun onStationClicked(station: String) {
+    private fun onStationClicked(station: StationOnMap) {
 
         val dialogView = View.inflate(this, R.layout.station_view, null) as LinearLayout
 
@@ -91,10 +94,8 @@ class MapsActivity : AppCompatActivity() {
         val time: TextView = dialogView.findViewById(R.id.time)
         val title: TextView = dialogView.findViewById(R.id.title)
         val list: ListView = dialogView.findViewById(R.id.list)
-        val findAll: Button = dialogView.findViewById(R.id.findAll)
         val close: ImageButton = dialogView.findViewById(R.id.close)
-        findAll.visibility = View.GONE
-        title.text = station
+        title.text = station.name
 
 
         val dialog = DialogPlus.newDialog(this)
@@ -106,23 +107,35 @@ class MapsActivity : AppCompatActivity() {
                 .create()
         dialog.show()
 
-        DataService.loadBusStopInfo(station) { stationInfo ->
+/*
+        val ids = mutableListOf<Int>()
+        launch(UI) {
+        for (i in 1..1000) {
+
+                try {
+                    val it = DataService.loadArrivalInfoAsync(i).await()
+                    if (it!=null && it.buses.count()>0) ids.add(it.id)
+                } catch (e: Exception) {
+
+                }
+            }
+        }*/
+
+        DataService.loadArrivalInfo(station.id) { stationInfo ->
             if (stationInfo == null) {
                 Toast.makeText(this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
-                findAll.visibility = View.GONE
             } else {
-                time.text = stationInfo.header
-                val adapter = ArrayAdapter(this, R.layout.bus_complete_view, stationInfo.routes)
+                time.text = stationInfo.time
+                val adapter = RoutesAdapter(this, stationInfo.routes)
                 list.adapter = adapter
-                findAll.visibility = View.VISIBLE
-                findAll.tag = stationInfo.routes.map { it.route }.distinct().joinToString()
+                runOnUiThread {
+                    mapManager.clearBusesOnMap()
+                    mapManager.showBusesOnMap(stationInfo.buses)
+                }
             }
         }
-        findAll.setOnClickListener {
-            onQuerySubmit(it.tag as String)
-            dialog.dismiss()
-        }
+
         close.setOnClickListener {
             dialog.dismiss()
         }
@@ -165,7 +178,7 @@ class MapsActivity : AppCompatActivity() {
         nachos.addChipTerminator(',', BEHAVIOR_CHIPIFY_ALL)
         nachos.addChipTerminator(' ', BEHAVIOR_CHIPIFY_ALL)
         nachos.addChipTerminator(';', BEHAVIOR_CHIPIFY_ALL)
-        nachos.addChipTerminator('.', BEHAVIOR_CHIPIFY_ALL)
+      //  nachos.addChipTerminator('.', BEHAVIOR_CHIPIFY_ALL)
         nachos.enableEditChipOnTouch(false, true)
         if (mRoutes != null && mRoutes!!.isNotEmpty()) {
             val routes = mRoutes!!.split(',').map { it.trim() }
@@ -279,7 +292,7 @@ class MapsActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
-        if (requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, Consts.LOCATION_PERMISSION_REQUEST))     mapManager.enableMyLocation()
+        if (requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, Consts.LOCATION_PERMISSION_REQUEST)) mapManager.enableMyLocation()
     }
 
     private fun onQuerySubmit(query: String) {
@@ -301,7 +314,6 @@ class MapsActivity : AppCompatActivity() {
         try {
             progress.startAnimate()
             mapManager.clearRoutes()
-            Toast.makeText(this, "Загрузка", Toast.LENGTH_SHORT).show()
             if (!q.contains(',')) {
                 DataService.loadRouteByName(this, q.trim()) {
                     runOnUiThread {

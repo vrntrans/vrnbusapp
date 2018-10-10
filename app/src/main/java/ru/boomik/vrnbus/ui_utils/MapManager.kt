@@ -30,7 +30,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private lateinit var mClusterManager: ClusterManager<StationOnMap>
     private lateinit var mReadyCallback: () -> Unit
     private lateinit var mBusClickedCallback: (String) -> Unit
-    private lateinit var mStationClickedCallback: (String) -> Unit
+    private lateinit var mStationClickedCallback: (StationOnMap) -> Unit
 
     private var mBusesMarkers: List<Marker>? = null
     private var mRouteOnMap: Polyline? = null
@@ -51,7 +51,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mBusClickedCallback = callback
     }
 
-    fun subscribeStationClick(callback: (String) -> Unit) {
+    fun subscribeStationClick(callback: (StationOnMap) -> Unit) {
         mStationClickedCallback = callback
     }
 
@@ -77,7 +77,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             true
         }
         mClusterManager.setOnClusterItemClickListener {
-            mStationClickedCallback(it.name)
+            mStationClickedCallback(it)
             true
         }
         mMap.setOnMarkerClickListener(mClusterManager);

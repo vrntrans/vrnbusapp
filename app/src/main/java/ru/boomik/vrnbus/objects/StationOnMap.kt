@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 
 
-class StationOnMap(val name: String, var lat: Double, var lon: Double) : ClusterItem {
+class StationOnMap(val name: String, val id : Int, var lat: Double, var lon: Double) : ClusterItem {
 
 
     override fun getSnippet(): String? {

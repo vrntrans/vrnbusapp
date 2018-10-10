@@ -1,14 +1,39 @@
 package ru.boomik.vrnbus.objects
 
+import ru.boomik.vrnbus.dto.ArrivalDto
 import ru.boomik.vrnbus.dto.BusStopInfoDto
 import java.util.*
 
 class Station(
+        var id : Int,
         var title: String,
-        var header: String,
-        var routes: List<Bus>
+        var time: String,
+        var routes: List<Bus>,
+        var buses: List<Bus>
 ) {
     companion object {
+        fun parseDto(info: ArrivalDto): Station {
+
+            val time = info.arrivalInfo.header
+
+            val detail = info.arrivalInfo.arrivalDetails.first()
+
+            val buses = detail.arrivalBuses.asSequence().map {
+                Bus(it.bus.route, it.bus.number, it.bus.nextStationName, it.bus.lastStationTime, it.bus.lastSpeed, it.bus.time, detail.lat, detail.lon, it.bus.lastLat, it.bus.lastLon, it.timeLeft, it.distance)
+            }.toMutableList()
+            val routes = buses.toMutableList()
+
+            val possibleRoutes: List<Bus> = detail.routes.asSequence().filter { it.isNotBlank() }.map { Bus(it) }.toList()
+
+            possibleRoutes.forEach {
+                val nextBus = routes.firstOrNull { bus -> it.route == bus.route }
+                if (nextBus == null) routes.add(it)
+            }
+            routes.sortBy { it.timeLeft}
+            return Station(detail.stopId,detail.name, time, routes, buses)
+        }
+
+
         fun parseDto(info: BusStopInfoDto, station: String): Station {
             val header = info.header
 
@@ -22,7 +47,7 @@ class Station(
                 }.filter {
                     !it.isEmpty()
                 }.map {
-                    Bus(it[0], if (it.size > 2) "${it[1]} ${it[2]}" else if (it.size == 2) it[1] else "")
+                    Bus(it[0])
                 }.filter {
                     !it.route.isEmpty()
                 }
@@ -34,14 +59,14 @@ class Station(
 
             if (index >= 0) {
                 index += possibleRoutesText.length
-                possibleRoutes = info.text.substring(index).trim().split(" ").filter { !it.isEmpty() }.map { Bus(it, "") }
+                possibleRoutes = info.text.substring(index).trim().split(" ").filter { !it.isEmpty() }.map { Bus(it) }
             }
             possibleRoutes.forEach {
                 val nextBus = routes.firstOrNull { bus -> it.route == bus.route }
                 if (nextBus == null) routes.add(it)
             }
-            routes.sortedBy { it.nextStationTime }
-            return Station("", header, routes)
+            routes.sortedBy { it.timeLeft }
+            return Station(0,"", header, routes, routes)
         }
     }
 }
