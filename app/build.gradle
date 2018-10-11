@@ -75,7 +75,10 @@ dependencies {
     implementation 'com.orhanobut:dialogplus:1.11@aar'
     implementation 'com.hootsuite.android:nachos:1.1.2'
 
+    implementation "com.github.yandextaxitech:binaryprefs:1.0.0"
+
     implementation 'konifar:fab-transformation:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
 kotlin {
     experimental {

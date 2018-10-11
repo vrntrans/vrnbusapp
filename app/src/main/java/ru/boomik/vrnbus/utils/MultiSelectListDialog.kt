@@ -1,4 +1,4 @@
-package ru.boomik.vrnbus.ui_utils
+package ru.boomik.vrnbus.utils
 
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog

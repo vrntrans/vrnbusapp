@@ -16,17 +16,18 @@ import com.hootsuite.nachos.terminator.ChipTerminatorHandler.BEHAVIOR_CHIPIFY_AL
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
 import ru.boomik.vrnbus.objects.Bus
-import ru.boomik.vrnbus.ui_utils.MapManager
-import ru.boomik.vrnbus.ui_utils.MenuManager
-import ru.boomik.vrnbus.ui_utils.alertMultipleChoiceItems
+import ru.boomik.vrnbus.managers.MapManager
+import ru.boomik.vrnbus.managers.MenuManager
+import ru.boomik.vrnbus.utils.alertMultipleChoiceItems
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.requestPermission
 
@@ -43,14 +44,11 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var mInsets: WindowInsetsCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.activity_drawer)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val container = findViewById<ConstraintLayout>(R.id.container)
-
 
         ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
             mInsets = insets
@@ -63,15 +61,21 @@ class MapsActivity : AppCompatActivity() {
             insets.consumeSystemWindowInsets()
         }
 
+        menu.setOnClickListener {
+            if (drawer_layout.isDrawerOpen(GravityCompat.START)) drawer_layout.closeDrawer(GravityCompat.START) else drawer_layout.openDrawer(GravityCompat.START)
+        }
+
+        myLocation.setOnClickListener { mapManager.goToMyLocation() }
+
         mapManager = MapManager(this, mapFragment)
         mapManager.subscribeReady { onReady() }
         mapManager.subscribeBusClick { onBusClicked(it) }
         mapManager.subscribeStationClick { onStationClicked(it) }
 
-
         menuManager = MenuManager(this)
-        menuManager.subscribeRefresh { onRefresh() }
-        menuManager.subscribeBus { onSelectBus() }
+        menuManager.createOptionsMenu( nav_view)
+
+        SettingsManager(this, menuManager, mapManager)
 
         DataService.loadRoutes(this) {
             mRoutesList = it
@@ -80,7 +84,6 @@ class MapsActivity : AppCompatActivity() {
         busButton.setOnClickListener {
             onSelectBus()
         }
-
     }
 
 
@@ -89,7 +92,7 @@ class MapsActivity : AppCompatActivity() {
         val dialogView = View.inflate(this, R.layout.station_view, null) as LinearLayout
 
         val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
-        params.bottomMargin += mInsets.systemWindowInsetBottom
+        if (::mInsets.isInitialized) params.bottomMargin += mInsets.systemWindowInsetBottom
 
         val time: TextView = dialogView.findViewById(R.id.time)
         val title: TextView = dialogView.findViewById(R.id.title)
@@ -264,7 +267,6 @@ class MapsActivity : AppCompatActivity() {
                 }
                 return
             }
-
             // Add other 'when' lines to check for other
             // permissions this app might request.
             else -> {
@@ -273,10 +275,6 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuManager.createOptionsMenu(menu)
-        return true
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val value = menuManager.optionsItemSelected(item)
@@ -337,7 +335,7 @@ class MapsActivity : AppCompatActivity() {
             }
         } catch (exception: Throwable) {
             Log.e("Hm..", exception)
-            menuManager.stopUpdate()
+            progress.stopAnimate()
         }
     }
 

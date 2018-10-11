@@ -34,30 +34,13 @@ class DataService {
                 Log.d("log", response.toString())
                 val (_, error) = result
                 if (error == null) {
-var bus : Array<BusDto>
+
                     try {
                         val info = result.get()
                         val busDtos = info.buses
                         callback(busDtos.filter { it.count() == 2 }.map {
-                            bus=it
                              Bus(it[0].route, it[0].number, it[1].nextStationName ?: "", it[0].lastStationTime, it[0].lastSpeed, it[0].time, it[1].lat, it[1].lon, it[0].lastLat, it[0].lastLon, .0, .0)
                         })
-                        /*
-                        class Bus(
-        var route: String,
-        var number: String,
-        var nextStationName: String,
-        var lastStationTime: String,
-        var lastSpeed: Int,
-        var time: String,
-        var lat: Double,
-        var lon: Double,
-        val lastLat: Double,
-        val lastLon: Double,
-        val timeLeft: Double,
-        val distance: Double)
-                         */
-
                     } catch (exception: Throwable) {
                         Log.e("VrnBus", "Hm..", exception)
                         callback(null)

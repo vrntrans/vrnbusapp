@@ -6,4 +6,7 @@
     <string name="action_refresh">Обновить</string>
     <string name="title_activity_maps">Карта</string>
     <string name="enter_routes">Введите номера маршрутов</string>
+    <string name="nav_header_subtitle">МБУ ЦОДД</string>
+    <string name="action_settings">Настройки</string>
+    <string name="nav_header_desc">Меню</string>
 </resources>

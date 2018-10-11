@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:showIn="navigation_view">
+
+
+    <item android:title="Settings">
+        <menu>
+            <item
+                android:title="Пробки"
+                android:icon="@drawable/ic_list"
+                android:id="@+id/traffic_jam"
+                app:actionLayout="@layout/widget_switch" />
+        </menu>
+    </item>
+
+</menu>
