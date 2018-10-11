@@ -28,7 +28,7 @@ class BusDto(
         @SerializedName("address")
         var address: String,
         @SerializedName("NAME_")
-        var nextStationName: String,
+        var nextStationName: String?,
         @SerializedName("ROUT_")
         var rout: Int,
         @SerializedName("CONTROL_")

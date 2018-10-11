@@ -22,11 +22,9 @@ class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
         val vh: ViewHolder
 
         if (convertView == null) {
-
             view = inflater.inflate(R.layout.bus_cell, parent, false)
             vh = ViewHolder(view)
             view.tag = vh
-            Log.i("JSA", "set Tag for ViewHolder, position: " + position)
         } else {
             view = convertView
             vh = view.tag as ViewHolder
@@ -47,6 +45,7 @@ class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
             else if (min < 1 && sec < 30) "Прибывает"
             else if (min < 1) "$sec сек."
             else if (min >= 1 && sec==0) "$min мин."
+            else if (sec<10) "$min мин. 0$sec сек."
             else "$min мин. $sec сек."
         }
         vh.tvContent.text = timeString
