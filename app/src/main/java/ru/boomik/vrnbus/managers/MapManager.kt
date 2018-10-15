@@ -1,10 +1,13 @@
 package ru.boomik.vrnbus.managers
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Color
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -99,29 +102,46 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             false
         }
         mMap.setOnCameraMoveListener {
-            var showBig = false
-            var showSmall = false
-            if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
-            else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
-
-            if (showBig) {
-                if (stationVisible && !stationVisibleSmall) return@setOnCameraMoveListener
-                if (!stationVisible) setVisibleStationBig(true)
-                if (stationVisibleSmall) setVisibleStationSmall(false)
-            } else
-                if (showSmall) {
-                    if (!stationVisible && stationVisibleSmall) return@setOnCameraMoveListener
-                    if (stationVisible) setVisibleStationBig(false)
-                    if (!stationVisibleSmall) setVisibleStationSmall(true)
-                } else {
-                    if (stationVisible) setVisibleStationBig(false)
-                    if (stationVisibleSmall) setVisibleStationSmall(false)
-                }
-
+           checkZoom()
         }
         mReadyCallback()
 
         mLocationButton.visibility = View.INVISIBLE
+
+
+        if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.isMyLocationEnabled = true
+            fusedLocationClient.lastLocation.continueWith {
+                val location = it.result
+                if (location != null && it.isSuccessful) {
+                    val latLng = LatLng(location.latitude, location.longitude)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                    checkZoom()
+                }
+            }
+        }
+    }
+
+    private fun checkZoom() {
+        var showBig = false
+        var showSmall = false
+        if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
+        else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
+
+        if (showBig) {
+            if (stationVisible && !stationVisibleSmall) return
+            if (!stationVisible) setVisibleStationBig(true)
+            if (stationVisibleSmall) setVisibleStationSmall(false)
+        } else
+            if (showSmall) {
+                if (!stationVisible && stationVisibleSmall) return
+                if (stationVisible) setVisibleStationBig(false)
+                if (!stationVisibleSmall) setVisibleStationSmall(true)
+            } else {
+                if (stationVisible) setVisibleStationBig(false)
+                if (stationVisibleSmall) setVisibleStationSmall(false)
+            }
+
     }
 
 
@@ -179,8 +199,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     @SuppressLint("MissingPermission")
     fun enableMyLocation() {
         mMap.isMyLocationEnabled = true
-        goToMyLocation()
         mLocationButton.visibility = View.INVISIBLE
+            fusedLocationClient.lastLocation.continueWith {
+                val location = it.result
+                if (location != null && it.isSuccessful) {
+                    val latLng = LatLng(location.latitude, location.longitude)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                    checkZoom()
+                }
+            }
 
     }
 

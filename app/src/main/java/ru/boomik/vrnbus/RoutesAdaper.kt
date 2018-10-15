@@ -12,15 +12,15 @@ import java.util.*
 
 class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
 
-    var busesList : List<Bus> = BussList
+    var busesList: List<Bus> = BussList
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
 
-    fun dataEquals(routes : String) : Boolean {
+    fun dataEquals(routes: String): Boolean {
         if (routes.isBlank()) return true
-        val dataRoutes = busesList.map { it.route }.toList()
-        val routesList = routes.split(',').asSequence().distinct().map { it.trim() }.toList()
-        if (routesList.size!=dataRoutes.size) return false
+        val dataRoutes = busesList.asSequence().map { it.route }.map { it.trim() }.distinct().toList()
+        val routesList = routes.split(',').asSequence().map { it.trim() }.distinct().toList()
+        if (routesList.size != dataRoutes.size) return false
         return dataRoutes.firstOrNull { !routesList.contains(it) } == null
     }
 
@@ -45,17 +45,19 @@ class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
         val time = busesList[position].timeLeft.toInt()
         val timeToArrival = busesList[position].timeToArrival
 
+        (vh.tvTitle.tag as? ValueAnimator)?.cancel()
+
         if (time >= 1000) {
             vh.tvContent.text = ""
             vh.tvContent.tag = null
-        }
-        else {
+        } else {
             vh.tvContent.tag = timeToArrival
             UpdateTimeLeft(vh.tvContent)
             val anim = ValueAnimator.ofInt(30)
             anim.addUpdateListener { UpdateTimeLeft(vh.tvContent) }
             anim.duration = 30000
             anim.start()
+            vh.tvTitle.tag = anim
         }
         return view
     }
@@ -64,26 +66,24 @@ class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
 
         val timeString: String
         val timeToArrival = tvContent.tag as? Long
-        if (timeToArrival==null) {
+        if (timeToArrival == null) {
             tvContent.text = ""
             return
         }
         val timeLeft = timeToArrival - System.currentTimeMillis()
-        if (timeLeft<=10*1000) {
-            tvContent.text = "Прибывает"
+        if (timeLeft <= 10 * 1000) {
+            tvContent.text = "Ждем"
             return
         }
         val cal = Calendar.getInstance()
         cal.clear()
         cal.add(Calendar.MILLISECOND, timeLeft.toInt())
-        val min = cal.get(Calendar.MINUTE)
+        var min = cal.get(Calendar.MINUTE)
         val sec = cal.get(Calendar.SECOND)
-        timeString = if (min > 10) "$min мин."
-        else if (min < 1 && sec < 30) "Прибывает"
-        else if (min < 1) "$sec сек."
-        else if (min >= 1 && sec == 0) "$min мин."
-        else if (sec < 10) "$min мин. 0$sec сек."
-        else "$min мин. $sec сек."
+        if (min > 1 && sec > 30) min++
+        timeString = if (min < 1 && sec < 30) "Прибывает"
+        else if (min < 1) "менее минуты"
+        else "$min мин."
 
         tvContent.text = timeString
     }

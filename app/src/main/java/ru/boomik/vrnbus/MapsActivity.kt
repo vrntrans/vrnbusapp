@@ -125,6 +125,7 @@ class MapsActivity : AppCompatActivity() {
 
     private fun onStationClicked(station: StationOnMap) {
 
+        mapManager.clearRoutes()
         mActiveStationId = station.id
         val dialogView = View.inflate(this, R.layout.station_view, null) as LinearLayout
 
@@ -197,7 +198,6 @@ class MapsActivity : AppCompatActivity() {
                 try {
                     if (dialog == null || !dialog.isShowing || mActiveStationId != station.id) {
                         ok = false
-                        mActiveStationId = 0
                     } else {
                         progressIndeterminate.visibility = View.VISIBLE
                         progress.visibility = View.GONE
@@ -231,9 +231,14 @@ class MapsActivity : AppCompatActivity() {
                     if (first) {
                         Toast.makeText(this@MapsActivity, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
                         dialog?.dismiss()
-                        mActiveStationId = 0
+                        if (mActiveStationId == station.id) mActiveStationId = 0
                         anim.cancel()
                     }
+                    delay(10000)
+                    progressIndeterminate.visibility = View.GONE
+                    progress.visibility = View.VISIBLE
+                    anim.start()
+                    anim.resume()
                 }
                 first = false
             } while (ok)
