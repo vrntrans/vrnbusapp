@@ -5,7 +5,7 @@ import ru.boomik.vrnbus.dto.BusStopInfoDto
 import java.util.*
 
 class Station(
-        var id : Int,
+        var id: Int,
         var title: String,
         var time: String,
         var routes: List<Bus>,
@@ -14,12 +14,12 @@ class Station(
     companion object {
         fun parseDto(info: ArrivalDto): Station {
 
-            val time = info.arrivalInfo.header
+            val time = info.arrivalInfo.header.replace("Время:", "Время обновления:")
 
             val detail = info.arrivalInfo.arrivalDetails.first()
 
-            val buses = detail.arrivalBuses.asSequence().filter { it.timeLeft>0 }.map {
-                Bus(it.bus.route, it.bus.number, it.bus.busStation , it.bus.lastStationTime, it.bus.lastSpeed, it.bus.time, detail.lat, detail.lon, it.bus.lastLat, it.bus.lastLon, it.timeLeft, it.distance)
+            val buses = detail.arrivalBuses.asSequence().filter { it.timeLeft > 0 }.map {
+                Bus(it.bus.route, it.bus.number, it.bus.busStation, it.bus.lastStationTime, it.bus.lastSpeed, it.bus.time, detail.lat, detail.lon, it.bus.lastLat, it.bus.lastLon, it.timeLeft, it.distance)
             }.toMutableList()
             val routes = buses.toMutableList()
 
@@ -29,8 +29,8 @@ class Station(
                 val nextBus = routes.firstOrNull { bus -> it.route == bus.route }
                 if (nextBus == null) routes.add(it)
             }
-            routes.sortBy { it.timeLeft}
-            return Station(detail.stopId,detail.name, time, routes, buses)
+            routes.sortBy { it.timeLeft }
+            return Station(detail.stopId, detail.name, time, routes, buses)
         }
 
 
@@ -42,7 +42,7 @@ class Station(
             }.map {
                 it.value
             }.map {
-                it.trim().replace("  "," ").split("\n").map {
+                it.trim().replace("  ", " ").split("\n").map {
                     it.trim().split(" ")
                 }.filter {
                     !it.isEmpty()
@@ -66,7 +66,7 @@ class Station(
                 if (nextBus == null) routes.add(it)
             }
             routes.sortedBy { it.timeLeft }
-            return Station(0,"", header, routes, routes)
+            return Station(0, "", header, routes, routes)
         }
     }
 }

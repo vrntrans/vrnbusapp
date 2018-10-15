@@ -21,6 +21,12 @@ class Bus(
 
     constructor(route: String) : this(route, "", "", "", 0, "", 0.0, 0.0, 0.0, 0.0, Double.MAX_VALUE, 0.0)
 
+    var timeToArrival : Long = 0
+
+    init {
+        timeToArrival = (System.currentTimeMillis() + timeLeft*60*1000).toLong()
+    }
+
     fun getSnippet(): String? {
         return "$nextStationName\nгос. номер: $number\nскорость: $lastSpeed"
     }

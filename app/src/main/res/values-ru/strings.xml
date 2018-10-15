@@ -9,4 +9,5 @@
     <string name="nav_header_subtitle">МБУ ЦОДД</string>
     <string name="action_settings">Настройки</string>
     <string name="nav_header_desc">Меню</string>
+    <string name="Traffic">Пробки</string>
 </resources>

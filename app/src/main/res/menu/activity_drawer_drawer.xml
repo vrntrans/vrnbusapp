@@ -5,11 +5,11 @@
     tools:showIn="navigation_view">
 
 
-    <item android:title="Settings">
+    <item android:title="@string/action_settings">
         <menu>
             <item
-                android:title="Пробки"
-                android:icon="@drawable/ic_list"
+                android:title="@string/Traffic"
+                android:icon="@drawable/ic_traffic"
                 android:id="@+id/traffic_jam"
                 app:actionLayout="@layout/widget_switch" />
         </menu>

@@ -60,7 +60,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     var stationVisible: Boolean = true
     var stationVisibleSmall: Boolean = true
-    val stationVisibleZoom = 17.5
+    val stationVisibleZoom = 17
     val stationVisibleZoomSmall = 15
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -77,12 +77,13 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         }
 
         mLocationButton = (mMapFragment.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(Integer.parseInt("2"))
-        mLocationButton.visibility = View.INVISIBLE
+
 
         mMap.uiSettings.isMyLocationButtonEnabled = true
         mMap.uiSettings.isCompassEnabled = true
-        mMap.uiSettings.isMapToolbarEnabled = true
+        mMap.uiSettings.isMapToolbarEnabled = false
         mMap.isTrafficEnabled = mTraffic
+
 
         val vrn = LatLng(51.6754966, 39.2088823)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(vrn, 12f))
@@ -91,14 +92,17 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             mBusClickedCallback(it.snippet)
         }
         mMap.setOnMarkerClickListener {
-            mStationClickedCallback(it.tag as StationOnMap)
-            true
+            if (it.tag is StationOnMap) {
+                mStationClickedCallback(it.tag as StationOnMap)
+                return@setOnMarkerClickListener true
+            }
+            false
         }
         mMap.setOnCameraMoveListener {
             var showBig = false
             var showSmall = false
-            if (mMap.cameraPosition.zoom > stationVisibleZoom) showBig = true
-            else if (mMap.cameraPosition.zoom > stationVisibleZoomSmall) showSmall = true
+            if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
+            else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
 
             if (showBig) {
                 if (stationVisible && !stationVisibleSmall) return@setOnCameraMoveListener
@@ -116,7 +120,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
         }
         mReadyCallback()
+
+        mLocationButton.visibility = View.INVISIBLE
     }
+
 
     fun setVisibleStationBig(visible: Boolean) {
         stationVisible = visible
@@ -173,7 +180,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun enableMyLocation() {
         mMap.isMyLocationEnabled = true
         goToMyLocation()
-
+        mLocationButton.visibility = View.INVISIBLE
 
     }
 
@@ -196,6 +203,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     fun goToMyLocation() {
         mLocationButton.callOnClick()
+        mLocationButton.visibility = View.INVISIBLE
     }
 
 

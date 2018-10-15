@@ -15,7 +15,7 @@ android {
             storePassword 'vrnbus'
         }
     }
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     compileSdkVersion 28
     defaultConfig {
         applicationId "ru.boomik.vrnbus"

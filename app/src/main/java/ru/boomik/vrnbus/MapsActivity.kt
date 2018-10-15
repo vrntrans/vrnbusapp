@@ -1,6 +1,7 @@
 package ru.boomik.vrnbus
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
@@ -25,23 +26,31 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.TextViewCompat
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.requestPermission
+import java.util.*
 
 
 class MapsActivity : AppCompatActivity() {
 
-    private var mRoutes: String? = null
+    private var mRoutes: String = ""
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
     private var mSelectBusDialog: DialogPlus? = null
     private var mRoutesList: List<String>? = null
 
 
+    private var mActive: Boolean = true
     private lateinit var mInsets: WindowInsetsCompat
+
+    private lateinit var timer: Timer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +65,7 @@ class MapsActivity : AppCompatActivity() {
             params.topMargin = insets.systemWindowInsetTop
             params.bottomMargin = insets.systemWindowInsetBottom
             mapFragment.getMapAsync {
-                it.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+                it.setPadding(insets.systemWindowInsetLeft, (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             }
             insets.consumeSystemWindowInsets()
         }
@@ -73,7 +82,7 @@ class MapsActivity : AppCompatActivity() {
         mapManager.subscribeStationClick { onStationClicked(it) }
 
         menuManager = MenuManager(this)
-        menuManager.createOptionsMenu( nav_view)
+        menuManager.createOptionsMenu(nav_view)
 
         SettingsManager(this, menuManager, mapManager)
 
@@ -84,11 +93,39 @@ class MapsActivity : AppCompatActivity() {
         busButton.setOnClickListener {
             onSelectBus()
         }
+        Toast.makeText(this, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
+
+        timer = Timer()
+        timer.schedule(object : TimerTask() {
+            override fun run() {
+                updateBuses()
+            }
+        }, 0, 30 * 1000)
+    }
+
+    private fun updateBuses() {
+
+        if (!mAutoUpdateRoutes || mRoutes.isBlank() || !mActive) return
+        runOnUiThread { showBuses(mRoutes) }
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        mActive = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mActive = true
+    }
+
+
+    private var mActiveStationId: Int = 0
+
     private fun onStationClicked(station: StationOnMap) {
 
+        mActiveStationId = station.id
         val dialogView = View.inflate(this, R.layout.station_view, null) as LinearLayout
 
         val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
@@ -98,8 +135,11 @@ class MapsActivity : AppCompatActivity() {
         val title: TextView = dialogView.findViewById(R.id.title)
         val list: ListView = dialogView.findViewById(R.id.list)
         val close: ImageButton = dialogView.findViewById(R.id.close)
+        val progress: ProgressBar = dialogView.findViewById(R.id.progress)
+        val progressIndeterminate: ProgressBar = dialogView.findViewById(R.id.progressIndeterminate)
+        TextViewCompat.setAutoSizeTextTypeWithDefaults(title, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
         title.text = station.name
-
+        progress.isIndeterminate = false
 
         val dialog = DialogPlus.newDialog(this)
                 .setGravity(Gravity.BOTTOM)
@@ -110,46 +150,94 @@ class MapsActivity : AppCompatActivity() {
                 .create()
         dialog.show()
 
-/*
-        val ids = mutableListOf<Int>()
-        launch(UI) {
-        for (i in 1..1000) {
-
-                try {
-                    val it = DataService.loadArrivalInfoAsync(i).await()
-                    if (it!=null && it.buses.count()>0) ids.add(it.id)
-                } catch (e: Exception) {
-
-                }
-            }
-        }*/
-
-        DataService.loadArrivalInfo(station.id) { stationInfo ->
-            if (stationInfo == null) {
-                Toast.makeText(this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-            } else {
-                time.text = stationInfo.time
-                val adapter = RoutesAdapter(this, stationInfo.routes)
-                list.adapter = adapter
-                runOnUiThread {
-                    mapManager.clearBusesOnMap()
-                    mapManager.showBusesOnMap(stationInfo.buses)
-                }
-            }
-        }
-
         close.setOnClickListener {
             dialog.dismiss()
+            mActiveStationId = 0
         }
+
         list.setOnItemClickListener { parent, _, position, _ ->
+            val adapter: RoutesAdapter? = parent.adapter as? RoutesAdapter
+                    ?: return@setOnItemClickListener
+            val item = parent.adapter.getItem(position) as Bus
+            val routes = mRoutes.split(',').asSequence().distinct().map { it.trim() }.toList()
+            val containAll = adapter?.dataEquals(mRoutes) ?: false
+            if (containAll) onQuerySubmit(item.route)
+            else if (!routes.contains(item.route))
+                onQuerySubmit(if (mRoutes.isNotEmpty()) "$mRoutes, ${item.route}" else item.route)
+
+        }
+        list.setOnItemLongClickListener { parent, _, position, _ ->
             run {
                 val item = parent.adapter.getItem(position) as Bus
                 onQuerySubmit(item.route)
                 dialog.dismiss()
+                mActiveStationId = 0
             }
+            true
         }
 
+        startUpdateStationInfo(station, dialog, time, list, progress, progressIndeterminate)
+
+
+    }
+
+    private var mAutoUpdateRoutes: Boolean = true
+
+    private fun startUpdateStationInfo(station: StationOnMap, dialog: DialogPlus?, time: TextView, list: ListView, progress: ProgressBar, progressIndeterminate: ProgressBar) {
+
+        launch(UI) {
+            var first = true
+            var ok = true
+            val anim = ValueAnimator.ofInt(30)
+            anim.addUpdateListener { progress.progress = it.animatedValue as Int }
+            anim.duration = 30000
+
+            progressIndeterminate.visibility = View.GONE
+            do {
+                try {
+                    if (dialog == null || !dialog.isShowing || mActiveStationId != station.id) {
+                        ok = false
+                        mActiveStationId = 0
+                    } else {
+                        progressIndeterminate.visibility = View.VISIBLE
+                        progress.visibility = View.GONE
+
+                        val stationInfo = DataService.loadArrivalInfoAsync(station.id).await()
+                        time.text = stationInfo.time
+                        val adapter = RoutesAdapter(this@MapsActivity, stationInfo.routes)
+                        list.adapter = adapter
+                        if (first) {
+                            mapManager.clearBusesOnMap()
+                            mapManager.showBusesOnMap(stationInfo.buses)
+                            mRoutes = stationInfo.routes.joinToString(", ") { it.route }
+                            mAutoUpdateRoutes = false
+                        } else {
+                            val containAll = adapter.dataEquals(mRoutes)
+                            if (containAll) {
+                                mRoutes = stationInfo.routes.joinToString(", ") { it.route }
+                                mapManager.clearBusesOnMap()
+                                mapManager.showBusesOnMap(stationInfo.buses)
+                                mAutoUpdateRoutes = false
+
+                            }
+                        }
+                        progressIndeterminate.visibility = View.GONE
+                        progress.visibility = View.VISIBLE
+                        anim.start()
+                        anim.resume()
+                        delay(30000)
+                    }
+                } catch (e: Exception) {
+                    if (first) {
+                        Toast.makeText(this@MapsActivity, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
+                        dialog?.dismiss()
+                        mActiveStationId = 0
+                        anim.cancel()
+                    }
+                }
+                first = false
+            } while (ok)
+        }
     }
 
     private fun onBusClicked(bus: String) {
@@ -181,10 +269,10 @@ class MapsActivity : AppCompatActivity() {
         nachos.addChipTerminator(',', BEHAVIOR_CHIPIFY_ALL)
         nachos.addChipTerminator(' ', BEHAVIOR_CHIPIFY_ALL)
         nachos.addChipTerminator(';', BEHAVIOR_CHIPIFY_ALL)
-      //  nachos.addChipTerminator('.', BEHAVIOR_CHIPIFY_ALL)
+        //  nachos.addChipTerminator('.', BEHAVIOR_CHIPIFY_ALL)
         nachos.enableEditChipOnTouch(false, true)
-        if (mRoutes != null && mRoutes!!.isNotEmpty()) {
-            val routes = mRoutes!!.split(',').map { it.trim() }
+        if (mRoutes.isNotEmpty()) {
+            val routes = mRoutes.split(',').asSequence().distinct().map { it.trim() }.toList()
             nachos.setText(routes)
         }
 
@@ -212,7 +300,7 @@ class MapsActivity : AppCompatActivity() {
 
         nachos.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val routes = nachos.chipValues.distinct().joinToString(",")
+                val routes = nachos.chipValues.asSequence().distinct().joinToString(",")
                 onQuerySubmit(routes)
                 dialog.dismiss()
                 nachos.clearFocus()
@@ -232,7 +320,7 @@ class MapsActivity : AppCompatActivity() {
 
 
         val showList = dialogView.findViewById<ImageButton>(R.id.showList)
-        showList.setOnClickListener {
+        showList.setOnClickListener { _ ->
             alertMultipleChoiceItems(this, mRoutesList!!) {
                 if (it != null) {
                     val buses = nachos.chipValues
@@ -258,19 +346,8 @@ class MapsActivity : AppCompatActivity() {
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             Consts.LOCATION_PERMISSION_REQUEST -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))
                     enableMyLocation()
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return
-            }
-            // Add other 'when' lines to check for other
-            // permissions this app might request.
-            else -> {
-                // Ignore all other requests.
             }
         }
     }
@@ -298,12 +375,8 @@ class MapsActivity : AppCompatActivity() {
         showBuses(query)
     }
 
-    private fun onRefresh() {
-        if (mRoutes != null) showBuses(mRoutes!!)
-    }
-
-
     private fun showBuses(q: String) {
+        mAutoUpdateRoutes = true
         if (!q.isNotEmpty()) {
             mapManager.clearBusesOnMap()
             mapManager.clearRoutes()
@@ -319,11 +392,12 @@ class MapsActivity : AppCompatActivity() {
                     }
                 }
             }
+            Toast.makeText(this, "Поиск маршрутов:\n$q", Toast.LENGTH_SHORT).show()
             DataService.loadBusInfo(q) {
                 if (it != null) {
                     if (it.count() == 0)
-                        Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
-                    else Toast.makeText(this, "Загружено ${it.count()} МТС ", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Не найдено МТС на выбранных маршрутах", Toast.LENGTH_SHORT).show()
+                    //  else Toast.makeText(this, "Загружено ${it.count()} МТС ", Toast.LENGTH_SHORT).show()
                     runOnUiThread {
                         mapManager.clearBusesOnMap()
                         mapManager.showBusesOnMap(it)
