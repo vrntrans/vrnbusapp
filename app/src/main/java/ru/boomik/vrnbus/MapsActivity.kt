@@ -23,6 +23,7 @@ import ru.boomik.vrnbus.utils.alertMultipleChoiceItems
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -64,6 +65,8 @@ class MapsActivity : AppCompatActivity() {
             val params = v.layoutParams as ViewGroup.MarginLayoutParams
             params.topMargin = insets.systemWindowInsetTop
             params.bottomMargin = insets.systemWindowInsetBottom
+            params.leftMargin = insets.systemWindowInsetLeft
+            params.rightMargin = insets.systemWindowInsetRight
             mapFragment.getMapAsync {
                 it.setPadding(insets.systemWindowInsetLeft, (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             }
@@ -74,7 +77,11 @@ class MapsActivity : AppCompatActivity() {
             if (drawer_layout.isDrawerOpen(GravityCompat.START)) drawer_layout.closeDrawer(GravityCompat.START) else drawer_layout.openDrawer(GravityCompat.START)
         }
 
-        myLocation.setOnClickListener { mapManager.goToMyLocation() }
+        myLocation.setOnClickListener {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                mapManager.goToMyLocation()
+            else enableMyLocation()
+        }
 
         mapManager = MapManager(this, mapFragment)
         mapManager.subscribeReady { onReady() }
@@ -84,7 +91,8 @@ class MapsActivity : AppCompatActivity() {
         menuManager = MenuManager(this)
         menuManager.createOptionsMenu(nav_view)
 
-        SettingsManager(this, menuManager, mapManager)
+        SettingsManager.instance.initByActivity(this)
+        SettingsManager.instance.setManagers(menuManager, mapManager)
 
         DataService.loadRoutes(this) {
             mRoutesList = it
@@ -101,6 +109,7 @@ class MapsActivity : AppCompatActivity() {
                 updateBuses()
             }
         }, 0, 30 * 1000)
+        restoreInstanceState(savedInstanceState)
     }
 
     private fun updateBuses() {
@@ -113,11 +122,12 @@ class MapsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         mActive = true
+        updateBuses()
     }
 
     override fun onPause() {
         super.onPause()
-        mActive = true
+        mActive = false
     }
 
 
@@ -249,6 +259,20 @@ class MapsActivity : AppCompatActivity() {
         Toast.makeText(this, bus, Toast.LENGTH_LONG).show()
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        mapManager.getInstanceStateBundle(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        restoreInstanceState(savedInstanceState)
+    }
+
+    private fun restoreInstanceState(savedInstanceState : Bundle?) {
+        mapManager.restoreInstanceStateBundle(savedInstanceState)
+    }
+
     public override fun onDestroy() {
         super.onDestroy()
         val map = supportFragmentManager?.findFragmentById(R.id.map)
@@ -274,7 +298,6 @@ class MapsActivity : AppCompatActivity() {
         nachos.addChipTerminator(',', BEHAVIOR_CHIPIFY_ALL)
         nachos.addChipTerminator(' ', BEHAVIOR_CHIPIFY_ALL)
         nachos.addChipTerminator(';', BEHAVIOR_CHIPIFY_ALL)
-        //  nachos.addChipTerminator('.', BEHAVIOR_CHIPIFY_ALL)
         nachos.enableEditChipOnTouch(false, true)
         if (mRoutes.isNotEmpty()) {
             val routes = mRoutes.split(',').asSequence().distinct().map { it.trim() }.toList()
@@ -302,9 +325,13 @@ class MapsActivity : AppCompatActivity() {
                 .setContentHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
                 .create()
 
+        nachos.setOnFocusChangeListener { _, _ ->
+            nachos.chipifyAllUnterminatedTokens()
+        }
 
         nachos.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                nachos.chipifyAllUnterminatedTokens()
                 val routes = nachos.chipValues.asSequence().distinct().joinToString(",")
                 onQuerySubmit(routes)
                 dialog.dismiss()
@@ -317,7 +344,8 @@ class MapsActivity : AppCompatActivity() {
 
         val searchButton = dialogView.findViewById<Button>(R.id.search)
         searchButton.setOnClickListener {
-            val routes = nachos.chipValues.distinct().joinToString(",")
+            nachos.chipifyAllUnterminatedTokens()
+            val routes = nachos.chipValues.asSequence().distinct().joinToString(",")
             onQuerySubmit(routes)
             dialog.dismiss()
             imm.hideSoftInputFromWindow(nachos.windowToken, 0)
@@ -326,6 +354,7 @@ class MapsActivity : AppCompatActivity() {
 
         val showList = dialogView.findViewById<ImageButton>(R.id.showList)
         showList.setOnClickListener { _ ->
+            nachos.chipifyAllUnterminatedTokens()
             alertMultipleChoiceItems(this, mRoutesList!!) {
                 if (it != null) {
                     val buses = nachos.chipValues
@@ -357,15 +386,7 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val value = menuManager.optionsItemSelected(item)
-        return if (!value) super.onOptionsItemSelected(item)
-        else true
-    }
-
     private fun onReady() {
-        enableMyLocation()
         showBusStations()
     }
 

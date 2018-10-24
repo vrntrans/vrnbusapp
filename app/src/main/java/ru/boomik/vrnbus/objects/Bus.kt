@@ -39,11 +39,11 @@ class Bus(
         val x = lat - lastLat
         val y = lon - lastLon
 
-        val angle = Math.floor(Math.atan2(y, x) * 180 / Math.PI)
-        return Math.abs(angle - 180)
+        return Math.floor(Math.atan2(y, x) * 180 / Math.PI)
     }
 
     override fun toString(): String {
+        return "$lastLat, $lastLon  $lat, $lon"
         return "$route  $timeLeft"
     }
 }

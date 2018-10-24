@@ -8,7 +8,7 @@ object Consts{
     const val ARRIVAL="/arrival_by_id"
     const val NAME_INTEGER = 3
     const val SETTINGS_TRAFFIC_JAM = "traffic_jam"
+    const val SETTINGS_REFERER = "referer"
 
     const val LOCATION_PERMISSION_REQUEST = 10
 }
-//https://vrnbus.herokuapp.com/businfo?q=54&lat=51.6754966&lon=39.2088823

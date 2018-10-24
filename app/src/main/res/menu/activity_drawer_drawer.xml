@@ -12,6 +12,10 @@
                 android:icon="@drawable/ic_traffic"
                 android:id="@+id/traffic_jam"
                 app:actionLayout="@layout/widget_switch" />
+            <item
+                android:title="@string/Referer"
+                android:icon="@drawable/ic_referer"
+                android:id="@+id/referer" />
         </menu>
     </item>
 

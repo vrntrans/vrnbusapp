@@ -27,6 +27,13 @@ class DataService {
         }
 
 
+        fun setReferer(referer: String?) {
+            val headers = FuelManager.instance.baseHeaders?.toMutableMap() ?: mutableMapOf()
+            if (referer != null) headers["Referer"] = referer
+            else if (headers.contains("Referer")) headers.remove("Referer ")
+            FuelManager.instance.baseHeaders = headers
+        }
+
         fun loadBusInfo(q: String, callback: (List<Bus>?) -> Unit) {
             Consts.API_BUS_INFO.httpGet(listOf(Pair("q", q), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
                 //make a GET to http://httpbin.org/get and do something with response

@@ -31,6 +31,7 @@ fun loadJSONFromAsset(activity : Activity, fileName: String, loaded: (String) ->
 fun createImageRounded(width: Int, height: Int, name: String, azimuth: Double): BitmapDescriptor? {
     val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(output)
+
     canvas.save()
     canvas.rotate(azimuth.toFloat(),width/2F,height/2F)
 

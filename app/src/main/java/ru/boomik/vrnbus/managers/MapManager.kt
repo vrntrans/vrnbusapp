@@ -6,15 +6,16 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Color
+import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
 import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.Bus
@@ -65,6 +66,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     var stationVisibleSmall: Boolean = true
     val stationVisibleZoom = 17
     val stationVisibleZoomSmall = 15
+    private var initPosition: CameraUpdate? = null
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -109,7 +111,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mLocationButton.visibility = View.INVISIBLE
 
 
-        if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (initPosition!=null) {
+            mMap.moveCamera(initPosition)
+        } else if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.isMyLocationEnabled = true
             fusedLocationClient.lastLocation.continueWith {
                 val location = it.result
@@ -119,6 +123,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                     checkZoom()
                 }
             }
+        }
+
+        async (UI) {
+            delay(500)
+            mLocationButton.visibility = View.INVISIBLE
         }
     }
 
@@ -163,7 +172,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val d = mActivity.resources.displayMetrics.density
         val size = (36 * d).toInt()
         val newBusesMarkers = it.map {
-            mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(size, size, it.route, it.getAzimuth())).zIndex(1.0f))
+            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(size, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(.5f,.5f))
+            marker.tag = it
+            marker
         }
         mBusesMarkers = newBusesMarkers
     }
@@ -237,5 +248,29 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun setTrafficJam(show: Boolean) {
         mTraffic = show
        if (::mMap.isInitialized) mMap.isTrafficEnabled = show
+    }
+
+    fun getInstanceStateBundle(outState: Bundle?) {
+        if (::mMap.isInitialized && outState!=null) {
+                val center = mMap.projection.visibleRegion.latLngBounds.center
+            outState.putDouble("lat", center.latitude)
+            outState.putDouble("lon", center.longitude)
+            outState.putFloat("zoom", mMap.cameraPosition.zoom )
+        }
+    }
+
+
+
+    fun restoreInstanceStateBundle(savedInstanceState: Bundle?) {
+        if (savedInstanceState!=null) {
+            val lat = savedInstanceState.getDouble("lat")
+            val lon = savedInstanceState.getDouble("lon")
+            val zoom = savedInstanceState.getFloat("zoom")
+            if (lat!=.0 && lon!=.0 && zoom!=0f) {
+                if (::mMap.isInitialized)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lon), zoom))
+                else initPosition = CameraUpdateFactory.newLatLngZoom(LatLng(lat,lon), zoom)
+            }
+        }
     }
 }

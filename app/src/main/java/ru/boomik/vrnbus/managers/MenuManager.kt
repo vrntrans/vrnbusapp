@@ -4,12 +4,11 @@ import android.app.Activity
 import android.view.MenuItem
 import android.widget.Switch
 import com.google.android.material.navigation.NavigationView
-import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
+import ru.boomik.vrnbus.utils.alertEnterText
 
 
-class MenuManager(activity: Activity) {
-
+class MenuManager(activity: Activity) : NavigationView.OnNavigationItemSelectedListener {
 
     private var mActivity: Activity = activity
 
@@ -21,6 +20,8 @@ class MenuManager(activity: Activity) {
     private lateinit var mTrafficSwitch: Switch
 
     fun createOptionsMenu(nav_view: NavigationView) {
+        nav_view.setNavigationItemSelectedListener(this)
+
         mTrafficJam = nav_view.menu.findItem(R.id.traffic_jam)
         val switchView = mTrafficJam.actionView as Switch
         switchView.setOnCheckedChangeListener { _, isChecked -> mTrafficJamSwitchedCallback(isChecked) }
@@ -30,18 +31,19 @@ class MenuManager(activity: Activity) {
     fun subscribeTrafficJam(callback: (Boolean) -> Unit) {
         mTrafficJamSwitchedCallback = callback
     }
-
-
-    fun optionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.refresh -> {
-                true
-            }
-            R.id.select_bus -> {
-                mBusClickedCallback()
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+         return when (item.itemId) {
+            R.id.referer -> {
+                setReferer()
                 true
             }
             else -> false
+        }
+    }
+
+    private fun setReferer() {
+        alertEnterText(mActivity, "Enter referer") {
+            SettingsManager.instance.setReferer(it)
         }
     }
 
