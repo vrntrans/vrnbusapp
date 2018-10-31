@@ -66,7 +66,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     var stationVisibleSmall: Boolean = true
     val stationVisibleZoom = 17
     val stationVisibleZoomSmall = 15
-    private var initPosition: CameraUpdate? = null
+    private var initPosition: LatLng? = null
+    private var initZoom: Float = 12F
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -104,15 +105,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             false
         }
         mMap.setOnCameraMoveListener {
-           checkZoom()
+            checkZoom()
         }
         mReadyCallback()
 
         mLocationButton.visibility = View.INVISIBLE
 
 
-        if (initPosition!=null) {
-            mMap.moveCamera(initPosition)
+        if (initPosition != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initPosition, initZoom))
         } else if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.isMyLocationEnabled = true
             fusedLocationClient.lastLocation.continueWith {
@@ -125,10 +126,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             }
         }
 
-        async (UI) {
+        async(UI) {
             delay(500)
             mLocationButton.visibility = View.INVISIBLE
         }
+        initPosition = null
     }
 
     private fun checkZoom() {
@@ -172,7 +174,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val d = mActivity.resources.displayMetrics.density
         val size = (36 * d).toInt()
         val newBusesMarkers = it.map {
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(size, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(.5f,.5f))
+            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(size, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(.5f, .5f))
             marker.tag = it
             marker
         }
@@ -191,12 +193,12 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val iconSmall: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station_small)
 
         val newStationMarkers = stationsOnMap.map {
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(icon).zIndex(1.0f).visible(showBig))
+            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(icon).zIndex(1.0f).anchor(.5f, .5f).visible(showBig))
             marker.tag = it
             marker
         }
         val newStationSmallMarkers = stationsOnMap.map {
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(iconSmall).zIndex(1.0f).visible(showSmall))
+            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(iconSmall).zIndex(1.0f).anchor(.5f, .5f).visible(showSmall))
             marker.tag = it
             marker
         }
@@ -211,14 +213,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun enableMyLocation() {
         mMap.isMyLocationEnabled = true
         mLocationButton.visibility = View.INVISIBLE
-            fusedLocationClient.lastLocation.continueWith {
-                val location = it.result
-                if (location != null && it.isSuccessful) {
-                    val latLng = LatLng(location.latitude, location.longitude)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
-                    checkZoom()
-                }
+        fusedLocationClient.lastLocation.continueWith {
+            val location = it.result
+            if (location != null && it.isSuccessful) {
+                val latLng = LatLng(location.latitude, location.longitude)
+                if (location.latitude == .0) return@continueWith
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                checkZoom()
             }
+        }
 
     }
 
@@ -240,36 +243,53 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
     fun goToMyLocation() {
-        mLocationButton.callOnClick()
+        if (mLocationButton.hasOnClickListeners()) {
+            mLocationButton.callOnClick()
+        } else {
+            if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mMap.isMyLocationEnabled = true
+                fusedLocationClient.lastLocation.continueWith {
+                    val location = it.result
+                    if (location != null && it.isSuccessful) {
+                        val latLng = LatLng(location.latitude, location.longitude)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+                    }
+                }
+            }
+        }
+        checkZoom()
         mLocationButton.visibility = View.INVISIBLE
     }
 
 
     fun setTrafficJam(show: Boolean) {
         mTraffic = show
-       if (::mMap.isInitialized) mMap.isTrafficEnabled = show
+        if (::mMap.isInitialized) mMap.isTrafficEnabled = show
     }
 
     fun getInstanceStateBundle(outState: Bundle?) {
-        if (::mMap.isInitialized && outState!=null) {
-                val center = mMap.projection.visibleRegion.latLngBounds.center
+        if (::mMap.isInitialized && outState != null) {
+            val center = mMap.projection.visibleRegion.latLngBounds.center
             outState.putDouble("lat", center.latitude)
             outState.putDouble("lon", center.longitude)
-            outState.putFloat("zoom", mMap.cameraPosition.zoom )
+            outState.putFloat("zoom", mMap.cameraPosition.zoom)
         }
     }
 
 
-
     fun restoreInstanceStateBundle(savedInstanceState: Bundle?) {
-        if (savedInstanceState!=null) {
+        initPosition = null
+        if (savedInstanceState != null) {
             val lat = savedInstanceState.getDouble("lat")
             val lon = savedInstanceState.getDouble("lon")
             val zoom = savedInstanceState.getFloat("zoom")
-            if (lat!=.0 && lon!=.0 && zoom!=0f) {
+            if (lat != .0 && lon != .0 && zoom != 0f) {
                 if (::mMap.isInitialized)
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lon), zoom))
-                else initPosition = CameraUpdateFactory.newLatLngZoom(LatLng(lat,lon), zoom)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lon), zoom))
+                else {
+                    initPosition = LatLng(lat, lon)
+                    initZoom = zoom
+                }
             }
         }
     }

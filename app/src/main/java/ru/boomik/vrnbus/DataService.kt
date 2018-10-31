@@ -114,7 +114,7 @@ class DataService {
         }
 
         suspend fun loadArrivalInfoAsync(station: Int) = async {
-            suspendCoroutine<Station> { cont ->
+            suspendCoroutine<Station?> { cont ->
                 Consts.ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
                     Log.d("log", request.toString())
                     Log.d("log", response.toString())

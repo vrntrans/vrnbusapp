@@ -14,4 +14,6 @@
     <string name="Referer">Реферер</string>
     <string name="Ок">Ок</string>
     <string name="Cancel">Отмена</string>
+    <string name="enter_referer">Введите реферер</string>
+    <string name="favorite">избранное</string>
 </resources>

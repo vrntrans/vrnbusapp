@@ -42,7 +42,7 @@ class MenuManager(activity: Activity) : NavigationView.OnNavigationItemSelectedL
     }
 
     private fun setReferer() {
-        alertEnterText(mActivity, "Enter referer") {
+        alertEnterText(mActivity, mActivity.getString(R.string.enter_referer)) {
             SettingsManager.instance.setReferer(it)
         }
     }

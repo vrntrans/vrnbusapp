@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 class Bus(
         var route: String,
         var number: String,
-        var nextStationName: String,
+        var nextStationName: String?,
         var lastStationTime: String,
         var lastSpeed: Int,
         var time: String,

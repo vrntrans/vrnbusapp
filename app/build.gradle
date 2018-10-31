@@ -11,7 +11,7 @@ android {
         release {
             keyAlias 'VrnBus'
             keyPassword 'aliaspass'
-            storeFile file('D:/Developing/VrnBus/vrnbus.jks')
+            storeFile file('vrnbus.jks')
             storePassword 'vrnbus'
         }
     }

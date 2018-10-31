@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.view.*
@@ -55,11 +56,13 @@ class MapsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         setContentView(R.layout.activity_drawer)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val container = findViewById<ConstraintLayout>(R.id.container)
 
+        window.statusBarColor = Color.parseColor("#40111111")
+        window.navigationBarColor = Color.parseColor("#40111111")
         ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
             mInsets = insets
             val params = v.layoutParams as ViewGroup.MarginLayoutParams
@@ -68,7 +71,7 @@ class MapsActivity : AppCompatActivity() {
             params.leftMargin = insets.systemWindowInsetLeft
             params.rightMargin = insets.systemWindowInsetRight
             mapFragment.getMapAsync {
-                it.setPadding(insets.systemWindowInsetLeft, (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+                it.setPadding((insets.systemWindowInsetLeft+8*resources.displayMetrics.density).toInt(), (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             }
             insets.consumeSystemWindowInsets()
         }
@@ -111,6 +114,7 @@ class MapsActivity : AppCompatActivity() {
         }, 0, 30 * 1000)
         restoreInstanceState(savedInstanceState)
     }
+
 
     private fun updateBuses() {
 
@@ -213,23 +217,29 @@ class MapsActivity : AppCompatActivity() {
                         progress.visibility = View.GONE
 
                         val stationInfo = DataService.loadArrivalInfoAsync(station.id).await()
-                        time.text = stationInfo.time
-                        val adapter = RoutesAdapter(this@MapsActivity, stationInfo.routes)
-                        list.adapter = adapter
-                        if (first) {
-                            mapManager.clearBusesOnMap()
-                            mapManager.showBusesOnMap(stationInfo.buses)
-                            mRoutes = stationInfo.routes.joinToString(", ") { it.route }
-                            mAutoUpdateRoutes = false
-                        } else {
-                            val containAll = adapter.dataEquals(mRoutes)
-                            if (containAll) {
-                                mRoutes = stationInfo.routes.joinToString(", ") { it.route }
+                        if (stationInfo!=null) {
+                            time.text = stationInfo.time
+                            val adapter = RoutesAdapter(this@MapsActivity, stationInfo.routes)
+                            list.adapter = adapter
+                            if (first) {
                                 mapManager.clearBusesOnMap()
                                 mapManager.showBusesOnMap(stationInfo.buses)
+                                mRoutes = stationInfo.routes.joinToString(", ") { it.route }
                                 mAutoUpdateRoutes = false
-
+                            } else {
+                                val containAll = adapter.dataEquals(mRoutes)
+                                if (containAll) {
+                                    mRoutes = stationInfo.routes.joinToString(", ") { it.route }
+                                    mapManager.clearBusesOnMap()
+                                    mapManager.showBusesOnMap(stationInfo.buses)
+                                    mAutoUpdateRoutes = false
+                                }
                             }
+                        }  else {
+                            Toast.makeText(this@MapsActivity, "По выбранной остановке не найдено маршрутов", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                            if (mActiveStationId == station.id) mActiveStationId = 0
+                            anim.cancel()
                         }
                         progressIndeterminate.visibility = View.GONE
                         progress.visibility = View.VISIBLE

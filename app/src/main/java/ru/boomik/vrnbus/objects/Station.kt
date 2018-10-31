@@ -12,9 +12,11 @@ class Station(
         var buses: List<Bus>
 ) {
     companion object {
-        fun parseDto(info: ArrivalDto): Station {
+        fun parseDto(info: ArrivalDto): Station? {
 
             val time = info.arrivalInfo.header.replace("Время:", "Время обновления:")
+
+           if (info.arrivalInfo.arrivalDetails.isEmpty()) return null
 
             val detail = info.arrivalInfo.arrivalDetails.first()
 
