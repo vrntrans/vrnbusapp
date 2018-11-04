@@ -17,9 +17,10 @@ class Bus(
         val lastLat: Double,
         val lastLon: Double,
         val timeLeft: Double,
-        val distance: Double) {
+        val distance: Double,
+        val lowFloor: Boolean) {
 
-    constructor(route: String) : this(route, "", "", "", 0, "", 0.0, 0.0, 0.0, 0.0, Double.MAX_VALUE, 0.0)
+    constructor(route: String) : this(route, "", "", "", 0, "", 0.0, 0.0, 0.0, 0.0, Double.MAX_VALUE, 0.0, false)
 
     var timeToArrival : Long = 0
 
