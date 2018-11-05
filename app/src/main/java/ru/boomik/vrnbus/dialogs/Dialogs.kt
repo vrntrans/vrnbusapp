@@ -1,15 +1,11 @@
-package ru.boomik.vrnbus.utils
+package ru.boomik.vrnbus.dialogs
 
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import android.widget.LinearLayout
 import android.widget.EditText
-import android.view.ViewGroup
-import android.util.DisplayMetrics
-import android.content.res.Resources.Theme
 import android.os.Build
 import android.util.TypedValue
-import androidx.annotation.RequiresApi
 import ru.boomik.vrnbus.R
 
 

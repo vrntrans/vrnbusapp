@@ -1,63 +1,84 @@
 package ru.boomik.vrnbus.managers
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
 import ru.boomik.vrnbus.Consts
-import ru.boomik.vrnbus.DataService
+import ru.boomik.vrnbus.DataBus
 
 
 class SettingsManager {
 
-    private object Holder {
-        @SuppressLint("StaticFieldLeak")
-        val INSTANCE: SettingsManager = SettingsManager()
+    companion object {
+        lateinit var instance: SettingsManager
+            private set
     }
 
-    companion object {
-        val instance: SettingsManager by lazy { Holder.INSTANCE }
-    }
 
     private lateinit var mPreferences: Preferences
-    private lateinit var mActivity: Activity
-    private lateinit var mMenuManager: MenuManager
-    private lateinit var mMapManager: MapManager
 
-    fun initByActivity(activity: Activity) {
-        mActivity = activity
-        mPreferences = BinaryPreferencesBuilder(activity.applicationContext).build()
-    }
-
-    fun setManagers(menuManager: MenuManager, mapManager: MapManager) {
-        mMenuManager = menuManager
-        mMapManager = mapManager
-
-        initialize()
-    }
-
-    private fun initialize() {
-        mMenuManager.subscribeTrafficJam {
-            mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it).apply()
-            mMapManager.setTrafficJam(it)
-        }
+    fun initialize(activity: Activity) {
+        instance = this
+        this.mPreferences = BinaryPreferencesBuilder(activity.applicationContext).build()
         loadPreferences()
+        DataBus.subscribe<Boolean>(DataBus.Traffic) {
+            mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it).apply()
+        }
+        DataBus.subscribe<String?>(DataBus.Referer) {
+            mPreferences.edit().putString(Consts.SETTINGS_REFERER, it).apply()
+        }
+        DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) {
+            saveStringToList(Consts.SETTINGS_FAVORITE_ROUTE, it.first, it.second)
+        }
+        DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
+            saveIntToList(Consts.SETTINGS_FAVORITE_STATIONS, it.first, it.second)
+        }
     }
 
     private fun loadPreferences() {
         val traffic = mPreferences.getBoolean(Consts.SETTINGS_TRAFFIC_JAM, false)
-        mMapManager.setTrafficJam(traffic)
-        mMenuManager.setTrafficJam(traffic)
-
-        DataService.setReferer(getReferer())
+        val referer = mPreferences.getString(Consts.SETTINGS_REFERER, null)
+        DataBus.sendEvent(DataBus.Traffic, traffic)
+        DataBus.sendEvent(DataBus.Referer, referer)
     }
 
-    fun setReferer(referer: String?) {
-        mPreferences.edit().putString(Consts.SETTINGS_REFERER, referer).apply()
-        DataService.setReferer(referer)
+    fun saveIntToList(key : String, id : Int, inFavorite : Boolean) {
+        var favorites = getIntArray(key)?.toMutableList()
+        if (favorites==null && inFavorite) favorites = mutableListOf()
+        if (inFavorite) favorites?.add(id)
+        else favorites?.remove(id)
+        mPreferences.edit().putString(key, listOfIntToString(favorites)).apply()
     }
 
-    fun getReferer(): String? {
-       return mPreferences.getString(Consts.SETTINGS_REFERER, null)
+    fun saveStringToList(key : String, id : String, inFavorite : Boolean) {
+        var favorites = getStringArray(key)?.toMutableList()
+        if (favorites==null && inFavorite) favorites = mutableListOf()
+        if (inFavorite) favorites?.add(id)
+        else favorites?.remove(id)
+        mPreferences.edit().putString(key, listOfStringToString(favorites)).apply()
     }
+
+
+    fun getIntArray(key : String) : List<Int>? {
+        return stringToListOfInt(mPreferences.getString(key, null))
+    }
+    fun getStringArray(key : String) : List<String>? {
+        return stringToListOfString(mPreferences.getString(key, null))
+    }
+
+    //region Internals
+    private fun listOfIntToString(values : List<Int>?) : String? {
+        return values?.distinct()?.joinToString(";")
+    }
+    private fun stringToListOfInt(value : String?) : List<Int>? {
+        return if (!value.isNullOrBlank()) value?.split(";")?.map { it.toInt() } else null
+    }
+    private fun listOfStringToString(values : List<String>?) : String? {
+        return values?.distinct()?.joinToString(";")
+    }
+    private fun stringToListOfString(value : String?) : List<String>? {
+        return if (!value.isNullOrBlank()) value?.split(";")?.map { it } else null
+    }
+
+    //endregion
 }

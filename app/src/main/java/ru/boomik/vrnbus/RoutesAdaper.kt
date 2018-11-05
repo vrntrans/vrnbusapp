@@ -2,19 +2,31 @@ package ru.boomik.vrnbus
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageButton
 import android.widget.TextView
+import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
+import java.lang.StringBuilder
 import java.util.*
 
-class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
+class RoutesAdapter(private val context: Context, BussList: List<Bus>) : BaseAdapter() {
 
-    var busesList: List<Bus> = BussList
+    private var busesList: List<Bus> = BussList
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
+    private var favorites: List<String>?
+
+    init {
+        favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+        DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) {
+            favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+        }
+    }
 
     fun dataEquals(routes: String): Boolean {
         if (routes.isBlank()) return true
@@ -39,30 +51,67 @@ class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
             vh = view.tag as ViewHolder
         }
 
-        vh.tvTitle.text = busesList[position].route
+        val bus = getItem(position) as Bus
 
+        vh.tvTitle.text = bus.route
 
-        val time = busesList[position].timeLeft.toInt()
-        val timeToArrival = busesList[position].timeToArrival
+        vh.tvAbsoluteTime.includeFontPadding = false
+        vh.tvContent.includeFontPadding = false
+
+        val time = bus.timeLeft.toInt()
+        val timeToArrival = bus.timeToArrival
+
+        val arrival = bus.arrivalTime
+        if (arrival != null) {
+            val absoluteTime = DateFormat.format("kk:mm", arrival).toString()
+            vh.tvAbsoluteTime.text = "${context.getString(R.string.arrival_at)}$absoluteTime"
+        } else vh.tvAbsoluteTime.text = null
+
+        val sb = StringBuilder()
+        if (bus.lowFloor) sb.append("Низкопольный.\n")
+        if (bus.busType > 0) {
+            sb.append(when {
+                bus.busType == 3 -> context.getString(R.string.medium_capacity)
+                bus.busType == 4 -> context.getString(R.string.big_capacity)
+                else -> context.getString(R.string.small_capacity)
+            })
+        }
+        if (sb.isBlank()) {
+            vh.tvAdditional.visibility = View.GONE
+        } else {
+            vh.tvAdditional.visibility = View.VISIBLE
+            vh.tvAdditional.text = sb.toString()
+        }
 
         (vh.tvTitle.tag as? ValueAnimator)?.cancel()
 
         if (time >= 1000) {
-            vh.tvContent.text = ""
+            vh.tvContent.text = null
             vh.tvContent.tag = null
         } else {
             vh.tvContent.tag = timeToArrival
-            UpdateTimeLeft(vh.tvContent)
+            updateTimeLeft(vh.tvContent)
             val anim = ValueAnimator.ofInt(30)
-            anim.addUpdateListener { UpdateTimeLeft(vh.tvContent) }
+            anim.addUpdateListener { updateTimeLeft(vh.tvContent) }
             anim.duration = 30000
             anim.start()
             vh.tvTitle.tag = anim
         }
+
+        var inFavorite = favorites?.contains(bus.route) ?: false
+        vh.btnFavorite.setImageResource(if (inFavorite) R.drawable.ic_star else R.drawable.ic_no_star)
+
+        vh.btnFavorite.setOnClickListener {
+            inFavorite=!inFavorite
+            DataBus.sendEvent(DataBus.FavoriteRoute, Pair(bus.route,inFavorite))
+            vh.btnFavorite.setImageResource(if (inFavorite) R.drawable.ic_star else R.drawable.ic_no_star)
+        }
+
+
         return view
     }
 
-    private fun UpdateTimeLeft(tvContent: TextView) {
+    private fun updateTimeLeft(tvContent: TextView) {
 
         val timeString: String
         val timeToArrival = tvContent.tag as? Long
@@ -99,9 +148,18 @@ class RoutesAdapter(context: Context, BussList: List<Bus>) : BaseAdapter() {
     override fun getCount(): Int {
         return busesList.size
     }
+
+    fun setRoutes(routes: List<Bus>) {
+        busesList = routes
+        notifyDataSetChanged()
+    }
 }
 
 private class ViewHolder(view: View?) {
     val tvTitle: TextView = view?.findViewById(R.id.title) as TextView
     val tvContent: TextView = view?.findViewById(R.id.time) as TextView
+    val tvAbsoluteTime: TextView = view?.findViewById(R.id.absoluteTime) as TextView
+    val tvAdditional: TextView = view?.findViewById(R.id.additional) as TextView
+    val btnFavorite: ImageButton = view?.findViewById(R.id.favorite) as ImageButton
+
 }

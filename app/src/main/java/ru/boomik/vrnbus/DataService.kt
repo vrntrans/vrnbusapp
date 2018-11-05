@@ -1,6 +1,7 @@
 package ru.boomik.vrnbus
 
 import android.app.Activity
+import android.content.Context
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
@@ -19,7 +20,7 @@ import kotlin.coroutines.experimental.suspendCoroutine
 class DataService {
     companion object {
 
-        var gson: Gson
+        private var gson: Gson
 
         init {
             FuelManager.instance.basePath = Consts.API_URL
@@ -29,7 +30,7 @@ class DataService {
 
         fun setReferer(referer: String?) {
             val headers = FuelManager.instance.baseHeaders?.toMutableMap() ?: mutableMapOf()
-            if (referer != null) headers["Referer"] = referer
+            if (referer!=null && !referer.isBlank()) headers["Referer"] = referer
             else if (headers.contains("Referer")) headers.remove("Referer ")
             FuelManager.instance.baseHeaders = headers
         }
@@ -46,63 +47,8 @@ class DataService {
                         val info = result.get()
                         val busDtos = info.buses
                         callback(busDtos.filter { it.count() == 2 }.map {
-                             Bus(it[0].route, it[0].number, it[1].nextStationName ?: "", it[0].lastStationTime, it[0].lastSpeed, it[0].time, it[1].lat, it[1].lon, it[0].lastLat, it[0].lastLon, .0, .0)
+                             Bus(it[0].route, it[0].number, it[1].nextStationName ?: "", it[0].lastStationTime, it[0].lastSpeed, it[0].time, it[1].lat, it[1].lon, it[0].lastLat, it[0].lastLon, .0, .0, it[0].lowFloor==1, it[0].busType)
                         })
-                    } catch (exception: Throwable) {
-                        Log.e("VrnBus", "Hm..", exception)
-                        callback(null)
-                    }
-                } else {
-                    callback(null)
-                }
-            }
-        }
-
-        fun loadBusStopInfo(station: String, callback: (Station?) -> Unit) {
-            Consts.API_BUS_STOP_INFO.httpGet(listOf(Pair("station", station), Pair("q", ""))).responseObject<BusStopInfoDto> { request, response, result ->
-                Log.d("log", request.toString())
-                Log.d("log", response.toString())
-                val (_, error) = result
-                if (error == null) {
-
-                    try {
-                        val info = result.get()
-                        val stationObject = Station.parseDto(info, station)
-                        callback(stationObject)
-
-                    } catch (exception: Throwable) {
-                        Log.e("VrnBus", "Hm..", exception)
-                        callback(null)
-                    }
-                } else {
-                    callback(null)
-                }
-            }
-        }
-
-        fun loadArrivalInfo(station: Int, callback: (Station?) -> Unit) {
-            Consts.ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
-                Log.d("log", request.toString())
-                Log.d("log", response.toString())
-                val (_, error) = result
-                if (error == null) {
-                    try {
-                        val info = result.get()
-/*
-                         //Mock
-                        val busses = listOf(
-                                ArrivalBusDto(BusDto(51.6751,39.20839,10,"","13","","","68","","","","","",1,1,51.6755,39.2089), 10.0, 14.0),
-                                ArrivalBusDto(BusDto(51.67552,39.208759,10,"","13","","","68","","","","","",1,1,51.6755,39.2089), 10.0, 1.0),
-                                ArrivalBusDto(BusDto(51.67553,39.20892,10,"","13","","","8","","","","","",1,1,51.6755,39.2089), 10.0, 14.5),
-                                ArrivalBusDto(BusDto(51.67554,39.20893,10,"","13","","","68","","","","","",1,1,51.6755,39.2089), 10.0, 50.0),
-                                ArrivalBusDto(BusDto(51.67555,39.20897,10,"","13","","","8","","","","","",1,1,51.6755,39.2089), 10.0, 0.45),
-                                ArrivalBusDto(BusDto(51.67556,39.20893,10,"","13","","","68","","","","","",1,1,51.6755,39.2089), 10.0, 0.95),
-                                ArrivalBusDto(BusDto(51.67557,39.20899,10,"","13","","","68","","","","","",1,1,51.6755,39.2089), 10.0, 9.5)
-                        )
-                        info.arrivalInfo.arrivalDetails.first().arrivalBuses = busses*/
-
-                        val stationObject = Station.parseDto(info)
-                        callback(stationObject)
                     } catch (exception: Throwable) {
                         Log.e("VrnBus", "Hm..", exception)
                         callback(null)
@@ -146,9 +92,9 @@ class DataService {
             }
         }
 
-        fun loadRoutes(activity: Activity, loaded: (List<String>?) -> Unit) {
+        fun loadRoutes(context: Context, loaded: (List<String>?) -> Unit) {
             try {
-                loadJSONFromAsset(activity, "routes.json") {
+                loadJSONFromAsset(context, "routes.json") {
                     val routes: List<String> = gson.fromJson(it, object : TypeToken<List<String>>() {}.type)
                     loaded(routes)
                 }

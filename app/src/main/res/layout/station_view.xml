@@ -37,6 +37,8 @@
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="240dp"
+            android:divider="@color/colorAccent"
+            android:dividerHeight="1dp"
             android:layout_marginBottom="8dp"
             app:layout_constrainedHeight="true"
             app:layout_constraintBottom_toTopOf="@+id/time"
@@ -47,11 +49,12 @@
 
         <TextView
             android:id="@+id/time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="86dp"
+            android:layout_height="52dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:layout_weight="0"
+            android:textAlignment="textEnd"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Время обновления: 23:00:00" />
@@ -84,7 +87,7 @@
             style="@style/Widget.AppCompat.ImageButton"
             android:layout_width="48dp"
             android:layout_height="44dp"
-            android:background="@null"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/close"
             android:paddingStart="8dp"
             android:paddingTop="8dp"
@@ -97,20 +100,34 @@
         <ImageButton
             android:id="@+id/favorite"
             style="@style/Widget.AppCompat.ImageButton"
-            android:layout_width="48dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@null"
+            android:layout_width="52dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/favorite"
             android:paddingStart="8dp"
             android:paddingTop="8dp"
             android:paddingEnd="8dp"
             android:paddingBottom="8dp"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/list"
             app:srcCompat="@drawable/ic_no_favorite" />
+
+        <ImageButton
+            android:id="@+id/favorite2"
+            style="@style/Widget.AppCompat.ImageButton"
+            android:layout_width="52dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/favorite"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/favorite"
+            app:layout_constraintTop_toBottomOf="@+id/list"
+            app:layout_constraintVertical_bias="0.533"
+            app:srcCompat="@drawable/ic_map" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
