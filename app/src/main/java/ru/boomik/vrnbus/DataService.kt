@@ -7,14 +7,16 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dto.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.loadJSONFromAsset
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 
 class DataService {

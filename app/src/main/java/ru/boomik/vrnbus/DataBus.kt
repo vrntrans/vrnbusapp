@@ -54,24 +54,6 @@ class DataBus {
         //endregion
     }
 
-    //region Managers
-    private lateinit var mMenuManager: MenuManager
-    private lateinit var mMapManager: MapManager
-    private lateinit var mSettingsManager: SettingsManager
-
-    fun setManager(menuManager: MenuManager) {
-        mMenuManager = menuManager
-    }
-
-    fun setManager(mapManager: MapManager) {
-        mMapManager = mapManager
-    }
-
-    fun setManager(settingsManager: SettingsManager) {
-        mSettingsManager = settingsManager
-    }
-    //endregion
-
     //region Listeners
     private lateinit var eventsMap: Map<String, Any>
 

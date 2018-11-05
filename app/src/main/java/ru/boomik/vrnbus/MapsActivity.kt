@@ -19,10 +19,7 @@ import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
-import ru.boomik.vrnbus.managers.DataStorageManager
-import ru.boomik.vrnbus.managers.MapManager
-import ru.boomik.vrnbus.managers.MenuManager
-import ru.boomik.vrnbus.managers.SettingsManager
+import ru.boomik.vrnbus.managers.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.requestPermission
@@ -34,6 +31,7 @@ class MapsActivity : AppCompatActivity() {
     private var mRoutes: String = ""
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
+    //private lateinit var mapManager: MapManager
     private lateinit var settingsManager: SettingsManager
     private lateinit var dataStorageManager: DataStorageManager
 
@@ -47,9 +45,13 @@ class MapsActivity : AppCompatActivity() {
         //region SetupView
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+
+
         setContentView(R.layout.activity_drawer)
+        //  val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val container = findViewById<ConstraintLayout>(R.id.container)
+        //val mapview = findViewById<MapView>(R.id.mapview)
 
         window.statusBarColor = Color.parseColor("#40111111")
         window.navigationBarColor = Color.parseColor("#40111111")
@@ -60,8 +62,9 @@ class MapsActivity : AppCompatActivity() {
             params.bottomMargin = insets.systemWindowInsetBottom
             params.leftMargin = insets.systemWindowInsetLeft
             params.rightMargin = insets.systemWindowInsetRight
+
             mapFragment.getMapAsync {
-                it.setPadding((insets.systemWindowInsetLeft + 8 * resources.displayMetrics.density).toInt(), (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+                it.setPadding((insets.systemWindowInsetLeft + 8 * resources.displayMetrics.density).toInt(), (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, (-30* resources.displayMetrics.density).toInt())
             }
             insets.consumeSystemWindowInsets()
         }
@@ -78,7 +81,7 @@ class MapsActivity : AppCompatActivity() {
 
 
         busButton.setOnClickListener {
-            SelectBusDialog.show(this, mRoutes, mInsets) {routes->
+            SelectBusDialog.show(this, mRoutes, mInsets) { routes ->
                 onQuerySubmit(routes)
             }
         }
@@ -86,16 +89,18 @@ class MapsActivity : AppCompatActivity() {
         //endregion
 
         mapManager = MapManager(this, mapFragment)
-        mapManager.subscribeReady { onReady() }
+
+
+        mapManager.subscribeReady {
+           // Toast.makeText(this@MapsActivity, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
+            showBusStations()
+        }
 
         menuManager = MenuManager(this)
         menuManager.initialize(nav_view)
 
         settingsManager = SettingsManager()
 
-        DataBus.instance.setManager(mapManager)
-        DataBus.instance.setManager(menuManager)
-        DataBus.instance.setManager(settingsManager)
 
         DataBus.subscribe<String?>(DataBus.Referer) { DataService.setReferer(it) }
         DataBus.subscribe<Bus>(DataBus.BusClick) { onBusClicked(it.route) }
@@ -116,6 +121,10 @@ class MapsActivity : AppCompatActivity() {
             }
         }, 0, 30 * 1000)
         restoreInstanceState(savedInstanceState)
+
+
+
+
     }
 
     private fun onStationClicked(stationOnMap: StationOnMap) {
@@ -134,20 +143,17 @@ class MapsActivity : AppCompatActivity() {
     }
 
 
-    private var showedToast: Boolean = false
-
     override fun onResume() {
         super.onResume()
         mActive = true
         updateBuses()
-
-        if (!showedToast) Toast.makeText(this, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
-        showedToast=true
+        // mapManager.resume()
     }
 
     override fun onPause() {
         super.onPause()
         mActive = false
+        // mapManager.pause()
     }
 
 
@@ -185,11 +191,6 @@ class MapsActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun onReady() {
-        showBusStations()
-    }
-
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {

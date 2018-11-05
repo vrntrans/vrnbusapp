@@ -21,7 +21,7 @@ class Station(
             val detail = info.arrivalInfo.arrivalDetails.first()
 
             val buses = detail.arrivalBuses.asSequence().map {
-                Bus(it.bus.route, it.bus.number, it.bus.busStation, it.bus.lastStationTime, it.bus.lastSpeed, it.bus.time, detail.lat, detail.lon, it.bus.lastLat, it.bus.lastLon, it.timeLeft, it.distance, it.bus.lowFloor==1, 0)
+                Bus(it.bus.route, it.bus.number, it.bus.busStation, it.bus.lastStationTime, it.bus.lastSpeed, it.bus.time, detail.lat, detail.lon, it.bus.lastLat, it.bus.lastLon, it.timeLeft, it.distance, it.bus.lowFloor==1, it.bus.busType)
             }.toMutableList()
             val routes = buses.toMutableList()
 

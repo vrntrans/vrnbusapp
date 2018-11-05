@@ -10,9 +10,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.TextViewCompat
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.android.UI
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.boomik.vrnbus.*
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
@@ -119,12 +119,17 @@ class StationInfoDialog {
                                 time.text = stationInfo.time
 
 
-                                var routes = stationInfo.routes
+                                val routes = stationInfo.routes
                                 val favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+                                var sortedRoutes: MutableList<Bus>
                                 if (favorites!=null) {
-                                    routes = routes.sortedBy { favorites.contains(it.route) && it.arrivalTime!=null }
-                                }
-                                adapter.setRoutes(routes)
+                                    val favRoutes = routes.filter { favorites.contains(it.route) && it.arrivalTime!=null }
+                                    val noFavRoutes = routes.filterNot { favorites.contains(it.route) && it.arrivalTime!=null }.sortedByDescending { it.arrivalTime!=null }
+                                    sortedRoutes = mutableListOf()
+                                    sortedRoutes.addAll(favRoutes)
+                                    sortedRoutes.addAll(noFavRoutes)
+                                } else sortedRoutes = routes.toMutableList()
+                                adapter.setRoutes(sortedRoutes)
 
                                 if (first) {
                                     /*

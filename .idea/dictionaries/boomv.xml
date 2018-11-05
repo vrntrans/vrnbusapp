@@ -2,6 +2,7 @@
   <dictionary name="boomv">
     <words>
       <w>consts</w>
+      <w>gson</w>
     </words>
   </dictionary>
 </component>

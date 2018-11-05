@@ -6,7 +6,7 @@
     <string name="action_refresh">Обновить</string>
     <string name="title_activity_maps">Карта</string>
     <string name="enter_routes">Введите номера маршрутов</string>
-    <string name="nav_header_subtitle">МБУ ЦОДД</string>
+    <string name="nav_header_subtitle">Автобусы Воронежа</string>
     <string name="action_settings">Настройки</string>
     <string name="nav_header_desc">Меню</string>
     <string name="Traffic">Пробки</string>
@@ -16,8 +16,8 @@
     <string name="Cancel">Отмена</string>
     <string name="enter_referer">Введите реферер</string>
     <string name="favorite">избранное</string>
-    <string name="big_capacity">Большой вместимости.</string>
-    <string name="medium_capacity">Средней вместимости.</string>
-    <string name="small_capacity">Малой вместимости.</string>
-    <string name="arrival_at">приедет в ~</string>
+    <string name="big_capacity">Большой</string>
+    <string name="medium_capacity">Средний</string>
+    <string name="small_capacity">Малый</string>
+    <string name="arrival_at">прибудет в ~</string>
 </resources>

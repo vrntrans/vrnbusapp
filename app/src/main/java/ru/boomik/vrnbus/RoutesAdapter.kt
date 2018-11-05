@@ -25,6 +25,7 @@ class RoutesAdapter(private val context: Context, BussList: List<Bus>) : BaseAda
         favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
         DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) {
             favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+            notifyDataSetChanged()
         }
     }
 
