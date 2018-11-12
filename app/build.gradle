@@ -84,10 +84,5 @@ dependencies {
     implementation 'konifar:fab-transformation:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    implementation 'org.osmdroid:osmdroid-android:6.0.2'
-
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:6.6.5'
-
-
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.30.2-eap13'
 }

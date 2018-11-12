@@ -102,9 +102,9 @@ class MapsActivity : AppCompatActivity() {
         settingsManager = SettingsManager()
 
 
-        DataBus.subscribe<String?>(DataBus.Referer) { DataService.setReferer(it) }
-        DataBus.subscribe<Bus>(DataBus.BusClick) { onBusClicked(it.route) }
-        DataBus.subscribe<StationOnMap>(DataBus.StationClick) { onStationClicked(it) }
+        DataBus.subscribe<String?>(DataBus.Referer) { DataService.setReferer(it.data) }
+        DataBus.subscribe<Bus>(DataBus.BusClick) { if (it.data!=null)  onBusClicked(it.data!!.route) }
+        DataBus.subscribe<StationOnMap>(DataBus.StationClick) { if (it.data!=null) onStationClicked(it.data!!) }
 
         dataStorageManager = DataStorageManager()
         dataStorageManager.setActivity(this)

@@ -1,7 +1,6 @@
 package ru.boomik.vrnbus
 
 import com.google.android.gms.maps.model.LatLng
-import org.osmdroid.util.GeoPoint
 
 
 object Consts{
@@ -23,9 +22,6 @@ object Consts{
     const val TILES_URL_MB="http://a.tiles.mapbox.com/v3/mapbox.geography-class/{z}/{x}/{y}.png"
 
     const val INITIAL_ZOOM = 16f
-    const val INITIAL_ZOOM_OSM = 16.0
     val INITIAL_POSITION =  LatLng(51.661772, 39.202066)
-    val INITIAL_POSITION_BOX =  com.mapbox.mapboxsdk.geometry.LatLng(51.661772, 39.202066)
-    val INITIAL_POSITION_OSM =  GeoPoint(51.661772, 39.202066)
 
 }

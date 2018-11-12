@@ -49,7 +49,20 @@ class DataService {
                         val info = result.get()
                         val busDtos = info.buses
                         callback(busDtos.filter { it.count() == 2 }.map {
-                             Bus(it[0].route, it[0].number, it[1].nextStationName ?: "", it[0].lastStationTime, it[0].lastSpeed, it[0].time, it[1].lat, it[1].lon, it[0].lastLat, it[0].lastLon, .0, .0, it[0].lowFloor==1, it[0].busType)
+                             val bus = Bus()
+                            bus.route = it[0].route
+                            bus.number = it[0].number
+                            bus.nextStationName = it[1].nextStationName ?: ""
+                            bus.lastStationTime = it[0].lastStationTime
+                            bus.lastSpeed = it[0].lastSpeed
+                            bus.time = it[0].time
+                            bus.lat = it[1].lat
+                            bus.lon = it[1].lon
+                            bus.lastLat = it[0].lastLat
+                            bus.lastLon = it[0].lastLon
+                            bus.lowFloor = it[0].lowFloor==1
+                            bus.busType =  it[0].busType
+                            bus
                         })
                     } catch (exception: Throwable) {
                         Log.e("VrnBus", "Hm..", exception)

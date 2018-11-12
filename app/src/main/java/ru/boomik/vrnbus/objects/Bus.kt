@@ -6,28 +6,50 @@ import java.util.*
 /**
  * Created by boomv on 15.03.2018.
  */
-class Bus(
-        var route: String,
-        var number: String,
-        var nextStationName: String?,
-        var lastStationTime: String,
-        var lastSpeed: Int,
-        var time: String,
-        var lat: Double,
-        var lon: Double,
-        val lastLat: Double,
-        val lastLon: Double,
-        var timeLeft: Double,
-        val distance: Double,
-        var lowFloor: Boolean,
-        var busType: Int) {
+enum class BusType {
+    Small,
+    Medium,
+    Big,
+    BigLowFloor,
+    Trolleybus
+}
 
-    constructor(route: String) : this(route, "", "", "", 0, "", 0.0, 0.0, 0.0, 0.0, Double.MAX_VALUE, 0.0, false, 0)
+class Bus {
+    var route: String = ""
+    var number: String? = null
+    var nextStationName: String? = null
+    var lastStationTime: String? = null
+    var lastSpeed: Int = 0
+    var time: String? = null
+    var lat: Double = .0
+    var lon: Double = .0
+    var lastLat: Double = .0
+    var lastLon: Double = .0
+    var timeLeft: Double = Double.MAX_VALUE
+    var distance: Double = .0
+    var lowFloor: Boolean = false
+    var busType: Int = -1
 
+
+    constructor()
+
+    constructor(route: String){
+        this.route = route
+    }
     var timeToArrival : Long = 0
     var arrivalTime : Date? = null
 
+    var type: BusType
+
     init {
+        type = when {
+            route.startsWith("Тр.") -> BusType.Trolleybus
+            lowFloor -> BusType.BigLowFloor
+            busType==3 -> BusType.Medium
+            busType==4 -> BusType.Big
+            else -> BusType.Small
+        }
+
         timeToArrival = (System.currentTimeMillis() + timeLeft*60*1000).toLong()
         if (timeLeft!=Double.MAX_VALUE) {
             val cal = Calendar.getInstance()
@@ -35,14 +57,7 @@ class Bus(
             arrivalTime = cal.time
         }
     }
-    fun init() {
-        timeToArrival = (System.currentTimeMillis() + timeLeft*60*1000).toLong()
-        if (timeLeft!=Double.MAX_VALUE) {
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.MILLISECOND, (timeLeft * 60 * 1000).toInt())
-            arrivalTime = cal.time
-        }
-    }
+
 
     fun getSnippet(): String? {
         return "$nextStationName\nгос. номер: $number\nскорость: $lastSpeed"

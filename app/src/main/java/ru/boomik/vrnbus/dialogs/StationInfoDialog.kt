@@ -34,6 +34,7 @@ class StationInfoDialog {
             val list: ListView = dialogView.findViewById(R.id.list)
             val close: ImageButton = dialogView.findViewById(R.id.close)
             val favorite: ImageButton = dialogView.findViewById(R.id.favorite)
+            val showBuses: ImageButton = dialogView.findViewById(R.id.showBuses)
             val progress: ProgressBar = dialogView.findViewById(R.id.progress)
             val progressIndeterminate: ProgressBar = dialogView.findViewById(R.id.progressIndeterminate)
             TextViewCompat.setAutoSizeTextTypeWithDefaults(title, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
@@ -50,6 +51,10 @@ class StationInfoDialog {
             dialog.show()
 
             close.setOnClickListener {
+                dialog.dismiss()
+                DataStorageManager.instance.activeStationId = 0
+            }
+            showBuses.setOnClickListener {
                 dialog.dismiss()
                 DataStorageManager.instance.activeStationId = 0
             }

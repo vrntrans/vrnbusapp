@@ -114,7 +114,7 @@
             app:srcCompat="@drawable/ic_no_favorite" />
 
         <ImageButton
-            android:id="@+id/favorite2"
+            android:id="@+id/showBuses"
             style="@style/Widget.AppCompat.ImageButton"
             android:layout_width="52dp"
             android:layout_height="0dp"

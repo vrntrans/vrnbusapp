@@ -1,7 +1,6 @@
 package ru.boomik.vrnbus.objects
 
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.clustering.ClusterItem
 
 
 class StationOnMap(val name: String, val id : Int, var lat: Double, var lon: Double)  {
@@ -17,8 +16,5 @@ class StationOnMap(val name: String, val id : Int, var lat: Double, var lon: Dou
 
     fun getPosition(): LatLng {
         return LatLng(lat, lon)
-    }
-    fun getPositionBox(): com.mapbox.mapboxsdk.geometry.LatLng {
-        return com.mapbox.mapboxsdk.geometry.LatLng(lat, lon)
     }
 }

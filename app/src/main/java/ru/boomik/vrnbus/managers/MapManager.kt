@@ -22,6 +22,7 @@ import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.Bus
+import ru.boomik.vrnbus.objects.BusType
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.CustomUrlTileProvider
@@ -52,7 +53,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mActivity)
 
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
-            setTrafficJam(it)
+            setTrafficJam(it.data ?: false)
         }
     }
 
@@ -77,7 +78,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             3 -> Consts.TILES_URL_C
             else -> Consts.TILES_URL_A
         })
-        mMap.addTileOverlay(TileOverlayOptions().tileProvider(mTileProvider))
+        mMap.addTileOverlay(TileOverlayOptions().tileProvider(mTileProvider).zIndex(0f))
         mMap.mapType = GoogleMap.MAP_TYPE_NONE
         mMap.setMaxZoomPreference(19f)
 
@@ -90,8 +91,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mLocationButton = (mMapFragment.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(Integer.parseInt("2"))
 
         mMap.uiSettings.isMyLocationButtonEnabled = true
-        mMap.uiSettings.isCompassEnabled = true
+        mMap.uiSettings.isCompassEnabled = false
         mMap.uiSettings.isMapToolbarEnabled = false
+        mMap.uiSettings.isRotateGesturesEnabled = false
         mMap.isTrafficEnabled = mTraffic
 
 
@@ -184,8 +186,26 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun showBusesOnMap(it: List<Bus>) {
         val d = mActivity.resources.displayMetrics.density
         val size = (36 * d).toInt()
+
+        val res = mActivity.resources
+        val theme = mActivity.theme
+        val small = res.getDrawable(R.drawable.ic_bus_small, theme)
+        val medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
+        val big = res.getDrawable(R.drawable.ic_bus_large, theme)
+        val bigFloor = res.getDrawable(R.drawable.ic_bus_large, theme)
+        val trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
+
+
         val newBusesMarkers = it.map {
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(size, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(.5f, .5f))
+            val icon = when {
+                it.type == BusType.Small -> small
+                it.type == BusType.Medium -> medium
+                it.type == BusType.Big -> big
+                it.type == BusType.BigLowFloor -> bigFloor
+                it.type == BusType.Trolleybus -> trolleybus
+                else -> big
+            }
+            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(icon, size, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(.5f, .5f))
             marker.tag = it
             marker
         }
@@ -204,7 +224,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         if (stationsOnMap == null) return
 
         mAllStations = stationsOnMap
-
 
         val showBig = mMap.cameraPosition.zoom >= stationVisibleZoomSmall
         val showSmall = mMap.cameraPosition.zoom >= stationVisibleZoom
@@ -317,6 +336,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val d = mActivity.resources.displayMetrics.density
         line.width(2 * d)
         line.color(Color.BLUE)
+        line.zIndex(1f)
         PolylineOptions()
         mRouteOnMap = mMap.addPolyline(line)
     }

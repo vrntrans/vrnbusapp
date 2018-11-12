@@ -22,16 +22,16 @@ class SettingsManager {
         this.mPreferences = BinaryPreferencesBuilder(activity.applicationContext).build()
         loadPreferences()
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
-            mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it).apply()
+            mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it.data ?: false).apply()
         }
         DataBus.subscribe<String?>(DataBus.Referer) {
-            mPreferences.edit().putString(Consts.SETTINGS_REFERER, it).apply()
+            mPreferences.edit().putString(Consts.SETTINGS_REFERER, it.data).apply()
         }
         DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) {
-            saveStringToList(Consts.SETTINGS_FAVORITE_ROUTE, it.first, it.second)
+            if (it.data!=null) saveStringToList(Consts.SETTINGS_FAVORITE_ROUTE, it.data!!.first, it.data!!.second)
         }
         DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
-            saveIntToList(Consts.SETTINGS_FAVORITE_STATIONS, it.first, it.second)
+            if (it.data!=null)  saveIntToList(Consts.SETTINGS_FAVORITE_STATIONS, it.data!!.first, it.data!!.second)
         }
     }
 

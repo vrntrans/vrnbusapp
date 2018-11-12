@@ -33,9 +33,12 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_map" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="height" value="48" />
+                            <entry key="outputName" value="ic_bus_large" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\boomv" />
+                            <entry key="sourceFile" value="D:\Developing\VrnBus\img\bus_large.svg" />
+                            <entry key="width" value="48" />
                           </map>
                         </option>
                       </PersistentState>

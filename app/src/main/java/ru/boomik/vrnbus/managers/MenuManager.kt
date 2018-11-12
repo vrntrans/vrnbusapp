@@ -17,7 +17,7 @@ class MenuManager(private val activity: Activity) : NavigationView.OnNavigationI
         val trafficJamItem = nav_view.menu.findItem(R.id.traffic_jam)
         val switchView = trafficJamItem.actionView as Switch
         switchView.setOnCheckedChangeListener { _, isChecked -> DataBus.sendEvent(DataBus.Traffic, isChecked) }
-        DataBus.subscribe<Boolean>(DataBus.Traffic) { switchView.isChecked = it }
+        DataBus.subscribe<Boolean>(DataBus.Traffic) { switchView.isChecked = it.data ?: false }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

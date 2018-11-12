@@ -1,14 +1,13 @@
 package ru.boomik.vrnbus
 
 import android.annotation.SuppressLint
-import ru.boomik.vrnbus.managers.MapManager
-import ru.boomik.vrnbus.managers.MenuManager
-import ru.boomik.vrnbus.managers.SettingsManager
-import ru.boomik.vrnbus.objects.Bus
-import ru.boomik.vrnbus.objects.StationOnMap
 import java.security.InvalidParameterException
 
+typealias Subscriber<T> = (Notification<T>) -> Unit
+data class Notification<T : Any?>(var data: T?, var eventName: String)
+
 class DataBus {
+
 
     //region Instance
     private object Holder {
@@ -16,11 +15,10 @@ class DataBus {
         val INSTANCE: DataBus = DataBus()
     }
 
-    init {
-        initListeners()
-    }
+
     //endregion
 
+    @Suppress("UNCHECKED_CAST")
     companion object {
         val instance: DataBus by lazy { Holder.INSTANCE }
 
@@ -35,74 +33,65 @@ class DataBus {
 
         //region sendEvent
         fun <T> sendEvent(key: String, obj: T) {
-            instance.getListeners<T>(key).forEach { it(obj) }
-        }
-
-        fun sendEvent(key: String) {
-            instance.getEmptyListeners(key).forEach { it() }
+            instance.sendEvent(key, obj)
         }
         //endregion
 
+/*
         //region subscribe
         fun <T> subscribe(key: String, listener: (T) -> Unit) {
+            var lst: (T) -> Unit = listener
+
             instance.getListeners<T>(key).add(listener)
+        }*/
+
+
+        inline fun <reified T : Any?> subscribe(notificationName: String, noinline sub: Subscriber<T?>) {
+            return instance.subscribe(notificationName, sub)
         }
 
-        fun subscribeEmpty(key: String, listener: () -> Unit) {
-            instance.getEmptyListeners(key).add(listener)
-        }
         //endregion
     }
 
-    //region Listeners
-    private lateinit var eventsMap: Map<String, Any>
-
-    private fun initListeners() {
-        mTrafficChangedCallback = mutableListOf()
-        mRefererChangedCallback = mutableListOf()
-        mStationCallback = mutableListOf()
-        mBusCallback = mutableListOf()
-        mBusToMapCallback = mutableListOf()
-        mUpdateCallback = mutableListOf()
-        mFavoriteRouteCallback = mutableListOf()
-        mFavoriteStationCallback = mutableListOf()
-
-        eventsMap = mapOf<String, Any>(
-                Pair(Traffic, mTrafficChangedCallback),
-                Pair(Referer, mRefererChangedCallback),
-                Pair(StationClick, mStationCallback),
-                Pair(BusClick, mBusCallback),
-                Pair(BusToMap, mBusToMapCallback),
-                Pair(Update, mUpdateCallback),
-                Pair(FavoriteRoute, mFavoriteRouteCallback),
-                Pair(FavoriteStation, mFavoriteStationCallback)
-        )
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> sendEvent(key: String, obj: T?) {
+        synchronized(subscribers) {
+            val ls = subscribers[key]
+            val notification = Notification(obj, key) as Notification<Any?>
+            ls?.forEach {
+                it(notification)
+            } ?: println("NO LISTENERS FOR EVENT '$key'")
+        }
     }
 
-    private lateinit var mTrafficChangedCallback: MutableList<(Boolean) -> Unit>
-    private lateinit var mRefererChangedCallback: MutableList<(String?) -> Unit>
-    private lateinit var mStationCallback: MutableList<(StationOnMap) -> Unit>
-    private lateinit var mBusCallback: MutableList<(Bus) -> Unit>
-    private lateinit var mBusToMapCallback: MutableList<(List<Bus>) -> Unit>
-    private lateinit var mUpdateCallback: MutableList<() -> Unit>
-    private lateinit var mFavoriteRouteCallback: MutableList<(Pair<String,Boolean>) -> Unit>
-    private lateinit var mFavoriteStationCallback: MutableList<(Pair<Int,Boolean>) -> Unit>
+
+    //region Listeners
+    var subscribers : MutableMap<String, List<Subscriber<Any?>>> = mutableMapOf()
+
+    init {
+    }
     //endregion
+
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Any?> subscribe(key: String, noinline sub: Subscriber<T?>) {
+        (sub as? Subscriber<Any?>)?.let { subscriber ->
+            if (key.isBlank()) throw IllegalStateException("Key not be empty")
+            if (!subscribers.containsKey(key)) {
+                subscribers[key] = mutableListOf(subscriber)
+            } else {
+                val subs= subscribers[key] as? MutableList<Subscriber<Any?>>
+                subs?.add(subscriber)
+            }
+        }
+    }
 
     //region InternalMethods
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getListeners(key: String): MutableList<(T) -> Unit> {
+    private fun <T> getListeners(key: String): MutableList<Subscriber<T>> {
         if (key.isBlank()) throw IllegalStateException("Key not be empty")
-        if (!eventsMap.containsKey(key)) throw NoSuchFieldException("No listeners for this $key found")
-        return eventsMap[key] as? MutableList<(T) -> Unit>
-                ?: throw InvalidParameterException("Incorrect value type")
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun getEmptyListeners(key: String): MutableList<() -> Unit> {
-        if (key.isBlank()) throw IllegalStateException("Key not be empty")
-        if (!eventsMap.containsKey(key)) throw NoSuchFieldException("No listeners for this $key found")
-        return eventsMap[key] as? MutableList<() -> Unit>
+        if (!subscribers.containsKey(key)) throw NoSuchFieldException("No listeners for this $key found")
+        return subscribers[key] as? MutableList<Subscriber<T>>
                 ?: throw InvalidParameterException("Incorrect value type")
     }
     //endregion

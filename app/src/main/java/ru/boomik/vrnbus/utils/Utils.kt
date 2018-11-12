@@ -11,6 +11,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import ru.boomik.vrnbus.Log
 import java.io.IOException
 import java.nio.charset.Charset
+import android.graphics.drawable.Drawable
+
+
 
 
 fun loadJSONFromAsset(context : Context, fileName: String, loaded: (String) -> Unit){
@@ -29,7 +32,7 @@ fun loadJSONFromAsset(context : Context, fileName: String, loaded: (String) -> U
     }.run()
 }
 
-fun createImageRoundedBitmap(width: Int, height: Int, name: String, azimuth: Double): Bitmap {
+fun createImageRoundedBitmap(icon: Drawable, width: Int, height: Int, name: String, azimuth: Double): Bitmap {
     val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(output)
 
@@ -68,13 +71,17 @@ fun createImageRoundedBitmap(width: Int, height: Int, name: String, azimuth: Dou
         textWidth = paintText.measureText(name)
     }
 
-    canvas.drawText(name, (width-textWidth)/2, height.toFloat()/2F+arrowSize/2, paintText)
+    val padding = arrowSize.toInt()
+    icon.setBounds(padding, padding, width-padding*2, height-padding*2)
+    icon.draw(canvas)
+
+    //canvas.drawText(name, (width-textWidth)/2, height.toFloat()/2F+arrowSize/2, paintText)
 
     return output
 }
-fun createImageRounded(width: Int, height: Int, name: String, azimuth: Double): BitmapDescriptor? {
+fun createImageRounded(resource: Drawable, width: Int, height: Int, name: String, azimuth: Double): BitmapDescriptor? {
 
-    return BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(width, height, name, azimuth))
+    return BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(resource, width, height, name, azimuth))
 }
 
 fun requestPermission(activity : Activity, permission : String, requestCode : Int) : Boolean {
