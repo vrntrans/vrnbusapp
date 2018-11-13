@@ -16,10 +16,12 @@
         android:title="@string/Referer" />
     <item
         android:id="@+id/night"
+        android:visible="false"
         android:icon="@drawable/ic_night"
         android:title="@string/night_mode" />
     <item
         android:id="@+id/settings"
+        android:visible="false"
         android:icon="@drawable/ic_settings"
         android:title="@string/action_settings" />
     <item
