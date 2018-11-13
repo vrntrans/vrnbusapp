@@ -16,8 +16,12 @@
     <string name="Cancel">Отмена</string>
     <string name="enter_referer">Введите реферер</string>
     <string name="favorite">избранное</string>
-    <string name="big_capacity">Большой</string>
-    <string name="medium_capacity">Средний</string>
-    <string name="small_capacity">Малый</string>
+    <string name="big_capacity">Большой вместимости</string>
+    <string name="medium_capacity">Средней вместимости</string>
+    <string name="small_capacity">Малой вместимости</string>
+    <string name="trolleybus">Троллейбус</string>
     <string name="arrival_at">прибудет в ~</string>
+    <string name="low_floor">Низкопольный</string>
+    <string name="About">О программе</string>
+    <string name="night_mode">Ночной режим</string>
 </resources>

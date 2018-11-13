@@ -62,6 +62,7 @@ class DataService {
                             bus.lastLon = it[0].lastLon
                             bus.lowFloor = it[0].lowFloor==1
                             bus.busType =  it[0].busType
+                            bus.init()
                             bus
                         })
                     } catch (exception: Throwable) {

@@ -10,11 +10,11 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
@@ -48,23 +48,29 @@ class MapsActivity : AppCompatActivity() {
 
 
         setContentView(R.layout.activity_drawer)
-        //  val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val container = findViewById<ConstraintLayout>(R.id.container)
-        //val mapview = findViewById<MapView>(R.id.mapview)
+        val plus = findViewById<FloatingActionButton>(R.id.plus)
+        val minus = findViewById<FloatingActionButton>(R.id.minus)
+        val appVersion = findViewById<TextView>(R.id.app_version)
+        appVersion.text = "Версия " + getVersionString()
 
         window.statusBarColor = Color.parseColor("#40111111")
         window.navigationBarColor = Color.parseColor("#40111111")
         ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
-            mInsets = insets
             val params = v.layoutParams as ViewGroup.MarginLayoutParams
+            val d = resources.displayMetrics.density
+
+            mInsets = insets
+
             params.topMargin = insets.systemWindowInsetTop
             params.bottomMargin = insets.systemWindowInsetBottom
             params.leftMargin = insets.systemWindowInsetLeft
             params.rightMargin = insets.systemWindowInsetRight
+            app_version.setPaddingRelative((16*d).toInt(),0,0, (insets.systemWindowInsetBottom+16*d).toInt())
 
             mapFragment.getMapAsync {
-                it.setPadding((insets.systemWindowInsetLeft + 8 * resources.displayMetrics.density).toInt(), (insets.systemWindowInsetTop + (32 + 40) * resources.displayMetrics.density).toInt(), insets.systemWindowInsetRight, (-30* resources.displayMetrics.density).toInt())
+                it.setPadding((insets.systemWindowInsetLeft + 8 * resources.displayMetrics.density).toInt(), (insets.systemWindowInsetTop + (32 + 40) * d).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             }
             insets.consumeSystemWindowInsets()
         }
@@ -74,9 +80,7 @@ class MapsActivity : AppCompatActivity() {
         }
 
         myLocation.setOnClickListener {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-                mapManager.goToMyLocation()
-            else enableMyLocation()
+            goToMyLocation()
         }
 
 
@@ -122,9 +126,22 @@ class MapsActivity : AppCompatActivity() {
         }, 0, 30 * 1000)
         restoreInstanceState(savedInstanceState)
 
+        plus.setOnClickListener { mapManager.zoomIn() }
+        minus.setOnClickListener { mapManager.zoomOut() }
 
 
+    }
 
+    private fun getVersionString(): CharSequence? {
+        try {
+            val pInfo = packageManager.getPackageInfo(packageName, 0)
+            val version = pInfo.versionName
+            val versionCode = pInfo.versionCode
+            return "$version ($versionCode)"
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        return ""
     }
 
     private fun onStationClicked(stationOnMap: StationOnMap) {
@@ -187,14 +204,14 @@ class MapsActivity : AppCompatActivity() {
         when (requestCode) {
             Consts.LOCATION_PERMISSION_REQUEST -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))
-                    enableMyLocation()
+                    goToMyLocation()
             }
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun enableMyLocation() {
-        if (requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, Consts.LOCATION_PERMISSION_REQUEST)) mapManager.enableMyLocation()
+    private fun goToMyLocation() {
+        if (requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION, Consts.LOCATION_PERMISSION_REQUEST)) mapManager.goToMyLocation()
     }
 
     private fun onQuerySubmit(query: String) {

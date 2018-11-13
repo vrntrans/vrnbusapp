@@ -36,6 +36,7 @@ class Station(
                 bus.distance=it.distance
                 bus.lowFloor=it.bus.lowFloor==1
                 bus.busType=it.bus.busType
+                bus.init()
                 bus
             }.toMutableList()
             val routes = buses.toMutableList()

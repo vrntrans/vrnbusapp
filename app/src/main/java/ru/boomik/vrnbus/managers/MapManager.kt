@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -40,7 +41,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     private lateinit var mMap: GoogleMap
     private lateinit var mReadyCallback: () -> Unit
-    private lateinit var mLocationButton: View
 
     private var mBusesMarkers: List<Marker>? = null
     private var mRouteOnMap: Polyline? = null
@@ -71,7 +71,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        val r = Random(System.currentTimeMillis()).nextInt(1,3)
+        val r = Random(System.currentTimeMillis()).nextInt(1, 3)
         val mTileProvider = CustomUrlTileProvider(256, 256, when (r) {
             1 -> Consts.TILES_URL_A
             2 -> Consts.TILES_URL_B
@@ -82,18 +82,12 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mMap.mapType = GoogleMap.MAP_TYPE_NONE
         mMap.setMaxZoomPreference(19f)
 
-        /*
-        try {
-            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(mActivity, R.raw.map_style_json))
-        } catch (e: Resources.NotFoundException) {
-        }*/
-
-        mLocationButton = (mMapFragment.view?.findViewById<View>(Integer.parseInt("1"))?.parent as View).findViewById<View>(Integer.parseInt("2"))
-
-        mMap.uiSettings.isMyLocationButtonEnabled = true
+        mMap.uiSettings.isMyLocationButtonEnabled = false
         mMap.uiSettings.isCompassEnabled = false
         mMap.uiSettings.isMapToolbarEnabled = false
         mMap.uiSettings.isRotateGesturesEnabled = false
+        mMap.uiSettings.isIndoorLevelPickerEnabled = false
+        mMap.uiSettings.isTiltGesturesEnabled = false
         mMap.isTrafficEnabled = mTraffic
 
 
@@ -117,8 +111,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         }
         mReadyCallback()
 
-        mLocationButton.visibility = View.INVISIBLE
-
 
         if (initPosition != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initPosition, initZoom))
@@ -134,10 +126,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             }
         }
 
-        async(UI) {
-            delay(500)
-            mLocationButton.visibility = View.INVISIBLE
-        }
         initPosition = null
     }
 
@@ -192,7 +180,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val small = res.getDrawable(R.drawable.ic_bus_small, theme)
         val medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
         val big = res.getDrawable(R.drawable.ic_bus_large, theme)
-        val bigFloor = res.getDrawable(R.drawable.ic_bus_large, theme)
+        val bigFloor = res.getDrawable(R.drawable.ic_bus_large_low_floor, theme)
         val trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
 
 
@@ -205,7 +193,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 it.type == BusType.Trolleybus -> trolleybus
                 else -> big
             }
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(icon, size, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(.5f, .5f))
+            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(icon, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(1 / 6f, .5f))
             marker.tag = it
             marker
         }
@@ -268,8 +256,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
     private fun checkFavoritesStations() {
-        if (mShowBig) mInFavoriteStationMarkers.forEach { it.isVisible=true }
-        if (mShowSmall) mInFavoriteStationSmallMarkers.forEach { it.isVisible=true }
+        if (mShowBig) mInFavoriteStationMarkers.forEach { it.isVisible = true }
+        if (mShowSmall) mInFavoriteStationSmallMarkers.forEach { it.isVisible = true }
 
         if (favoriteStations != null) {
 
@@ -308,22 +296,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         checkZoom()
     }
 
-    @SuppressLint("MissingPermission")
-    fun enableMyLocation() {
-        mMap.isMyLocationEnabled = true
-        mLocationButton.visibility = View.INVISIBLE
-        fusedLocationClient.lastLocation.continueWith {
-            val location = it.result
-            if (location != null && it.isSuccessful) {
-                val latLng = LatLng(location.latitude, location.longitude)
-                if (location.latitude == .0) return@continueWith
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
-                checkZoom()
-            }
-        }
-
-    }
-
     fun clearRoutes() {
         mRouteOnMap?.remove()
     }
@@ -342,23 +314,18 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     }
 
 
+    @SuppressLint("MissingPermission")
     fun goToMyLocation() {
-        if (mLocationButton.hasOnClickListeners()) {
-            mLocationButton.callOnClick()
-        } else {
-            if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mMap.isMyLocationEnabled = true
-                fusedLocationClient.lastLocation.continueWith {
-                    val location = it.result
-                    if (location != null && it.isSuccessful) {
-                        val latLng = LatLng(location.latitude, location.longitude)
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
-                    }
-                }
+        mMap.isMyLocationEnabled = true
+        fusedLocationClient.lastLocation.continueWith {
+            val location = it.result
+            if (location != null && it.isSuccessful) {
+                val latLng = LatLng(location.latitude, location.longitude)
+                if (location.latitude == .0) return@continueWith
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
             }
         }
         checkZoom()
-        mLocationButton.visibility = View.INVISIBLE
     }
 
 
@@ -392,6 +359,16 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 }
             }
         }
+    }
+
+    fun zoomIn() {
+        if (!::mMap.isInitialized) return
+        mMap.animateCamera(CameraUpdateFactory.zoomIn())
+    }
+
+    fun zoomOut() {
+        if (!::mMap.isInitialized) return
+        mMap.animateCamera(CameraUpdateFactory.zoomOut())
     }
 
 }

@@ -12,9 +12,18 @@
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="preferenceTheme">@style/AppTheme.PreferenceTheme</item>
 
     </style>
 
+
+    <style name="AppTheme.PreferenceTheme" parent="PreferenceThemeOverlay">
+        <!-- Only need this on pre-Lollipop -->
+        <item name="accentColorCompat">?colorAccent</item>
+        <item name="backgroundCompat">?selectableItemBackground</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+    </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>

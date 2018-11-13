@@ -14,9 +14,7 @@ import java.nio.charset.Charset
 import android.graphics.drawable.Drawable
 
 
-
-
-fun loadJSONFromAsset(context : Context, fileName: String, loaded: (String) -> Unit){
+fun loadJSONFromAsset(context: Context, fileName: String, loaded: (String) -> Unit) {
     Thread {
         loaded(try {
             val inputStream = context.assets.open(fileName)
@@ -32,12 +30,8 @@ fun loadJSONFromAsset(context : Context, fileName: String, loaded: (String) -> U
     }.run()
 }
 
-fun createImageRoundedBitmap(icon: Drawable, width: Int, height: Int, name: String, azimuth: Double): Bitmap {
-    val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(output)
+fun createImageRoundedBitmap(icon: Drawable, size: Int, name: String, azimuth: Double): Bitmap {
 
-    canvas.save()
-    canvas.rotate(azimuth.toFloat(),width/2F,height/2F)
 
     val paintCircle = Paint()
     val paintText = Paint()
@@ -46,49 +40,65 @@ fun createImageRoundedBitmap(icon: Drawable, width: Int, height: Int, name: Stri
     paintCircle.isAntiAlias = true
     paintCircle.style = Paint.Style.FILL
 
-    val arrowSize = width*0.2F
-    val circleSize = width-arrowSize*2
 
-    canvas.drawCircle(width/2F,height/2F, width/2F - arrowSize, paintCircle)
+    val textSize = size / 2.4F
+    paintText.color = Color.WHITE
+    paintText.textSize = textSize
+    val textWidth = paintText.measureText(name)
+
+    val arrowSize = size * 0.2F
+
+    val output = Bitmap.createBitmap(size * 3, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(output)
+
+    canvas.save()
+    canvas.rotate(azimuth.toFloat(), size / 2F, size / 2F)
+
+    canvas.drawCircle(size / 2F, size / 2F, size / 2F - arrowSize, paintCircle)
 
     val path = Path()
-    path.moveTo(width/2F - arrowSize/2f,arrowSize)
-    path.lineTo(width/2F + arrowSize/2f,arrowSize)
-    path.lineTo(width/2F,0F)
-    path.lineTo(width/2F - arrowSize/2f,arrowSize)
+    path.moveTo(size / 2F - arrowSize / 2f, arrowSize)
+    path.lineTo(size / 2F + arrowSize / 2f, arrowSize)
+    path.lineTo(size / 2F, 0F)
+    path.lineTo(size / 2F - arrowSize / 2f, arrowSize)
     path.close()
     canvas.drawPath(path, paintCircle)
 
     canvas.restore()
 
-    paintText.color = Color.WHITE
-    paintText.textSize = width/3.2F
 
-    var textWidth = paintText.measureText(name)
-
-    while (textWidth>circleSize) {
-        paintText.textSize = paintText.textSize-0.2f
-        textWidth = paintText.measureText(name)
-    }
-
-    val padding = arrowSize.toInt()
-    icon.setBounds(padding, padding, width-padding*2, height-padding*2)
+    val padding = (size * 0.3).toInt()
+    icon.setBounds(padding, padding, size - padding, size - padding)
     icon.draw(canvas)
 
-    //canvas.drawText(name, (width-textWidth)/2, height.toFloat()/2F+arrowSize/2, paintText)
+    val textRect = Rect((size-arrowSize).toInt(), ((size - textSize).toInt()), (size - arrowSize + textWidth + textWidth * 0.2).toInt(), size)
+    paintCircle.style = Paint.Style.FILL
+    paintCircle.color = Color.BLUE
+    paintCircle.alpha = 130
+    canvas.drawRect(textRect, paintCircle)
+    /* paintCircle.alpha=255
+     paintCircle.color = Color.WHITE
+     paintCircle.style = Paint.Style.STROKE
+     paintCircle.strokeWidth = size/36f
+     canvas.drawRect(textRect, paintCircle)*/
+
+    canvas.drawText(name, (size - arrowSize + textWidth * 0.1).toFloat(), size.toFloat() - textSize * 0.2f, paintText)
+
+
 
     return output
 }
-fun createImageRounded(resource: Drawable, width: Int, height: Int, name: String, azimuth: Double): BitmapDescriptor? {
 
-    return BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(resource, width, height, name, azimuth))
+fun createImageRounded(resource: Drawable, size: Int, name: String, azimuth: Double): BitmapDescriptor? {
+
+    return BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(resource, size, name, azimuth))
 }
 
-fun requestPermission(activity : Activity, permission : String, requestCode : Int) : Boolean {
+fun requestPermission(activity: Activity, permission: String, requestCode: Int): Boolean {
     // Here, thisActivity is the current activity
     if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
 
-        ActivityCompat.requestPermissions(activity, arrayOf(permission),requestCode)
+        ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
         return false
         /*
         // Permission is not granted

@@ -11,7 +11,8 @@ enum class BusType {
     Medium,
     Big,
     BigLowFloor,
-    Trolleybus
+    Trolleybus,
+    Unknown
 }
 
 class Bus {
@@ -39,14 +40,15 @@ class Bus {
     var timeToArrival : Long = 0
     var arrivalTime : Date? = null
 
-    var type: BusType
+    var type: BusType = BusType.Unknown
 
-    init {
+     fun init() {
         type = when {
             route.startsWith("Тр.") -> BusType.Trolleybus
             lowFloor -> BusType.BigLowFloor
             busType==3 -> BusType.Medium
             busType==4 -> BusType.Big
+            busType==-1 -> BusType.Unknown
             else -> BusType.Small
         }
 

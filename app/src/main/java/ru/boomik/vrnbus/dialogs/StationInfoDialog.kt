@@ -35,6 +35,7 @@ class StationInfoDialog {
             val close: ImageButton = dialogView.findViewById(R.id.close)
             val favorite: ImageButton = dialogView.findViewById(R.id.favorite)
             val showBuses: ImageButton = dialogView.findViewById(R.id.showBuses)
+            val stationImage: ImageView = dialogView.findViewById(R.id.stationImage)
             val progress: ProgressBar = dialogView.findViewById(R.id.progress)
             val progressIndeterminate: ProgressBar = dialogView.findViewById(R.id.progressIndeterminate)
             TextViewCompat.setAutoSizeTextTypeWithDefaults(title, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
@@ -86,14 +87,15 @@ class StationInfoDialog {
 
             val favorites = SettingsManager.instance.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
 
-
             var inFavorite = favorites?.contains(station.id) ?: false
             favorite.setImageResource(if (inFavorite) R.drawable.ic_favorite else R.drawable.ic_no_favorite)
+            stationImage.setImageResource(if (inFavorite) R.drawable.ic_station_favorite else R.drawable.ic_station)
 
             favorite.setOnClickListener {
                 inFavorite=!inFavorite
                 DataBus.sendEvent(DataBus.FavoriteStation, Pair(station.id,inFavorite))
                 favorite.setImageResource(if (inFavorite) R.drawable.ic_favorite else R.drawable.ic_no_favorite)
+                stationImage.setImageResource(if (inFavorite) R.drawable.ic_station_favorite else R.drawable.ic_station)
             }
 
             startUpdateStationInfo(activity, station, dialog, time, adapter, progress, progressIndeterminate)
@@ -134,6 +136,22 @@ class StationInfoDialog {
                                     sortedRoutes.addAll(favRoutes)
                                     sortedRoutes.addAll(noFavRoutes)
                                 } else sortedRoutes = routes.toMutableList()
+                                /*
+                                val bus = sortedRoutes.first()
+                                bus.busType = 3
+                                bus.timeLeft = 3.0
+                                bus.init()
+                                val bus2 = sortedRoutes[1]
+                                bus2.busType = 4
+                                bus2.timeLeft = 9.0
+                                bus2.lowFloor=true
+                                bus2.init()
+                                val bus3 = sortedRoutes[2]
+                                bus3.busType = 1
+                                bus3.timeLeft = 15.0
+                                bus3.lowFloor=false
+                                bus3.init()
+                                */
                                 adapter.setRoutes(sortedRoutes)
 
                                 if (first) {

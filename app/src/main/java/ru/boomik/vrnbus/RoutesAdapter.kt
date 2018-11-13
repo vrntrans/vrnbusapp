@@ -1,25 +1,36 @@
 package ru.boomik.vrnbus
 
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageButton
-import android.widget.TextView
+import android.widget.*
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
+import ru.boomik.vrnbus.objects.BusType
 import java.lang.StringBuilder
 import java.util.*
 
-class RoutesAdapter(private val context: Context, BussList: List<Bus>) : BaseAdapter() {
+class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAdapter() {
 
     private var busesList: List<Bus> = BussList
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     private var favorites: List<String>?
+
+
+    val res = context.resources
+    val theme = context.theme
+
+    val small = res.getDrawable(R.drawable.ic_bus_small, theme)
+    val medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
+    val big = res.getDrawable(R.drawable.ic_bus_large, theme)
+    val trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
 
     init {
         favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
@@ -27,6 +38,10 @@ class RoutesAdapter(private val context: Context, BussList: List<Bus>) : BaseAda
             favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
             notifyDataSetChanged()
         }
+        small.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY)
+        medium.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY)
+        big.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY)
+        trolleybus .setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY)
     }
 
     fun dataEquals(routes: String): Boolean {
@@ -68,21 +83,19 @@ class RoutesAdapter(private val context: Context, BussList: List<Bus>) : BaseAda
             vh.tvAbsoluteTime.text = "${context.getString(R.string.arrival_at)}$absoluteTime"
         } else vh.tvAbsoluteTime.text = null
 
-        val sb = StringBuilder()
-        if (bus.lowFloor) sb.append("Низкопольный.\n")
-        if (bus.busType > 0) {
-            sb.append(when {
-                bus.busType == 3 -> context.getString(R.string.medium_capacity)
-                bus.busType == 4 -> context.getString(R.string.big_capacity)
-                else -> context.getString(R.string.small_capacity)
-            })
+        vh.ivLowFloor.visibility = if (bus.lowFloor) View.VISIBLE else View.GONE
+
+        val icon = when {
+            bus.type == BusType.Small -> small
+            bus.type == BusType.Medium -> medium
+            bus.type == BusType.Big -> big
+            bus.type == BusType.BigLowFloor -> big
+            bus.type == BusType.Trolleybus -> trolleybus
+            bus.type == BusType.Unknown -> null
+            else -> big
         }
-        if (sb.isBlank()) {
-            vh.tvAdditional.visibility = View.GONE
-        } else {
-            vh.tvAdditional.visibility = View.VISIBLE
-            vh.tvAdditional.text = sb.toString()
-        }
+        vh.ivBusType.setImageDrawable(icon)
+        vh.ivBusType.tag=bus.type
 
         (vh.tvTitle.tag as? ValueAnimator)?.cancel()
 
@@ -160,7 +173,23 @@ private class ViewHolder(view: View?) {
     val tvTitle: TextView = view?.findViewById(R.id.title) as TextView
     val tvContent: TextView = view?.findViewById(R.id.time) as TextView
     val tvAbsoluteTime: TextView = view?.findViewById(R.id.absoluteTime) as TextView
-    val tvAdditional: TextView = view?.findViewById(R.id.additional) as TextView
     val btnFavorite: ImageButton = view?.findViewById(R.id.favorite) as ImageButton
+    val ivLowFloor: ImageView = view?.findViewById(R.id.low_floor) as ImageView
+    val ivBusType: ImageView = view?.findViewById(R.id.bus_type) as ImageView
 
+    init {
+        ivLowFloor.setOnClickListener { Toast.makeText(ivLowFloor.context, R.string.low_floor, Toast.LENGTH_SHORT).show() }
+        ivBusType.setOnClickListener {
+            val type: BusType? = ivBusType.tag as? BusType ?: return@setOnClickListener
+            val stringRes = when (type) {
+                BusType.Big -> R.string.big_capacity
+                BusType.BigLowFloor -> R.string.big_capacity
+                BusType.Medium -> R.string.medium_capacity
+                BusType.Small -> R.string.small_capacity
+                BusType.Trolleybus -> R.string.trolleybus
+                else -> 0
+            }
+            if (stringRes>0) Toast.makeText(ivLowFloor.context, stringRes, Toast.LENGTH_SHORT).show()
+        }
+    }
 }

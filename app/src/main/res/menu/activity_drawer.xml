@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+
+    <item
+        android:id="@+id/traffic_jam"
+        android:icon="@drawable/ic_traffic"
+        android:title="@string/Traffic"
+        app:actionLayout="@layout/widget_switch" />
+    <item
+        android:id="@+id/referer"
+        android:icon="@drawable/ic_referer"
+        android:title="@string/Referer" />
+    <item
+        android:id="@+id/night"
+        android:icon="@drawable/ic_night"
+        android:title="@string/night_mode" />
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_settings" />
+    <item
+        android:id="@+id/info"
+        android:icon="@drawable/ic_info"
+        android:title="@string/About" />
+
+</menu>
