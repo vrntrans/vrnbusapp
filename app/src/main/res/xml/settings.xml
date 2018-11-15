@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Карта">
+        <SwitchPreference
+            android:key="zoomButtons"
+            android:icon="@drawable/ic_zoom"
+            android:title="Кнопки масштабирования" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Прочее">
+        <ListPreference
+            android:defaultValue="1"
+            android:icon="@drawable/ic_night"
+            android:entries="@array/entries"
+            android:entryValues="@array/entry_values"
+            android:key="nightMode"
+            android:summary="%s"
+            android:title="@string/night_mode" />
+        <EditTextPreference
+            android:key="referer"
+            android:icon="@drawable/ic_referer"
+            android:singleLine="true"
+            android:summary="@string/enter_referer"
+            android:title="@string/Referer" />
+    </PreferenceCategory>
+</PreferenceScreen>

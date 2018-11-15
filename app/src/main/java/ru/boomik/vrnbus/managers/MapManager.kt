@@ -4,10 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -16,11 +16,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import kotlinx.coroutines.android.UI
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
+import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.BusType
@@ -70,14 +68,35 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        val currentNightMode = mActivity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+
+        val night = currentNightMode == Configuration.UI_MODE_NIGHT_YES
+
+
+        if (night) {
+            try {
+                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(mActivity, R.raw.map_style_json))
+            } catch (e: Resources.NotFoundException) {
+                Log.e("Can't find style. Error: ", e)
+            }
+        }
 
         val r = Random(System.currentTimeMillis()).nextInt(1, 3)
-        val mTileProvider = CustomUrlTileProvider(256, 256, when (r) {
+
+        val url = if (!night) when (r) {
             1 -> Consts.TILES_URL_A
             2 -> Consts.TILES_URL_B
             3 -> Consts.TILES_URL_C
             else -> Consts.TILES_URL_A
-        })
+        } else when (r) {
+            1 -> Consts.TILES_URL_DARK_A
+            2 -> Consts.TILES_URL_DARK_B
+            3 -> Consts.TILES_URL_DARK_C
+            else -> Consts.TILES_URL_DARK_A
+        }
+
+        val mTileProvider = CustomUrlTileProvider(256, 256, url)
+
         mMap.addTileOverlay(TileOverlayOptions().tileProvider(mTileProvider).zIndex(0f))
         mMap.mapType = GoogleMap.MAP_TYPE_NONE
         mMap.setMaxZoomPreference(19f)

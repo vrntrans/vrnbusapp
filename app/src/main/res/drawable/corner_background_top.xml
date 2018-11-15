@@ -6,22 +6,10 @@
         android:right="8dp"
         android:top="0dp">
         <shape>
-            <solid android:color="#FFFFFF"/>
-            <stroke android:width="1px" android:color="#B1BCBE" />
+            <solid android:color="@color/background"/>
+            <stroke android:width="1px" android:color="@color/backgroundCorner" />
             <corners android:radius="0dip" android:topLeftRadius="16dip" android:topRightRadius="16dip"/>
             <padding android:left="0dip" android:top="0dip" android:right="0dip" android:bottom="0dip" />
-        </shape>
-    </item>
-    <item android:top="1dp">
-        <shape
-            android:dither="true"
-            android:shape="rectangle" >
-            <gradient
-                android:angle="270"
-                android:endColor="#00000000"
-                android:startColor="#10000000" />
-
-            <size android:height="8dp" />
         </shape>
     </item>
 </layer-list>

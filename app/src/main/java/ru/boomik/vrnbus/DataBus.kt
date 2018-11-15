@@ -6,6 +6,7 @@ import java.security.InvalidParameterException
 typealias Subscriber<T> = (Notification<T>) -> Unit
 data class Notification<T : Any?>(var data: T?, var eventName: String)
 
+
 class DataBus {
 
 
@@ -23,13 +24,13 @@ class DataBus {
         val instance: DataBus by lazy { Holder.INSTANCE }
 
         const val Traffic = "Traffic"
-        const val Referer = "Referer"
         const val StationClick = "StationClick"
         const val BusClick = "BusClick"
         const val BusToMap = "ToMap"
         const val Update = "Update"
         const val FavoriteRoute = "FavoriteRoute"
         const val FavoriteStation = "FavoriteStation"
+        const val Settings = "Settings"
 
         //region sendEvent
         fun <T> sendEvent(key: String, obj: T) {
@@ -59,7 +60,9 @@ class DataBus {
             val ls = subscribers[key]
             val notification = Notification(obj, key) as Notification<Any?>
             ls?.forEach {
-                it(notification)
+                val funct = it as Function<T?>
+                if (funct::class == it::class)
+                    it(notification)
             } ?: println("NO LISTENERS FOR EVENT '$key'")
         }
     }

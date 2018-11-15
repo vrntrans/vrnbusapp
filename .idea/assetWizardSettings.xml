@@ -23,7 +23,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/D:/Soft/android-studio-beta/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_brightness_3_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/D:/Soft/android-studio-beta/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_zoom_in_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -33,7 +33,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_night" />
+                            <entry key="outputName" value="ic_zoom" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="D:\Developing\VrnBus\img\bus_large_low_floor.svg" />
                           </map>

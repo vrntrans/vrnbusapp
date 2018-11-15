@@ -15,13 +15,12 @@
         android:id="@+id/title"
         android:layout_width="60dp"
         android:layout_height="0dp"
-
         android:layout_marginStart="48dp"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:includeFontPadding="false"
         android:maxLines="2"
-        android:textColor="#333"
+        android:textColor="@color/textColor"
         android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/favorite"
@@ -38,6 +37,7 @@
         android:includeFontPadding="false"
         android:textAlignment="textEnd"
         android:textSize="18sp"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="10 мин" />
@@ -48,6 +48,7 @@
         android:layout_height="wrap_content"
         android:includeFontPadding="false"
         android:textSize="12sp"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toEndOf="@+id/time"
         app:layout_constraintTop_toBottomOf="@+id/time"
         tools:text="22:00" />

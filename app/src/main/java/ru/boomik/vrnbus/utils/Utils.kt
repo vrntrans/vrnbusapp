@@ -12,7 +12,14 @@ import ru.boomik.vrnbus.Log
 import java.io.IOException
 import java.nio.charset.Charset
 import android.graphics.drawable.Drawable
+import android.os.Build
 
+@Suppress("DEPRECATION")
+fun Int.color(activity : Activity): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        activity.resources.getColor(this, activity.theme)
+    } else activity.resources.getColor(this)
+}
 
 fun loadJSONFromAsset(context: Context, fileName: String, loaded: (String) -> Unit) {
     Thread {

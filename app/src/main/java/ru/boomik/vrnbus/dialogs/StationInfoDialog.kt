@@ -61,7 +61,7 @@ class StationInfoDialog {
             }
 
             list.setOnItemClickListener { parent, _, position, _ ->
-             /*   val adapter: RoutesAdapter? = parent.adapter as? RoutesAdapter
+             /*   val adapter: BusViewHolderder.kt? = parent.adapter as? BusViewHolderder.kt
                         ?: return@setOnItemClickListener
                 val item = parent.adapter.getItem(position) as Bus
                 val routes = mRoutes.split(',').asSequence().distinct().map { it.trim() }.toList()

@@ -41,7 +41,7 @@
             android:id="@+id/busButton"
             app:layout_anchorGravity="end"
             app:elevation="16dp"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="@color/background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -54,7 +54,7 @@
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_menu"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="@color/background"
             app:elevation="16dp"
             app:layout_anchorGravity="end"
             app:layout_constraintStart_toStartOf="parent"
@@ -69,7 +69,7 @@
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_my_location"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="@color/background"
             app:elevation="16dp"
             app:fabSize="mini"
             app:layout_anchorGravity="end"
@@ -77,9 +77,12 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <LinearLayout
+            android:id="@+id/zoomButtons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:divider="@drawable/divider"
             android:orientation="vertical"
+            android:showDividers="middle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -88,13 +91,13 @@
                 android:id="@+id/plus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/ic_plus"
-                app:backgroundTint="@android:color/white"
+                app:backgroundTint="@color/background"
                 app:elevation="16dp"
                 app:fabSize="mini" />
 
@@ -102,12 +105,13 @@
                 android:id="@+id/minus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/ic_minus"
-                app:backgroundTint="@android:color/white"
+                app:backgroundTint="@color/background"
                 app:elevation="16dp"
                 app:fabSize="mini" />
 
@@ -116,10 +120,18 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     <FrameLayout
-        android:id="@+id/fragment"
+        android:id="@+id/fragmentParent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+        <FrameLayout
+            android:id="@+id/fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
 
 </FrameLayout>

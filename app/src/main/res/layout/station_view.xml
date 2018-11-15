@@ -13,7 +13,6 @@
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
-
         <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
@@ -25,7 +24,7 @@
             android:layout_marginBottom="8dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:textColor="#333"
+            android:textColor="@color/textColor"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@+id/list"
             app:layout_constraintEnd_toStartOf="@+id/close"

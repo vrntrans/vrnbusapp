@@ -58,6 +58,7 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.media:media:1.0.0'
+    implementation 'androidx.preference:preference:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation "com.google.android.gms:play-services-base:$gms_version"
@@ -81,11 +82,7 @@ dependencies {
 
     implementation "com.github.yandextaxitech:binaryprefs:1.0.0"
 
-    implementation 'konifar:fab-transformation:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.30.2-eap13'
-
-    implementation 'moe.shizuku.preference:preference:3.0.0'
-    implementation 'moe.shizuku.preference:preference-dialog-android:3.0.0'
 }

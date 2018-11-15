@@ -1,5 +1,24 @@
 [
   {
+    "elementType": "labels",
+    "stylers": [
+      {
+        "lightness": 5
+      },
+      {
+        "visibility": "simplified"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text",
+    "stylers": [
+      {
+        "color": "#400040"           //You can change color of your choice
+      }
+    ]
+  },
+  {
     "featureType": "poi.business",
     "elementType": "all",
     "stylers": [
