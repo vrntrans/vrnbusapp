@@ -7,4 +7,7 @@
     <color name="textColor">#333333</color>
     <color name="background">#FFFFFF</color>
     <color name="backgroundCorner">#B1BCBE</color>
+
+    <color name="gradientStart">#f1cb3a</color>
+    <color name="gradientEnd">#cd0a22</color>
 </resources>

@@ -12,10 +12,15 @@ import ru.boomik.vrnbus.managers.SettingsManager
 class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Preference.OnPreferenceChangeListener {
     override fun onPreferenceChange(preference: androidx.preference.Preference?, newValue: Any?): Boolean {
         if (preference==null) return false
-
         DataBus.sendEvent(DataBus.Settings, Pair(preference.key, newValue))
-        DataBus.sendEvent(preference.key, newValue)
-
+        if (newValue!=null) {
+            @Suppress("IMPLICIT_CAST_TO_ANY") when (preference.key) {
+                Consts.SETTINGS_NIGHT ->  DataBus.sendEvent(preference.key, newValue.toString())
+                Consts.SETTINGS_REFERER -> DataBus.sendEvent(preference.key, newValue.toString())
+                Consts.SETTINGS_ZOOM -> DataBus.sendEvent(preference.key, newValue as Boolean)
+                else -> return true
+            }
+        }
         return true
     }
 

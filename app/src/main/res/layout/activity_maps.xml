@@ -20,6 +20,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/osmCopyright"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#40111111"
+            android:padding="2dp"
+            android:textAlignment="textEnd"
+            android:textColor="@color/textColor"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="(c) OSM " />
+
         <ru.boomik.vrnbus.views.RectangleContourProgressView
             android:id="@+id/progress"
             android:layout_width="0dp"
@@ -131,7 +144,9 @@
         <FrameLayout
             android:id="@+id/fragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent">
+
+        </FrameLayout>
     </FrameLayout>
 
 </FrameLayout>

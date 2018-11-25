@@ -1,10 +1,12 @@
 package ru.boomik.vrnbus
 
 import android.annotation.SuppressLint
-import java.security.InvalidParameterException
+import kotlin.reflect.KClass
 
-typealias Subscriber<T> = (Notification<T>) -> Unit
-data class Notification<T : Any?>(var data: T?, var eventName: String)
+typealias Notify<T> = (Notification<T>) -> Unit
+
+data class Notification<T : Any>(var data: T, var eventName: String)
+data class Subscriber<T : Any>(val type: KClass<T>, val notify: Notify<T>, val key: String)
 
 
 class DataBus {
@@ -33,21 +35,13 @@ class DataBus {
         const val Settings = "Settings"
 
         //region sendEvent
-        fun <T> sendEvent(key: String, obj: T) {
-            instance.sendEvent(key, obj)
+        inline fun <reified T : Any> sendEvent(key: String, obj: T?) {
+            obj?.let { instance.sendEvent(key, obj)}
         }
         //endregion
 
-/*
-        //region subscribe
-        fun <T> subscribe(key: String, listener: (T) -> Unit) {
-            var lst: (T) -> Unit = listener
 
-            instance.getListeners<T>(key).add(listener)
-        }*/
-
-
-        inline fun <reified T : Any?> subscribe(notificationName: String, noinline sub: Subscriber<T?>) {
+        inline fun <reified T : Any> subscribe(notificationName: String, noinline sub: Notify<T>) {
             return instance.subscribe(notificationName, sub)
         }
 
@@ -55,48 +49,29 @@ class DataBus {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> sendEvent(key: String, obj: T?) {
-        synchronized(subscribers) {
-            val ls = subscribers[key]
-            val notification = Notification(obj, key) as Notification<Any?>
-            ls?.forEach {
-                val funct = it as Function<T?>
-                if (funct::class == it::class)
-                    it(notification)
-            } ?: println("NO LISTENERS FOR EVENT '$key'")
-        }
+    inline fun <reified T : Any> sendEvent(key: String, obj: T) {
+        val ls = subscribers[key]
+        val notification = Notification(obj, key) as Notification<Any>
+        val eventType = T::class
+        ls?.forEach {
+            if (it.type == eventType)
+                it.notify(notification)
+        } ?: println("NO LISTENERS FOR EVENT '$key'")
     }
 
-
-    //region Listeners
-    var subscribers : MutableMap<String, List<Subscriber<Any?>>> = mutableMapOf()
-
-    init {
-    }
-    //endregion
+    var subscribers: MutableMap<String, MutableList<Subscriber<Any>>> = mutableMapOf()
 
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Any?> subscribe(key: String, noinline sub: Subscriber<T?>) {
-        (sub as? Subscriber<Any?>)?.let { subscriber ->
-            if (key.isBlank()) throw IllegalStateException("Key not be empty")
-            if (!subscribers.containsKey(key)) {
-                subscribers[key] = mutableListOf(subscriber)
-            } else {
-                val subs= subscribers[key] as? MutableList<Subscriber<Any?>>
-                subs?.add(subscriber)
-            }
-        }
-    }
-
-    //region InternalMethods
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> getListeners(key: String): MutableList<Subscriber<T>> {
+    inline fun <reified T : Any> subscribe(key: String, noinline sub: Notify<T>) {
         if (key.isBlank()) throw IllegalStateException("Key not be empty")
-        if (!subscribers.containsKey(key)) throw NoSuchFieldException("No listeners for this $key found")
-        return subscribers[key] as? MutableList<Subscriber<T>>
-                ?: throw InvalidParameterException("Incorrect value type")
-    }
-    //endregion
+        val subscriber = Subscriber(T::class, sub, key) as Subscriber<Any>
+        if (!subscribers.containsKey(key)) {
+            subscribers[key] = mutableListOf(subscriber)
+        } else {
+            val subs = subscribers[key]
+            subs?.add(subscriber)
+        }
 
+    }
 }

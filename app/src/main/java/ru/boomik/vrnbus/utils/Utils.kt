@@ -37,25 +37,24 @@ fun loadJSONFromAsset(context: Context, fileName: String, loaded: (String) -> Un
     }.run()
 }
 
-fun createImageRoundedBitmap(icon: Drawable, size: Int, name: String, azimuth: Double): Bitmap {
-
+fun createImageRoundedBitmap(type: Int, icon: Drawable?, size: Int, name: String, azimuth: Double, color: Int): Bitmap {
 
     val paintCircle = Paint()
     val paintText = Paint()
 
-    paintCircle.color = Color.BLUE
+    paintCircle.color = color
+    paintCircle.alpha = 255
     paintCircle.isAntiAlias = true
     paintCircle.style = Paint.Style.FILL
 
 
-    val textSize = size / 2.4F
-    paintText.color = Color.WHITE
-    paintText.textSize = textSize
-    val textWidth = paintText.measureText(name)
-
     val arrowSize = size * 0.2F
 
-    val output = Bitmap.createBitmap(size * 3, size, Bitmap.Config.ARGB_8888)
+    var width = size
+    if (type == 2) width = size * 3
+
+
+    val output = Bitmap.createBitmap(width, size, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(output)
 
     canvas.save()
@@ -74,32 +73,32 @@ fun createImageRoundedBitmap(icon: Drawable, size: Int, name: String, azimuth: D
     canvas.restore()
 
 
-    val padding = (size * 0.3).toInt()
-    icon.setBounds(padding, padding, size - padding, size - padding)
-    icon.draw(canvas)
+    if (type > 0) {
+        val padding = (size * 0.3).toInt()
 
-    val textRect = Rect((size-arrowSize).toInt(), ((size - textSize).toInt()), (size - arrowSize + textWidth + textWidth * 0.2).toInt(), size)
-    paintCircle.style = Paint.Style.FILL
-    paintCircle.color = Color.BLUE
-    paintCircle.alpha = 130
-    canvas.drawRect(textRect, paintCircle)
-    /* paintCircle.alpha=255
-     paintCircle.color = Color.WHITE
-     paintCircle.style = Paint.Style.STROKE
-     paintCircle.strokeWidth = size/36f
-     canvas.drawRect(textRect, paintCircle)*/
+        icon?.let {
+            icon.setBounds(padding, padding, size - padding, size - padding)
+            icon.draw(canvas)
+        }
 
-    canvas.drawText(name, (size - arrowSize + textWidth * 0.1).toFloat(), size.toFloat() - textSize * 0.2f, paintText)
+        if (type == 2) {
+            val textSize = size / 2.4F
+            paintText.color = Color.WHITE
+            paintText.textSize = textSize
+            val textWidth = paintText.measureText(name)
 
+            val textRect = Rect((size - arrowSize).toInt(), ((size - textSize).toInt()), (size - arrowSize + textWidth + textWidth * 0.2).toInt(), size)
+            paintCircle.style = Paint.Style.FILL
+            paintCircle.color = color
+            paintCircle.alpha = 180
+            canvas.drawRect(textRect, paintCircle)
 
-
+            canvas.drawText(name, (size - arrowSize + textWidth * 0.1).toFloat(), size.toFloat() - textSize * 0.2f, paintText)
+        }
+    }
     return output
 }
 
-fun createImageRounded(resource: Drawable, size: Int, name: String, azimuth: Double): BitmapDescriptor? {
-
-    return BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(resource, size, name, azimuth))
-}
 
 fun requestPermission(activity: Activity, permission: String, requestCode: Int): Boolean {
     // Here, thisActivity is the current activity

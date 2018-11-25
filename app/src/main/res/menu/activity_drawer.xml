@@ -17,6 +17,6 @@
     <item
         android:id="@+id/info"
         android:icon="@drawable/ic_info"
-        android:title="@string/About" />
+        android:title="@string/about" />
 
 </menu>

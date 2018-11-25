@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -25,7 +27,7 @@ import ru.boomik.vrnbus.objects.BusType
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.CustomUrlTileProvider
-import ru.boomik.vrnbus.utils.createImageRounded
+import ru.boomik.vrnbus.utils.createImageRoundedBitmap
 import kotlin.random.Random
 
 
@@ -45,16 +47,35 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private val mBusIcon: BitmapDescriptor
     private var mTraffic: Boolean = false
 
+
+    private var small: Drawable?
+    private var medium: Drawable?
+    private var big: Drawable?
+    private var bigFloor: Drawable?
+    private var trolleybus: Drawable?
+
     init {
         mapFragment.getMapAsync(this)
         mBusIcon = BitmapDescriptorFactory.fromResource(R.drawable.bus_round)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mActivity)
 
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
-            setTrafficJam(it.data ?: false)
+            setTrafficJam(it.data)
         }
-    }
+        DataBus.subscribe<List<Bus>>(DataBus.BusToMap) {
+            showBusesOnMap(it.data)
+        }
 
+
+
+        val res = mActivity.resources
+        val theme = mActivity.theme
+         small = res.getDrawable(R.drawable.ic_bus_small, theme)
+         medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
+         big = res.getDrawable(R.drawable.ic_bus_large, theme)
+         bigFloor = res.getDrawable(R.drawable.ic_bus_large_low_floor, theme)
+         trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
+    }
     fun subscribeReady(callback: () -> Unit) {
         mReadyCallback = callback
     }
@@ -65,13 +86,27 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private val stationVisibleZoomSmall = 14
     private var initPosition: LatLng? = null
     private var initZoom: Float = 12F
+    private var mBusesMarkerType = -1
+    private val markerZoom = 14
+    private val markerSmallZoom = 12
+
+    private lateinit var mStationMarkers: List<Marker>
+    private lateinit var mStationMarkersSmall: List<Marker>
+    private lateinit var mFavoritesStationMarkers: MutableList<Marker>
+    private lateinit var mInFavoriteStationMarkers: MutableList<Marker>
+    private lateinit var mInFavoriteStationSmallMarkers: MutableList<Marker>
+
+    private lateinit var mAllStations: List<StationOnMap>
+    private var favoriteStations: List<Int>? = null
+    var padding: Rect = Rect()
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setPadding(padding.left, padding.top, padding.right, padding.bottom)
         val currentNightMode = mActivity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 
         val night = currentNightMode == Configuration.UI_MODE_NIGHT_YES
-
 
         if (night) {
             try {
@@ -160,11 +195,13 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mShowBig = showBig
         mShowSmall = showSmall
 
+        showBusesOnMap(mBuses)
+
         if (showBig) {
             if (stationVisible && !stationVisibleSmall) return
             if (!stationVisible) setVisibleStationBig(true)
             if (stationVisibleSmall) setVisibleStationSmall(false)
-        } else
+        } else {
             if (showSmall) {
                 if (!stationVisible && stationVisibleSmall) return
                 if (stationVisible) setVisibleStationBig(false)
@@ -173,7 +210,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 if (stationVisible) setVisibleStationBig(false)
                 if (stationVisibleSmall) setVisibleStationSmall(false)
             }
-
+        }
     }
 
     private fun setVisibleStationBig(visible: Boolean) {
@@ -188,23 +225,37 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     fun clearBusesOnMap() {
         mBusesMarkers?.forEach { it.remove() }
+        mBusesMarkers = null
+        mBusesMarkerType = -1
     }
 
-    fun showBusesOnMap(it: List<Bus>) {
+    private var mBuses: List<Bus>? = null
+
+    fun showBusesOnMap(buses: List<Bus>?) {
+
+        if (buses==null) {
+            clearBusesOnMap()
+            return
+        }
+
+        var neededType = 0
+        if (mMap.cameraPosition.zoom>=markerZoom) {
+            neededType=2
+        } else if (mMap.cameraPosition.zoom>=markerSmallZoom) {
+            neededType=1
+        }
+
+        if (mBusesMarkerType==neededType) return
+        clearBusesOnMap()
+        mBuses = buses
+        mBusesMarkerType = neededType
+
         val d = mActivity.resources.displayMetrics.density
-        val size = (36 * d).toInt()
+        var size = (36 * d).toInt()
+        if (neededType==0) size/=2
 
-        val res = mActivity.resources
-        val theme = mActivity.theme
-        val small = res.getDrawable(R.drawable.ic_bus_small, theme)
-        val medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
-        val big = res.getDrawable(R.drawable.ic_bus_large, theme)
-        val bigFloor = res.getDrawable(R.drawable.ic_bus_large_low_floor, theme)
-        val trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
-
-
-        val newBusesMarkers = it.map {
-            val icon = when {
+        val newBusesMarkers = buses.map {
+            val typeIcon = when {
                 it.type == BusType.Small -> small
                 it.type == BusType.Medium -> medium
                 it.type == BusType.Big -> big
@@ -212,20 +263,33 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 it.type == BusType.Trolleybus -> trolleybus
                 else -> big
             }
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.route).snippet(it.getSnippet()).icon(createImageRounded(icon, size, it.route, it.getAzimuth())).zIndex(1.0f).anchor(1 / 6f, .5f))
+            val color = when {
+                it.type == BusType.Small -> Consts.COLOR_BUS_SMALL
+                it.type == BusType.Medium -> Consts.COLOR_BUS_MEDIUM
+                it.type == BusType.Big -> Consts.COLOR_BUS
+                it.type == BusType.BigLowFloor -> Consts.COLOR_BUS
+                it.type == BusType.Trolleybus -> Consts.COLOR_BUS_TROLLEYBUS
+                else -> Consts.COLOR_BUS
+            }
+
+
+            val options = MarkerOptions().position(it.getPosition()).title(it.route).zIndex(1.0f)
+            if (it.getSnippet()!=null) options.snippet(it.getSnippet())
+            options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+            if (neededType == 2) {
+                options.anchor(1 / 6f, .5f)
+                options.infoWindowAnchor(1 / 6f, .2f)
+            }
+            else {
+                options.anchor(.5f, .5f)
+                options.infoWindowAnchor(.5f, .2f)
+            }
+            val marker = mMap.addMarker(options)
             marker.tag = it
             marker
         }
         mBusesMarkers = newBusesMarkers
     }
-
-    private lateinit var mStationMarkers: List<Marker>
-    private lateinit var mStationMarkersSmall: List<Marker>
-    private lateinit var mFavoritesStationMarkers: MutableList<Marker>
-    private lateinit var mInFavoriteStationMarkers: MutableList<Marker>
-    private lateinit var mInFavoriteStationSmallMarkers: MutableList<Marker>
-
-    private lateinit var mAllStations: List<StationOnMap>
 
     fun showStations(stationsOnMap: List<StationOnMap>?) {
         if (stationsOnMap == null) return
@@ -259,7 +323,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     }
 
 
-    private var favoriteStations: List<Int>? = null
 
     private fun loadPreferences() {
         mInFavoriteStationMarkers = mutableListOf()
@@ -341,7 +404,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             if (location != null && it.isSuccessful) {
                 val latLng = LatLng(location.latitude, location.longitude)
                 if (location.latitude == .0) return@continueWith
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
             }
         }
         checkZoom()

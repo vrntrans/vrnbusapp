@@ -1,5 +1,14 @@
 <resources>
 
+    <style name="Theme.Splash" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/gradientStart</item>
+        <item name="android:navigationBarColor">@color/gradientEnd</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">@drawable/splash_image</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->

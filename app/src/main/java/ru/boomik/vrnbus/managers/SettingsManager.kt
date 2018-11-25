@@ -23,25 +23,25 @@ class SettingsManager {
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
             mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it.data ?: false).apply()
         }
-        DataBus.subscribe<String?>(Consts.SETTINGS_REFERER) {
+        DataBus.subscribe<String>(Consts.SETTINGS_REFERER) {
             mPreferences.edit().putString(Consts.SETTINGS_REFERER, it.data).apply()
         }
         DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) {
-            if (it.data!=null) saveStringToList(Consts.SETTINGS_FAVORITE_ROUTE, it.data!!.first, it.data!!.second)
+            saveStringToList(Consts.SETTINGS_FAVORITE_ROUTE, it.data.first, it.data.second)
         }
         DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
-            if (it.data!=null)  saveIntToList(Consts.SETTINGS_FAVORITE_STATIONS, it.data!!.first, it.data!!.second)
+            saveIntToList(Consts.SETTINGS_FAVORITE_STATIONS, it.data.first, it.data.second)
         }
 
 
         DataBus.subscribe<Pair<String, Boolean>>(DataBus.Settings) {
-            it.data?.let { data -> if(data.second:: class == Boolean::class) mPreferences.edit().putBoolean(data.first, data.second).apply() }
+            it.data.let { data -> if(data.second:: class == Boolean::class) mPreferences.edit().putBoolean(data.first, data.second).apply() }
         }
         DataBus.subscribe<Pair<String, Int>>(DataBus.Settings) {
-            it.data?.let { data -> if(data.second:: class == Int::class) mPreferences.edit().putInt(data.first, data.second).apply() }
+            it.data.let { data -> if(data.second:: class == Int::class) mPreferences.edit().putInt(data.first, data.second).apply() }
         }
         DataBus.subscribe<Pair<String, String>>(DataBus.Settings) {
-            it.data?.let { data -> if(data.second:: class == String::class) mPreferences.edit().putString(data.first, data.second).apply() }
+            it.data.let { data -> if(data.second:: class == String::class) mPreferences.edit().putString(data.first, data.second).apply() }
         }
     }
 

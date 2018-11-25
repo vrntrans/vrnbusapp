@@ -62,7 +62,10 @@ class Bus {
 
 
     fun getSnippet(): String? {
-        return "$nextStationName\nгос. номер: $number\nскорость: $lastSpeed"
+        return if (nextStationName!=null)
+            "$nextStationName\nскорость: $lastSpeed"
+        else
+            "скорость: $lastSpeed"
     }
 
     fun getPosition(): LatLng {

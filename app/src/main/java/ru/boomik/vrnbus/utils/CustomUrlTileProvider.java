@@ -17,7 +17,9 @@ public class CustomUrlTileProvider extends UrlTileProvider {
     @Override
     public URL getTileUrl(int x, int y, int zoom) {
         try {
-            return new URL(baseUrl.replace("{z}", ""+zoom).replace("{x}",""+x).replace("{y}",""+y));
+            String urlString = baseUrl.replace("{z}", ""+zoom).replace("{x}",""+x).replace("{y}",""+y);
+            URL url = new URL(urlString);
+            return url;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

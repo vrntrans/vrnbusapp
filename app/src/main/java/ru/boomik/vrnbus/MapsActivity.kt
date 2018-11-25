@@ -6,14 +6,17 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.text.HtmlCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,6 +33,9 @@ import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
 import ru.boomik.vrnbus.R.id.textView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+
+
 
 
 class MapsActivity : AppCompatActivity() {
@@ -47,8 +53,11 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var timer: Timer
 
 
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         //region SetupView
+        setTheme(R.style.AppTheme_NoActionBar)
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
@@ -66,32 +75,37 @@ class MapsActivity : AppCompatActivity() {
         val plus = findViewById<FloatingActionButton>(R.id.plus)
         val minus = findViewById<FloatingActionButton>(R.id.minus)
         val appVersion = findViewById<TextView>(R.id.app_version)
+        val osmCopyright = findViewById<TextView>(R.id.osmCopyright)
         val fragmentParent = findViewById<FrameLayout>(R.id.fragmentParent)
+
 
         zoomButtons.visibility = if (settingsManager.getBool(Consts.SETTINGS_ZOOM)) View.VISIBLE else View.GONE
         appVersion.text = "Версия " + getVersionString()
+        osmCopyright.text = HtmlCompat.fromHtml(getString(R.string.osm_copyright), HtmlCompat.FROM_HTML_MODE_COMPACT)
+        osmCopyright.movementMethod = LinkMovementMethod.getInstance()
+
+// настройка поведения нижнего экрана
+     //   bottomSheetBehavior = BottomSheetBehavior.from<View>(stationView)
+   //     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         if (supportFragmentManager.backStackEntryCount>0) fragmentParent.setBackgroundColor(R.color.background.color(this))
+
+        mapManager = MapManager(this, mapFragment)
 
         window.statusBarColor = Color.parseColor("#40111111")
         window.navigationBarColor = Color.parseColor("#40111111")
         ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
             val params = v.layoutParams as ViewGroup.MarginLayoutParams
             val d = resources.displayMetrics.density
-
             mInsets = insets
-
             params.leftMargin = insets.systemWindowInsetLeft
             params.topMargin = insets.systemWindowInsetTop
             params.rightMargin = insets.systemWindowInsetRight
             params.bottomMargin = insets.systemWindowInsetBottom
-
             app_version.setPadding((16 * d).toInt(), 0, 0, (insets.systemWindowInsetBottom + 16 * d).toInt())
+            val rect = Rect(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, (insets.systemWindowInsetBottom).toInt())
+            mapManager.padding = rect
             fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
-
-            mapFragment.getMapAsync {
-                it.setPadding((insets.systemWindowInsetLeft + 8 * resources.displayMetrics.density).toInt(), (insets.systemWindowInsetTop + (32 + 40) * d).toInt(), insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
-            }
             insets.consumeSystemWindowInsets()
         }
 
@@ -127,7 +141,6 @@ class MapsActivity : AppCompatActivity() {
 
         //endregion
 
-        mapManager = MapManager(this, mapFragment)
 
 
 
@@ -163,7 +176,7 @@ class MapsActivity : AppCompatActivity() {
 
 
 
-        DataBus.subscribe<String?>(Consts.SETTINGS_REFERER) { DataService.setReferer(it.data) }
+        DataBus.subscribe<String>(Consts.SETTINGS_REFERER) { DataService.setReferer(it.data) }
         DataBus.subscribe<Bus>(DataBus.BusClick) { if (it.data != null) onBusClicked(it.data!!.route) }
         DataBus.subscribe<StationOnMap>(DataBus.StationClick) { if (it.data != null) onStationClicked(it.data!!) }
         DataBus.subscribe<Boolean>(Consts.SETTINGS_ZOOM) { zoomButtons.visibility = if (it.data == true) View.VISIBLE else View.GONE }
@@ -180,7 +193,9 @@ class MapsActivity : AppCompatActivity() {
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
         AppCompatDelegate.setDefaultNightMode(mode)
-        if (needRecreate) recreate()
+        if (needRecreate) {
+            recreate()
+        }
     }
 
     private fun getVersionString(): CharSequence? {

@@ -9,6 +9,7 @@ import com.google.android.material.navigation.NavigationView
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.SettingsFragment
+import ru.boomik.vrnbus.dialogs.aboutDialog
 
 
 class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +34,10 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
 
             R.id.settings -> {
                 return openSettings()
+            }
+            R.id.info -> {
+                aboutDialog(activity)
+                return true
             }
             else -> false
         }

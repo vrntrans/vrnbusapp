@@ -15,13 +15,29 @@
     <string name="Ок">Ок</string>
     <string name="Cancel">Отмена</string>
     <string name="enter_referer">Введите реферер</string>
-    <string name="favorite">избранное</string>
+    <string name="favorite">Избранное</string>
     <string name="big_capacity">Большой вместимости</string>
     <string name="medium_capacity">Средней вместимости</string>
     <string name="small_capacity">Малой вместимости</string>
     <string name="trolleybus">Троллейбус</string>
     <string name="arrival_at">прибудет в ~</string>
     <string name="low_floor">Низкопольный</string>
-    <string name="About">О программе</string>
+    <string name="about">О программе</string>
     <string name="night_mode">Ночной режим</string>
+    <string name="about_html"><![CDATA[
+    <p><bold>Прогноз прибытия автобусов в Воронеже</bold><br>Сайт: <a href="http://vrnbus.herokuapp.com" target="_blank">vrnbus.herokuapp.com</a>
+    <br>Telegram-бот: <a href="http://t.me/vrnbusbot" target="_blank">@vrnbusbot</a>
+    <br>Android: <a href="https://play.google.com/store/apps/details?id=ru.boomik.vrnbus" target="_blank">https://play.google.com/store/apps/details?id=ru.boomik.vrnbus</a> (автор - Кирилл Ашихмин )
+    <br>iOS: <a href="https://itunes.apple.com/us/app/vrnbus/id1436397112" target="_blank">https://itunes.apple.com/us/app/vrnbus/id1436397112</a> (автор Денис Евграфов ) </p>
+    <p><bold>Город и транспорт</bold>
+    <br>Telegram: канал <a href="http://t.me/vrntrans" target="_blank">@vrntrans</a>,
+    <br>Telegram: чат <a href="http://t.me/vrntranschat" target="_blank">@vrntranschat</a>
+    <br>ВКонтакте: <a href="https://vk.com/vrntrans" target="_blank">@vrntrans</a>
+    <br>Facebook: <a href="https://www.facebook.com/vrntrans" target="_blank">@vrntrans</a></p>
+    <p><bold>МБУ ЦОДД</bold>
+    <br><a href="http://coddvrn.ru/" target="_blank">http://coddvrn.ru/</a></p>
+]]></string>
+    <string name="osm_copyright"><![CDATA[© Участники <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>]]></string>
+    <string name="more">Ещё</string>
+    <string name="showBuses">Показать на карте</string>
 </resources>
