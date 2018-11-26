@@ -35,6 +35,7 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
     val medium: Drawable = res.getDrawable(R.drawable.ic_bus_middle, theme)
     val big: Drawable = res.getDrawable(R.drawable.ic_bus_large, theme)
     val trolleybus: Drawable = res.getDrawable(R.drawable.ic_trolleybus, theme)
+    val wheelchair: Drawable = res.getDrawable(R.drawable.ic_wheelchair, theme)
 
     init {
         favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
@@ -90,7 +91,13 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
             vh.tvAbsoluteTime.text = "${context.getString(R.string.arrival_at)}$absoluteTime"
         } else vh.tvAbsoluteTime.text = null
 
-        vh.ivLowFloor.visibility = if (bus.lowFloor) View.VISIBLE else View.GONE
+        if (bus.lowFloor) {
+            vh.ivLowFloor.setImageDrawable(wheelchair)
+            vh.ivLowFloor.visibility = View.VISIBLE
+        } else {
+            vh.ivLowFloor.setImageDrawable(null)
+            vh.ivLowFloor.visibility = View.GONE
+        }
 
         val icon = when {
             bus.type == BusType.Small -> small
@@ -101,6 +108,8 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
             bus.type == BusType.Unknown -> null
             else -> big
         }
+
+        vh.ivBusType.visibility = if (icon==null) View.GONE else View.VISIBLE
         vh.ivBusType.setImageDrawable(icon)
         vh.ivBusType.tag=bus.type
 
@@ -128,6 +137,7 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
             vh.btnFavorite.setImageResource(if (inFavorite) R.drawable.ic_star else R.drawable.ic_no_star)
         }
 
+        vh.btnFavorite.isFocusable = false
 
         return view
     }

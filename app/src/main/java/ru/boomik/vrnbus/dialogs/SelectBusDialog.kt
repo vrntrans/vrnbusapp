@@ -22,7 +22,7 @@ class SelectBusDialog {
     companion object {
         fun show(activity: Activity, mRoutes: String, mInsets: WindowInsetsCompat, selected: (String) -> Unit) {
 
-            val routesList = DataStorageManager.instance.routesList
+            val routesList = DataStorageManager.routesList
             if (routesList == null) {
                 Toast.makeText(activity, "Дождитесь загрузки данных", Toast.LENGTH_SHORT).show()
                 return
@@ -33,7 +33,7 @@ class SelectBusDialog {
             params.topMargin += mInsets.systemWindowInsetTop
 
 
-            val adapter = ArrayAdapter(activity, R.layout.bus_complete_view, routesList!!)
+            val adapter = ArrayAdapter(activity, R.layout.bus_complete_view, routesList)
             val nachos = dialogView.findViewById<NachoTextView>(R.id.nacho_text_view)
             nachos.setAdapter(adapter)
             nachos.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)

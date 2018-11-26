@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +31,6 @@ import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
-import ru.boomik.vrnbus.R.id.textView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 
@@ -141,11 +139,8 @@ class MapsActivity : AppCompatActivity() {
 
         //endregion
 
-
-
-
         mapManager.subscribeReady {
-            // Toast.makeText(this@MapsActivity, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
+            Toast.makeText(this@MapsActivity, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
             showBusStations()
         }
 
@@ -153,15 +148,10 @@ class MapsActivity : AppCompatActivity() {
         menuManager.initialize(nav_view)
 
 
-
-        dataStorageManager = DataStorageManager()
-        dataStorageManager.setActivity(this)
-
-
         settingsManager.loadPreferences()
 
 
-        dataStorageManager.load()
+        DataStorageManager.load(this)
 
         timer = Timer()
         timer.schedule(object : TimerTask() {
@@ -181,7 +171,23 @@ class MapsActivity : AppCompatActivity() {
         DataBus.subscribe<StationOnMap>(DataBus.StationClick) { if (it.data != null) onStationClicked(it.data!!) }
         DataBus.subscribe<Boolean>(Consts.SETTINGS_ZOOM) { zoomButtons.visibility = if (it.data == true) View.VISIBLE else View.GONE }
         DataBus.subscribe<String>(Consts.SETTINGS_NIGHT) { setUiMode(it.data, true) }
+        DataBus.subscribe<String>(DataBus.ResetRoutes) { resetRoutes(it.data) }
+        DataBus.subscribe<String>(DataBus.AddRoutes) { addRoutes(it.data) }
 
+    }
+
+    private fun addRoutes(route: String) {
+        val searchRoutes : String
+        searchRoutes = if (mRoutes.isNotEmpty()) {
+            val routesString =  "$mRoutes, $route"
+            val routes = routesString.split(',').asSequence().distinct().map { it.trim() }.toList()
+            routes.joinToString ()
+        } else route
+        onQuerySubmit(searchRoutes)
+    }
+
+    private fun resetRoutes(route: String) {
+        onQuerySubmit(route)
     }
 
     private fun setUiMode(data: String?, needRecreate: Boolean = false) {

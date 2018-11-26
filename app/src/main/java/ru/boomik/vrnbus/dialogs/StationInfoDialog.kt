@@ -23,7 +23,7 @@ class StationInfoDialog {
     companion object {
         fun show(activity: Activity, mInsets: WindowInsetsCompat, station: StationOnMap, selected: (String) -> Unit) {
 
-            DataStorageManager.instance.activeStationId = station.id
+            DataStorageManager.activeStationId = station.id
             val dialogView = View.inflate(activity, R.layout.station_view, null) as LinearLayout
             mBuses = listOf()
             val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
@@ -53,86 +53,76 @@ class StationInfoDialog {
 
             close.setOnClickListener {
                 dialog.dismiss()
-                DataStorageManager.instance.activeStationId = 0
+                DataStorageManager.activeStationId = 0
             }
             showBuses.setOnClickListener {
-/*
                 if (mBuses.isEmpty()) {
                     Toast.makeText(activity, "Нет прибывающих автобусов", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
-                }*/
+                }
                 val buses = mBuses.toMutableList()
-
+/*
                 val bus1 = Bus("Big")
                 bus1.busType = 4
                 bus1.timeLeft = 9.0
-                bus1.lowFloor=true
-                bus1.lastLat=51.670138
-                bus1.lastLon=39.154952
+                bus1.lowFloor = true
+                bus1.lastLat = 51.670138
+                bus1.lastLon = 39.154952
                 bus1.init()
                 val bus2 = Bus("Big")
                 bus2.busType = 4
                 bus2.timeLeft = 9.0
-                bus2.lowFloor=false
-                bus2.lastLat=51.669138
-                bus2.lastLon=39.154952
+                bus2.lowFloor = false
+                bus2.lastLat = 51.669138
+                bus2.lastLon = 39.154952
                 bus2.init()
                 val bus = Bus("Medium")
                 bus.busType = 3
                 bus.timeLeft = 3.0
-                bus.lastLat=51.668138
-                bus.lastLon=39.154952
+                bus.lastLat = 51.668138
+                bus.lastLon = 39.154952
                 bus.init()
                 val bus3 = Bus("Small")
                 bus3.busType = 1
                 bus3.timeLeft = 15.0
-                bus3.lowFloor=false
-                bus3.lastLat=51.667138
-                bus3.lastLon=39.154952
+                bus3.lowFloor = false
+                bus3.lastLat = 51.667138
+                bus3.lastLon = 39.154952
                 bus3.init()
                 val bus4 = Bus("Тр. bus")
                 bus4.busType = 4
                 bus4.timeLeft = 15.0
-                bus4.lowFloor=false
-                bus4.lastLat=51.666138
-                bus4.lastLon=39.154952
+                bus4.lowFloor = false
+                bus4.lastLat = 51.666138
+                bus4.lastLon = 39.154952
                 bus4.init()
 
                 buses.add(bus)
                 buses.add(bus1)
                 buses.add(bus2)
                 buses.add(bus3)
-                buses.add(bus4)
+                buses.add(bus4)*/
                 Toast.makeText(activity, "Прибывающие автобусы отобразились на карте", Toast.LENGTH_SHORT).show()
                 DataBus.sendEvent(DataBus.BusToMap, buses)
                 dialog.dismiss()
-                DataStorageManager.instance.activeStationId = 0
+                DataStorageManager.activeStationId = 0
             }
-
-            list.setOnItemClickListener { parent, _, position, _ ->
-             /*   val adapter: BusViewHolderder.kt? = parent.adapter as? BusViewHolderder.kt
-                        ?: return@setOnItemClickListener
-                val item = parent.adapter.getItem(position) as Bus
-                val routes = mRoutes.split(',').asSequence().distinct().map { it.trim() }.toList()
-                val containAll = adapter?.dataEquals(mRoutes) ?: false
-                if (containAll) selected(item.route)
-                else if (!routes.contains(item.route))
-                    selected(if (mRoutes.isNotEmpty()) "$mRoutes, ${item.route}" else item.route)*/
-
-            }
-            list.setOnItemLongClickListener { parent, _, position, _ ->
-                run {
-                    val item = parent.adapter.getItem(position) as Bus
-                    selected(item.route)
-                    dialog.dismiss()
-                    DataStorageManager.instance.activeStationId = 0
-                }
-                true
-            }
-
 
             val adapter = RoutesAdapter(activity, listOf())
             list.adapter = adapter
+
+            list.setOnItemClickListener { parent, _, position, _ ->
+                val item = parent.adapter.getItem(position) as Bus
+                DataBus.sendEvent(DataBus.AddRoutes, item.route)
+            }
+            list.setOnItemLongClickListener { parent, _, position, _ ->
+                val item = parent.adapter.getItem(position) as Bus
+                DataBus.sendEvent(DataBus.ResetRoutes, item.route)
+                dialog.dismiss()
+                DataStorageManager.activeStationId = 0
+                true
+            }
+
 
             val favorites = SettingsManager.instance.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
 
@@ -141,8 +131,8 @@ class StationInfoDialog {
             stationImage.setImageResource(if (inFavorite) R.drawable.ic_station_favorite else R.drawable.ic_station)
 
             favorite.setOnClickListener {
-                inFavorite=!inFavorite
-                DataBus.sendEvent(DataBus.FavoriteStation, Pair(station.id,inFavorite))
+                inFavorite = !inFavorite
+                DataBus.sendEvent(DataBus.FavoriteStation, Pair(station.id, inFavorite))
                 favorite.setImageResource(if (inFavorite) R.drawable.ic_favorite else R.drawable.ic_no_favorite)
                 stationImage.setImageResource(if (inFavorite) R.drawable.ic_station_favorite else R.drawable.ic_station)
             }
@@ -167,7 +157,7 @@ class StationInfoDialog {
                 progressIndeterminate.visibility = View.GONE
                 do {
                     try {
-                        if (dialog == null || !dialog.isShowing || DataStorageManager.instance.activeStationId != station.id) {
+                        if (dialog == null || !dialog.isShowing || DataStorageManager.activeStationId != station.id) {
                             ok = false
                         } else {
                             progressIndeterminate.visibility = View.VISIBLE
@@ -181,29 +171,14 @@ class StationInfoDialog {
                                 val routes = stationInfo.routes
                                 val favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
                                 var sortedRoutes: MutableList<Bus>
-                                if (favorites!=null) {
-                                    val favRoutes = routes.filter { favorites.contains(it.route) && it.arrivalTime!=null }
-                                    val noFavRoutes = routes.filterNot { favorites.contains(it.route) && it.arrivalTime!=null }.sortedByDescending { it.arrivalTime!=null }
+                                if (favorites != null) {
+                                    val favRoutes = routes.filter { favorites.contains(it.route) && it.arrivalTime != null }
+                                    val noFavRoutes = routes.filterNot { favorites.contains(it.route) && it.arrivalTime != null }.sortedByDescending { it.arrivalTime != null }
                                     sortedRoutes = mutableListOf()
                                     sortedRoutes.addAll(favRoutes)
                                     sortedRoutes.addAll(noFavRoutes)
                                 } else sortedRoutes = routes.toMutableList()
-                                /*
-                                val bus = sortedRoutes.first()
-                                bus.busType = 3
-                                bus.timeLeft = 3.0
-                                bus.init()
-                                val bus2 = sortedRoutes[1]
-                                bus2.busType = 4
-                                bus2.timeLeft = 9.0
-                                bus2.lowFloor=true
-                                bus2.init()
-                                val bus3 = sortedRoutes[2]
-                                bus3.busType = 1
-                                bus3.timeLeft = 15.0
-                                bus3.lowFloor=false
-                                bus3.init()
-                                */
+
                                 adapter.setRoutes(sortedRoutes)
 
                                 if (first) {
@@ -213,18 +188,18 @@ class StationInfoDialog {
                                     mRoutes = stationInfo.routes.joinToString(", ") { it.route }*/
                                     mAutoUpdateRoutes = false
                                 } else {
-                                  /*  val containAll = adapter.dataEquals(mRoutes)
-                                    if (containAll) {
-                                        mRoutes = stationInfo.routes.joinToString(", ") { it.route }
-                                        mapManager.clearBusesOnMap()
-                                        mapManager.showBusesOnMap(stationInfo.buses)
-                                        mAutoUpdateRoutes = false
-                                    }*/
+                                    /*  val containAll = adapter.dataEquals(mRoutes)
+                                      if (containAll) {
+                                          mRoutes = stationInfo.routes.joinToString(", ") { it.route }
+                                          mapManager.clearBusesOnMap()
+                                          mapManager.showBusesOnMap(stationInfo.buses)
+                                          mAutoUpdateRoutes = false
+                                      }*/
                                 }
                             } else {
                                 Toast.makeText(activity, "По выбранной остановке не найдено маршрутов", Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()
-                                if (DataStorageManager.instance.activeStationId == station.id) DataStorageManager.instance.activeStationId = 0
+                                if (DataStorageManager.activeStationId == station.id) DataStorageManager.activeStationId = 0
                                 anim.cancel()
                             }
                             progressIndeterminate.visibility = View.GONE
@@ -237,7 +212,7 @@ class StationInfoDialog {
                         if (first) {
                             Toast.makeText(activity, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show()
                             dialog?.dismiss()
-                            if (DataStorageManager.instance.activeStationId == station.id) DataStorageManager.instance.activeStationId = 0
+                            if (DataStorageManager.activeStationId == station.id) DataStorageManager.activeStationId = 0
                             anim.cancel()
                         }
                         delay(10000)

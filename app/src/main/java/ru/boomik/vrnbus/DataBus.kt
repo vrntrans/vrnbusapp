@@ -9,44 +9,19 @@ data class Notification<T : Any>(var data: T, var eventName: String)
 data class Subscriber<T : Any>(val type: KClass<T>, val notify: Notify<T>, val key: String)
 
 
-class DataBus {
+object DataBus {
 
+    const val Traffic = "Traffic"
+    const val StationClick = "StationClick"
+    const val BusClick = "BusClick"
+    const val BusToMap = "ToMap"
+    const val Update = "Update"
+    const val FavoriteRoute = "FavoriteRoute"
+    const val FavoriteStation = "FavoriteStation"
+    const val Settings = "Settings"
+    const val ResetRoutes = "ResetRoutes"
+    const val AddRoutes = "AddRoutes"
 
-    //region Instance
-    private object Holder {
-        @SuppressLint("StaticFieldLeak")
-        val INSTANCE: DataBus = DataBus()
-    }
-
-
-    //endregion
-
-    @Suppress("UNCHECKED_CAST")
-    companion object {
-        val instance: DataBus by lazy { Holder.INSTANCE }
-
-        const val Traffic = "Traffic"
-        const val StationClick = "StationClick"
-        const val BusClick = "BusClick"
-        const val BusToMap = "ToMap"
-        const val Update = "Update"
-        const val FavoriteRoute = "FavoriteRoute"
-        const val FavoriteStation = "FavoriteStation"
-        const val Settings = "Settings"
-
-        //region sendEvent
-        inline fun <reified T : Any> sendEvent(key: String, obj: T?) {
-            obj?.let { instance.sendEvent(key, obj)}
-        }
-        //endregion
-
-
-        inline fun <reified T : Any> subscribe(notificationName: String, noinline sub: Notify<T>) {
-            return instance.subscribe(notificationName, sub)
-        }
-
-        //endregion
-    }
 
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> sendEvent(key: String, obj: T) {
@@ -60,7 +35,6 @@ class DataBus {
     }
 
     var subscribers: MutableMap<String, MutableList<Subscriber<Any>>> = mutableMapOf()
-
 
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> subscribe(key: String, noinline sub: Notify<T>) {

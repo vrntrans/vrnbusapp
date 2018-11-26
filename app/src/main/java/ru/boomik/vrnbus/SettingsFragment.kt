@@ -14,10 +14,16 @@ class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Prefere
         if (preference==null) return false
         DataBus.sendEvent(DataBus.Settings, Pair(preference.key, newValue))
         if (newValue!=null) {
-            @Suppress("IMPLICIT_CAST_TO_ANY") when (preference.key) {
+           /* @Suppress("IMPLICIT_CAST_TO_ANY") when (preference.key) {
                 Consts.SETTINGS_NIGHT ->  DataBus.sendEvent(preference.key, newValue.toString())
                 Consts.SETTINGS_REFERER -> DataBus.sendEvent(preference.key, newValue.toString())
                 Consts.SETTINGS_ZOOM -> DataBus.sendEvent(preference.key, newValue as Boolean)
+                else -> return true
+            }
+            */
+            when (newValue) {
+                is String -> DataBus.sendEvent(preference.key, newValue)
+                is Boolean -> DataBus.sendEvent(preference.key, newValue)
                 else -> return true
             }
         }

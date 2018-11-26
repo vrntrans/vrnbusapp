@@ -1,10 +1,13 @@
 package ru.boomik.vrnbus.utils
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.view.View
 import android.widget.*
+import androidx.core.view.ViewCompat
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.BusType
-
+@SuppressLint("NewApi")
 class BusViewHolder(view: View?) {
     val tvTitle: TextView = view?.findViewById(R.id.title) as TextView
     val tvContent: TextView = view?.findViewById(R.id.time) as TextView
@@ -13,8 +16,8 @@ class BusViewHolder(view: View?) {
     val ivLowFloor: ImageView = view?.findViewById(R.id.low_floor) as ImageView
     val ivBusType: ImageView = view?.findViewById(R.id.bus_type) as ImageView
 
-    init {
-        ivLowFloor.setOnClickListener { Toast.makeText(ivLowFloor.context, R.string.low_floor, Toast.LENGTH_SHORT).show() }
+  init {
+       ivLowFloor.setOnClickListener { Toast.makeText(ivLowFloor.context, R.string.low_floor, Toast.LENGTH_SHORT).show() }
         ivBusType.setOnClickListener {
             val type: BusType? = ivBusType.tag as? BusType ?: return@setOnClickListener
             val stringRes = when (type) {
@@ -27,5 +30,7 @@ class BusViewHolder(view: View?) {
             }
             if (stringRes>0) Toast.makeText(ivLowFloor.context, stringRes, Toast.LENGTH_SHORT).show()
         }
+      ivLowFloor.isFocusable = false
+      ivBusType.isFocusable = false
     }
 }
