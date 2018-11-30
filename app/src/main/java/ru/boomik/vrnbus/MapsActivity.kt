@@ -8,10 +8,12 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,6 +21,7 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_drawer.*
@@ -32,8 +35,7 @@ import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-
-
+import com.google.firebase.iid.FirebaseInstanceId
 
 
 class MapsActivity : AppCompatActivity() {
@@ -59,10 +61,13 @@ class MapsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
+        GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
 
-        settingsManager = SettingsManager()
+        DataBus.unsubscribeAll()
+
+        settingsManager = SettingsManager
         settingsManager.initialize(this)
-
+        AnalyticsManager.initByActivity(this)
         val night = settingsManager.getString(Consts.SETTINGS_NIGHT)
         setUiMode(night, false)
 
@@ -83,10 +88,10 @@ class MapsActivity : AppCompatActivity() {
         osmCopyright.movementMethod = LinkMovementMethod.getInstance()
 
 // настройка поведения нижнего экрана
-     //   bottomSheetBehavior = BottomSheetBehavior.from<View>(stationView)
-   //     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        //   bottomSheetBehavior = BottomSheetBehavior.from<View>(stationView)
+        //     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        if (supportFragmentManager.backStackEntryCount>0) fragmentParent.setBackgroundColor(R.color.background.color(this))
+        if (supportFragmentManager.backStackEntryCount > 0) fragmentParent.setBackgroundColor(R.color.background.color(this))
 
         mapManager = MapManager(this, mapFragment)
 
@@ -161,8 +166,14 @@ class MapsActivity : AppCompatActivity() {
         }, 0, 30 * 1000)
         restoreInstanceState(savedInstanceState)
 
-        plus.setOnClickListener { mapManager.zoomIn() }
-        minus.setOnClickListener { mapManager.zoomOut() }
+        plus.setOnClickListener {
+            mapManager.zoomIn()
+            AnalyticsManager.logEvent("zoom", "in")
+        }
+        minus.setOnClickListener {
+            mapManager.zoomOut()
+            AnalyticsManager.logEvent("zoom", "out")
+        }
 
 
 
@@ -177,11 +188,11 @@ class MapsActivity : AppCompatActivity() {
     }
 
     private fun addRoutes(route: String) {
-        val searchRoutes : String
+        val searchRoutes: String
         searchRoutes = if (mRoutes.isNotEmpty()) {
-            val routesString =  "$mRoutes, $route"
+            val routesString = "$mRoutes, $route"
             val routes = routesString.split(',').asSequence().distinct().map { it.trim() }.toList()
-            routes.joinToString ()
+            routes.joinToString()
         } else route
         onQuerySubmit(searchRoutes)
     }
@@ -234,6 +245,8 @@ class MapsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
         mActive = true
         updateBuses()
         // mapManager.resume()
@@ -273,6 +286,7 @@ class MapsActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
+        AnalyticsManager.logPermission(requestCode, permissions, grantResults)
         when (requestCode) {
             Consts.LOCATION_PERMISSION_REQUEST -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))

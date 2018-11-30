@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "425910191992",
+    "firebase_url": "https://vrnbus-app.firebaseio.com",
+    "project_id": "vrnbus-app",
+    "storage_bucket": "vrnbus-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425910191992:android:1927ea8b4c006364",
+        "android_client_info": {
+          "package_name": "ru.boomik.vrnbus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425910191992-uf8aeeiar8qnbdeo6gdatadrkl7vtbt4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBpufFYX4pGRhmjy0LkjNuCg40RNfN-EI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

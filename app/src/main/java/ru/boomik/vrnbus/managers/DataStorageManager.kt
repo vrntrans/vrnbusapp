@@ -2,6 +2,7 @@ package ru.boomik.vrnbus.managers
 
 import android.annotation.SuppressLint
 import android.content.Context
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import ru.boomik.vrnbus.DataService
 import ru.boomik.vrnbus.objects.Station
@@ -16,6 +17,7 @@ object DataStorageManager {
 
     var routesList: List<String>? = null
     var activeStationId: Int = 0
+    private var alreadyChecked: Boolean = false
 
     fun load(context: Context) {
         // isNeedReload(mContext)
@@ -24,7 +26,7 @@ object DataStorageManager {
         }
     }
 
-    suspend fun loadRoutes(context: Context) = async {
+    suspend fun loadRoutes(context: Context) = GlobalScope.async {
 
         suspendCoroutine<List<String>> { cont ->
             if (routesList != null) {
@@ -39,7 +41,11 @@ object DataStorageManager {
         }
     }
 
+
     fun isNeedReload(context: Context): Boolean {
+        if (alreadyChecked) return false
+        alreadyChecked = true
+
         val week = 594000000
         val min = 60000 * 30
 
@@ -59,7 +65,7 @@ object DataStorageManager {
         return difference > min
     }
 
-    suspend fun loadAll(context: Context) = async {
+    suspend fun loadAll(context: Context) = GlobalScope.async {
         suspendCoroutine<Station?> { cont ->
 
         }

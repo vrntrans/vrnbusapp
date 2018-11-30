@@ -328,10 +328,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mInFavoriteStationMarkers = mutableListOf()
         mInFavoriteStationSmallMarkers = mutableListOf()
         mFavoritesStationMarkers = mutableListOf()
-        favoriteStations = SettingsManager.instance.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
+        favoriteStations = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
         checkFavoritesStations()
         DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
-            favoriteStations = SettingsManager.instance.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
+            favoriteStations = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
             checkFavoritesStations()
         }
     }

@@ -1,24 +1,19 @@
 package ru.boomik.vrnbus.managers
 
 import android.app.Activity
+import android.widget.Toast
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
-import ru.boomik.vrnbus.Consts
-import ru.boomik.vrnbus.DataBus
+import ru.boomik.vrnbus.*
 
 
-class SettingsManager {
-
-    companion object {
-        lateinit var instance: SettingsManager
-            private set
-    }
-
+object SettingsManager {
 
     private lateinit var mPreferences: Preferences
 
     fun initialize(activity: Activity) {
-        instance = this
         this.mPreferences = BinaryPreferencesBuilder(activity.applicationContext).build()
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
             mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it.data ?: false).apply()
@@ -43,11 +38,35 @@ class SettingsManager {
         DataBus.subscribe<Pair<String, String>>(DataBus.Settings) {
             it.data.let { data -> if(data.second:: class == String::class) mPreferences.edit().putString(data.first, data.second).apply() }
         }
+
+        initRemoteConfig()
+    }
+
+    private var refreshRate: Double = 30.0
+
+    private fun initRemoteConfig() {
+        val remoteConfig = FirebaseRemoteConfig.getInstance()
+        val configSettings = FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                .build()
+        remoteConfig.setConfigSettings(configSettings)
+        remoteConfig.setDefaults(R.xml.remote_config_defaults)
+        remoteConfig.fetch(60*60*24).addOnCompleteListener {
+            if (it.isSuccessful) {
+                Log.e("Fetch Succeeded")
+                val busRefreshRate = FirebaseRemoteConfig.getInstance().getDouble("bus_refresh_rate")
+                if (busRefreshRate>0) refreshRate = busRefreshRate
+                remoteConfig.activateFetched()
+            } else {
+                Log.e("Fetch Failed")
+            }
+        }
+
     }
 
     fun loadPreferences() {
         val traffic = mPreferences.getBoolean(Consts.SETTINGS_TRAFFIC_JAM, false)
-        val referer = mPreferences.getString(Consts.SETTINGS_REFERER, null)
+        val referer = mPreferences.getString(Consts.SETTINGS_REFERER, "") ?: ""
         DataBus.sendEvent(DataBus.Traffic, traffic)
         DataBus.sendEvent(Consts.SETTINGS_REFERER, referer)
     }

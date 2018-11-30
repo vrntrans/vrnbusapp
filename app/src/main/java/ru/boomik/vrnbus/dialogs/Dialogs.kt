@@ -11,11 +11,13 @@ import android.util.TypedValue
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import ru.boomik.vrnbus.R
+import ru.boomik.vrnbus.managers.AnalyticsManager
 
 
 fun alertMultipleChoiceItems(activity: Activity, items: List<String>, selected: (ArrayList<String>?) -> Unit) {
-    val selectedItems = ArrayList<String>()
 
+    AnalyticsManager.logScreen("choice_bus_list_dialog")
+    val selectedItems = ArrayList<String>()
     AlertDialog.Builder(activity)
             .setMultiChoiceItems(items.toTypedArray(), null) { _, which, isChecked ->
                 if (isChecked) {
@@ -37,6 +39,7 @@ fun alertMultipleChoiceItems(activity: Activity, items: List<String>, selected: 
 
 fun aboutDialog(activity: Activity) {
 
+    AnalyticsManager.logScreen("about")
     val dpi = activity.resources.displayMetrics.density
     val textView = TextView(activity)
     textView.text = HtmlCompat.fromHtml(activity.getString(R.string.about_html), HtmlCompat.FROM_HTML_MODE_COMPACT)

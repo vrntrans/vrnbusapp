@@ -48,4 +48,7 @@ object DataBus {
         }
 
     }
+    fun unsubscribeAll() {
+        subscribers.clear()
+    }
 }

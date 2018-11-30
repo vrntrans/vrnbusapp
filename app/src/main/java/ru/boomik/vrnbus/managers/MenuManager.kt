@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE
 import com.google.android.material.navigation.NavigationView
+import ru.boomik.vrnbus.Consts.SETTINGS_TRAFFIC_JAM
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.SettingsFragment
@@ -24,7 +25,11 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
         this.drawer = navigationView.parent as androidx.drawerlayout.widget.DrawerLayout
         val trafficJamItem = nav_view.menu.findItem(R.id.traffic_jam)
         val switchView = trafficJamItem.actionView as Switch
-        switchView.setOnCheckedChangeListener { _, isChecked -> DataBus.sendEvent(DataBus.Traffic, isChecked) }
+        switchView.setOnCheckedChangeListener { _, isChecked ->
+            DataBus.sendEvent(DataBus.Traffic, isChecked)
+            DataBus.sendEvent(DataBus.Settings, Pair(SETTINGS_TRAFFIC_JAM, isChecked))
+        }
+
         DataBus.subscribe<Boolean>(DataBus.Traffic) { switchView.isChecked = it.data ?: false }
 
     }

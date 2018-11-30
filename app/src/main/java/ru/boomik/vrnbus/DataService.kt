@@ -7,6 +7,7 @@ import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dto.*
 import ru.boomik.vrnbus.objects.Bus
@@ -38,7 +39,8 @@ class DataService {
         }
 
         fun loadBusInfo(q: String, callback: (List<Bus>?) -> Unit) {
-            Consts.API_BUS_INFO.httpGet(listOf(Pair("q", q), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
+            val query = if (q=="*") "" else q
+            Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
                 //make a GET to http://httpbin.org/get and do something with response
                 Log.d("log", request.toString())
                 Log.d("log", response.toString())
@@ -75,7 +77,7 @@ class DataService {
             }
         }
 
-        suspend fun loadArrivalInfoAsync(station: Int) = async {
+        suspend fun loadArrivalInfoAsync(station: Int) = GlobalScope.async {
             suspendCoroutine<Station?> { cont ->
                 Consts.ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
                     Log.d("log", request.toString())

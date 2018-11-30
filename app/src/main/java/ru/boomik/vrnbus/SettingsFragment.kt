@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.*
+import ru.boomik.vrnbus.managers.AnalyticsManager
 import ru.boomik.vrnbus.managers.SettingsManager
 
 class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Preference.OnPreferenceChangeListener {
@@ -45,6 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Prefere
             manager?.beginTransaction()?.remove(this)?.commit()
             manager?.popBackStack()
         }
+        AnalyticsManager.logScreen("Settings")
         return rootView
     }
 
@@ -52,13 +54,13 @@ class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Prefere
         setPreferencesFromResource(R.xml.settings, null)
 
         val nightMode = preferenceScreen.findPreference(Consts.SETTINGS_NIGHT) as androidx.preference.ListPreference
-        nightMode.value = SettingsManager.instance.getString(Consts.SETTINGS_NIGHT)
+        nightMode.value = SettingsManager.getString(Consts.SETTINGS_NIGHT)
         nightMode.onPreferenceChangeListener = this
 
         preferenceScreen.findPreference(Consts.SETTINGS_REFERER).onPreferenceChangeListener = this
 
         val zoom = preferenceScreen.findPreference(Consts.SETTINGS_ZOOM) as androidx.preference.SwitchPreference
-        zoom.isChecked = SettingsManager.instance.getBool(Consts.SETTINGS_ZOOM)
+        zoom.isChecked = SettingsManager.getBool(Consts.SETTINGS_ZOOM)
         zoom.onPreferenceChangeListener = this
 
     }

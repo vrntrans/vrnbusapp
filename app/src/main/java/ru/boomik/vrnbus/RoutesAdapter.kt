@@ -38,9 +38,9 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
     val wheelchair: Drawable = res.getDrawable(R.drawable.ic_wheelchair, theme)
 
     init {
-        favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+        favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
         DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) {
-            favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+            favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
             notifyDataSetChanged()
         }
 

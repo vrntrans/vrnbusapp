@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.TextViewCompat
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
-import kotlinx.coroutines.android.UI
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.boomik.vrnbus.*
@@ -124,7 +124,7 @@ class StationInfoDialog {
             }
 
 
-            val favorites = SettingsManager.instance.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
+            val favorites = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
 
             var inFavorite = favorites?.contains(station.id) ?: false
             favorite.setImageResource(if (inFavorite) R.drawable.ic_favorite else R.drawable.ic_no_favorite)
@@ -147,7 +147,7 @@ class StationInfoDialog {
 
         private fun startUpdateStationInfo(activity: Activity, station: StationOnMap, dialog: DialogPlus?, time: TextView, adapter: RoutesAdapter, progress: ProgressBar, progressIndeterminate: ProgressBar) {
 
-            launch(UI) {
+            GlobalScope.launch {
                 var first = true
                 var ok = true
                 val anim = ValueAnimator.ofInt(30)
@@ -169,7 +169,7 @@ class StationInfoDialog {
 
                                 mBuses = stationInfo.buses
                                 val routes = stationInfo.routes
-                                val favorites = SettingsManager.instance.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+                                val favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
                                 var sortedRoutes: MutableList<Bus>
                                 if (favorites != null) {
                                     val favRoutes = routes.filter { favorites.contains(it.route) && it.arrivalTime != null }
