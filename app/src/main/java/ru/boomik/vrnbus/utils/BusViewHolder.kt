@@ -5,6 +5,7 @@ import android.os.Build
 import android.view.View
 import android.widget.*
 import androidx.core.view.ViewCompat
+import androidx.core.widget.TextViewCompat
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.BusType
 @SuppressLint("NewApi")
@@ -17,6 +18,7 @@ class BusViewHolder(view: View?) {
     val ivBusType: ImageView = view?.findViewById(R.id.bus_type) as ImageView
 
   init {
+     // TextViewCompat.setAutoSizeTextTypeWithDefaults(tvTitle, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
        ivLowFloor.setOnClickListener { Toast.makeText(ivLowFloor.context, R.string.low_floor, Toast.LENGTH_SHORT).show() }
         ivBusType.setOnClickListener {
             val type: BusType? = ivBusType.tag as? BusType ?: return@setOnClickListener

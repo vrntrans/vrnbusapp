@@ -41,4 +41,6 @@
     <string name="more">Ещё</string>
     <string name="showBuses">Показать на карте</string>
     <string name="default_notification_channel_id">Информация</string>
+    <string name="whatsnew">Что нового?</string>
+    <string name="cont">Продолжить</string>
 </resources>

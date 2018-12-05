@@ -179,7 +179,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 }
             }
         }
-
+        mActivity.reportFullyDrawn()
         initPosition = null
     }
 

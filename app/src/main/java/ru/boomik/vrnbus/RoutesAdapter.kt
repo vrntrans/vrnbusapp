@@ -46,10 +46,11 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
 
         val color  = R.color.textColor.color(context)
 
-        small.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
-        medium.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
-        big.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
-        trolleybus .setColorFilter(color, PorterDuff.Mode.MULTIPLY)
+        small.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        medium.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        big.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        trolleybus.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        wheelchair.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
     }
 
     fun dataEquals(routes: String): Boolean {

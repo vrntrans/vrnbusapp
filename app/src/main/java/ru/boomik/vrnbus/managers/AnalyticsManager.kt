@@ -26,7 +26,7 @@ object AnalyticsManager {
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, preferenceName)
         bundle.putString(FirebaseAnalytics.Param.VALUE, data?.toString())
         mFirebaseAnalytics.logEvent("preference", bundle)
-        mFirebaseAnalytics.setUserProperty(preferenceName, data?.toString())
+        mFirebaseAnalytics.setUserProperty("preference", data?.toString())
     }
 
     fun logPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -42,7 +42,7 @@ object AnalyticsManager {
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, requestCode.toString())
             bundle.putString(FirebaseAnalytics.Param.VALUE, statusName)
             mFirebaseAnalytics.logEvent("permission", bundle)
-            mFirebaseAnalytics.setUserProperty(name, statusName)
+            mFirebaseAnalytics.setUserProperty("permission", statusName)
         }
     }
 

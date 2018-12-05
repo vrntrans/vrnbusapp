@@ -13,18 +13,19 @@
 
 
     <TextView
-        android:focusable="false"
         android:id="@+id/title"
-        android:layout_width="60dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="48dp"
-        android:ellipsize="end"
+        android:layout_marginEnd="8dp"
+        android:focusable="false"
         android:gravity="center_vertical"
         android:includeFontPadding="false"
-        android:maxLines="2"
+        android:singleLine="true"
         android:textColor="@color/textColor"
         android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bus_type"
         app:layout_constraintStart_toStartOf="@+id/favorite"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Route" />
@@ -75,29 +76,29 @@
         app:srcCompat="@drawable/ic_no_star" />
 
     <ImageView
-        android:id="@+id/bus_type"
-        android:focusable="false"
-        android:background="?selectableItemBackgroundBorderless"
+        android:id="@+id/low_floor"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="-8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:focusable="false"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/title"
+        app:layout_constraintEnd_toStartOf="@+id/bus_type"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_bus_large" />
+        app:srcCompat="@drawable/ic_wheelchair" />
 
     <ImageView
-        android:id="@+id/low_floor"
-        android:focusable="false"
-        android:background="?selectableItemBackgroundBorderless"
+        android:id="@+id/bus_type"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="-8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:focusable="false"
         android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/bus_type"
-        app:layout_constraintStart_toEndOf="@+id/bus_type"
-        app:layout_constraintTop_toTopOf="@+id/bus_type"
-        app:srcCompat="@drawable/ic_wheelchair" />
+        app:layout_constraintBottom_toBottomOf="@+id/low_floor"
+        app:layout_constraintEnd_toStartOf="@+id/absoluteTime"
+        app:layout_constraintTop_toTopOf="@+id/low_floor"
+        app:srcCompat="@drawable/ic_bus_large" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

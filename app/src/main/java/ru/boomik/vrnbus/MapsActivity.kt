@@ -8,12 +8,13 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.annotation.NonNull
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -23,9 +24,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
 import ru.boomik.vrnbus.managers.*
@@ -34,8 +40,6 @@ import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.firebase.iid.FirebaseInstanceId
 
 
 class MapsActivity : AppCompatActivity() {
@@ -43,7 +47,6 @@ class MapsActivity : AppCompatActivity() {
     private var mRoutes: String = ""
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
-    //private lateinit var mapManager: MapManager
     private lateinit var settingsManager: SettingsManager
     private lateinit var dataStorageManager: DataStorageManager
 
@@ -106,9 +109,16 @@ class MapsActivity : AppCompatActivity() {
             params.rightMargin = insets.systemWindowInsetRight
             params.bottomMargin = insets.systemWindowInsetBottom
             app_version.setPadding((16 * d).toInt(), 0, 0, (insets.systemWindowInsetBottom + 16 * d).toInt())
-            val rect = Rect(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, (insets.systemWindowInsetBottom).toInt())
+            val rect = Rect(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
             mapManager.padding = rect
             fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+
+            GlobalScope.async(Dispatchers.Main) {
+                delay( 1000)
+                showWhatsNew(this@MapsActivity, insets)
+            }
+
+
             insets.consumeSystemWindowInsets()
         }
 
@@ -175,8 +185,6 @@ class MapsActivity : AppCompatActivity() {
             AnalyticsManager.logEvent("zoom", "out")
         }
 
-
-
         DataBus.subscribe<String>(Consts.SETTINGS_REFERER) { DataService.setReferer(it.data) }
         DataBus.subscribe<Bus>(DataBus.BusClick) { if (it.data != null) onBusClicked(it.data!!.route) }
         DataBus.subscribe<StationOnMap>(DataBus.StationClick) { if (it.data != null) onStationClicked(it.data!!) }
@@ -184,6 +192,7 @@ class MapsActivity : AppCompatActivity() {
         DataBus.subscribe<String>(Consts.SETTINGS_NIGHT) { setUiMode(it.data, true) }
         DataBus.subscribe<String>(DataBus.ResetRoutes) { resetRoutes(it.data) }
         DataBus.subscribe<String>(DataBus.AddRoutes) { addRoutes(it.data) }
+
 
     }
 
