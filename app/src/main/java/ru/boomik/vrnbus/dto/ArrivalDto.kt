@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName
 /**
  * Created by boomv on 16.03.2018.
  */
+
 class ArrivalDto(
         val result: String,
         @SerializedName("arrival_info")

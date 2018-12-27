@@ -163,8 +163,8 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
         val sec = cal.get(Calendar.SECOND)
         if (min > 1 && sec > 30) min++
         timeString = if (min < 1 && sec < 30) "Прибывает"
-        else if (min < 1) "менее минуты"
-        else "$min мин."
+        else if (min < 1) "< 1 мин"
+        else "$min мин"
 
         tvContent.text = timeString
     }

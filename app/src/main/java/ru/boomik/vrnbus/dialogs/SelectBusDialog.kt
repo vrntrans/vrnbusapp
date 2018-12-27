@@ -22,7 +22,7 @@ class SelectBusDialog {
     companion object {
         fun show(activity: Activity, mRoutes: String, mInsets: WindowInsetsCompat, selected: (String) -> Unit) {
 
-            val routesList = DataStorageManager.routesList
+            val routesList = DataStorageManager.routeNames
             if (routesList == null) {
                 Toast.makeText(activity, "Дождитесь загрузки данных", Toast.LENGTH_SHORT).show()
                 return

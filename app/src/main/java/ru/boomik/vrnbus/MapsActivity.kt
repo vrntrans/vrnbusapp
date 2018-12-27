@@ -4,6 +4,7 @@ import android.Manifest
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
@@ -26,6 +27,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.Dispatchers
@@ -34,10 +36,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
+import ru.boomik.vrnbus.dialogs.progressDialog
+import ru.boomik.vrnbus.dto.StationResultDto
 import ru.boomik.vrnbus.managers.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
+import ru.boomik.vrnbus.utils.loadJSONFromAsset
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
 
@@ -48,7 +53,6 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
     private lateinit var settingsManager: SettingsManager
-    private lateinit var dataStorageManager: DataStorageManager
 
     private var mActive: Boolean = true
     private lateinit var mInsets: WindowInsetsCompat
@@ -156,7 +160,6 @@ class MapsActivity : AppCompatActivity() {
 
         mapManager.subscribeReady {
             Toast.makeText(this@MapsActivity, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
-            showBusStations()
         }
 
         menuManager = MenuManager(this)
@@ -165,8 +168,6 @@ class MapsActivity : AppCompatActivity() {
 
         settingsManager.loadPreferences()
 
-
-        DataStorageManager.load(this)
 
         timer = Timer()
         timer.schedule(object : TimerTask() {
@@ -186,12 +187,13 @@ class MapsActivity : AppCompatActivity() {
         }
 
         DataBus.subscribe<String>(Consts.SETTINGS_REFERER) { DataService.setReferer(it.data) }
-        DataBus.subscribe<Bus>(DataBus.BusClick) { if (it.data != null) onBusClicked(it.data!!.route) }
-        DataBus.subscribe<StationOnMap>(DataBus.StationClick) { if (it.data != null) onStationClicked(it.data!!) }
-        DataBus.subscribe<Boolean>(Consts.SETTINGS_ZOOM) { zoomButtons.visibility = if (it.data == true) View.VISIBLE else View.GONE }
+        DataBus.subscribe<Bus>(DataBus.BusClick) { onBusClicked(it.data.route) }
+        DataBus.subscribe<StationOnMap>(DataBus.StationClick) { onStationClicked(it.data) }
+        DataBus.subscribe<Boolean>(Consts.SETTINGS_ZOOM) { zoomButtons.visibility = if (it.data) View.VISIBLE else View.GONE }
         DataBus.subscribe<String>(Consts.SETTINGS_NIGHT) { setUiMode(it.data, true) }
         DataBus.subscribe<String>(DataBus.ResetRoutes) { resetRoutes(it.data) }
         DataBus.subscribe<String>(DataBus.AddRoutes) { addRoutes(it.data) }
+
 
 
     }
@@ -259,6 +261,24 @@ class MapsActivity : AppCompatActivity() {
         mActive = true
         updateBuses()
         // mapManager.resume()
+
+
+        GlobalScope.async(Dispatchers.Main) {
+
+            Log.e("Loaded start 2")
+            var dialog : ProgressDialog? = null
+            try {
+                dialog = progressDialog(this@MapsActivity)
+                DataStorageManager.load(this@MapsActivity.applicationContext)
+            } catch (e: Throwable) {
+                // if one of the long operation throw, this should be called once, even if multiple long operations failed.
+
+                Log.e("something went wrong", e)
+            }
+            dialog?.hide()
+            showBusStations()
+            Log.e("Loaded done 2")
+        }
     }
 
     override fun onPause() {
@@ -353,10 +373,13 @@ class MapsActivity : AppCompatActivity() {
     }
 
     private fun showBusStations() {
+
         try {
-            DataService.loadBusStations(this) {
+            GlobalScope.async(Dispatchers.Main) {
+                delay(500)
+               val data = DataStorageManager.loadBusStations(this@MapsActivity)
                 runOnUiThread {
-                    mapManager.showStations(it)
+                    mapManager.showStations(data)
                 }
             }
         } catch (exception: Throwable) {

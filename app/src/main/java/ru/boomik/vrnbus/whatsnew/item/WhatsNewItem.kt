@@ -19,8 +19,8 @@ data class WhatsNewItem(
     }
 
     constructor(parcel: Parcel) : this(
-            parcel.readString(),
-            parcel.readString(),
+            parcel.readString() ?: "",
+            parcel.readString() ?: "",
             parcel.readValue(Int::class.java.classLoader) as? Int)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

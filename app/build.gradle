@@ -24,7 +24,7 @@ android {
         applicationId "ru.boomik.vrnbus"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 7
+        versionCode 8
         versionName "1.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
@@ -52,8 +52,8 @@ idea {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.11"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.11"
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.media:media:1.0.0'
@@ -64,31 +64,27 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:16.0.0"
     implementation "com.google.android.gms:play-services-location:16.0.0"
 
-    implementation 'com.google.firebase:firebase-core:16.0.5'
+    implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
-    implementation 'com.google.firebase:firebase-config:16.1.0'
+    implementation 'com.google.firebase:firebase-config:16.1.2'
 
-    // Add dependency
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.6'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.7'
 
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-    implementation "com.github.kittinunf.fuel:fuel:$fuel_version"
-    //for JVM
-    implementation "com.github.kittinunf.fuel:fuel-android:$fuel_version"
-    //for Android
-    implementation "com.github.kittinunf.fuel:fuel-gson:$fuel_version"
+    implementation "com.github.kittinunf.fuel:fuel:1.15.1"
+    implementation "com.github.kittinunf.fuel:fuel-android:1.15.1"
+    implementation "com.github.kittinunf.fuel:fuel-gson:1.15.1"
 
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.orhanobut:dialogplus:1.11@aar'
-    implementation 'com.hootsuite.android:nachos:1.1.2'
+    implementation 'com.hootsuite.android:nachos:1.2.0'
 
-    implementation "com.github.yandextaxitech:binaryprefs:1.0.0"
+    implementation "com.github.yandextaxitech:binaryprefs:1.0.1"
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
-// for android you may also need this, there are also similar libraries for JavaFX and Swing.
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
 
 }

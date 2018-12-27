@@ -1,6 +1,7 @@
 package ru.boomik.vrnbus.dialogs
 
 import android.app.Activity
+import android.app.ProgressDialog
 import androidx.appcompat.app.AlertDialog
 import android.widget.LinearLayout
 import android.widget.EditText
@@ -10,6 +11,7 @@ import android.text.method.LinkMovementMethod
 import android.util.TypedValue
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
+import kotlinx.android.synthetic.main.bus_cell.*
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.managers.AnalyticsManager
 
@@ -49,6 +51,15 @@ fun aboutDialog(activity: Activity) {
             .setTitle(R.string.about)
             .setView(textView)
             .setPositiveButton(activity.getString(R.string.Ок), null).show()
+}
+fun progressDialog(activity: Activity): ProgressDialog {
+
+    AnalyticsManager.logScreen("progress")
+    val dialog = ProgressDialog(activity)
+    dialog.setTitle("Loading...")
+    dialog.isIndeterminate = true
+    dialog.show()
+    return dialog
 }
 
 fun alertEnterText(activity: Activity, title: String, selected: (String?) -> Unit) {

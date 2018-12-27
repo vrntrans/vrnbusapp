@@ -6,16 +6,24 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import ru.boomik.vrnbus.Log
 import java.io.IOException
 import java.nio.charset.Charset
 import android.graphics.drawable.Drawable
 import android.os.Build
+import com.github.kittinunf.fuel.core.requests.write
+import com.github.kittinunf.fuel.httpGet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
+import java.io.File
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 @Suppress("DEPRECATION")
-fun Int.color(activity : Activity): Int {
+fun Int.color(activity: Activity): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         activity.resources.getColor(this, activity.theme)
     } else activity.resources.getColor(this)
@@ -35,6 +43,43 @@ fun loadJSONFromAsset(context: Context, fileName: String, loaded: (String) -> Un
             ""
         })
     }.run()
+}
+
+suspend fun loadStringFromFile(file: File): String = withContext(Dispatchers.IO) {
+    try {
+        val inputStream = file.inputStream()
+        val size = inputStream.available()
+        val buffer = ByteArray(size)
+        inputStream.read(buffer)
+        inputStream.close()
+        String(buffer, Charset.forName("UTF-8"))
+    } catch (exception: IOException) {
+        Log.e("Hm..", exception)
+        ""
+    }
+}
+
+suspend fun saveStringToFile(file: File, value: String) = withContext(Dispatchers.IO) {
+    try {
+        if (file.exists()) file.delete()
+        val outputStream = file.outputStream()
+        outputStream.write(value)
+        outputStream.close()
+    } catch (exception: IOException) {
+        Log.e("Hm..", exception)
+        ""
+    }
+}
+
+
+fun loadStringFromNetwork(url: String) = GlobalScope.async(Dispatchers.IO) {
+    suspendCoroutine<String?> { cont ->
+        url.httpGet().responseString(Charsets.UTF_8) { _, response, result ->
+            Log.e("Request", response.statusCode.toString() + "(" + response.url + ")")
+            if (result.component2() != null) cont.resumeWithException(result.component2()!!)
+            else cont.resume(result.component1())
+        }
+    }
 }
 
 fun createImageRoundedBitmap(type: Int, icon: Drawable?, size: Int, name: String, azimuth: Double, color: Int): Bitmap {

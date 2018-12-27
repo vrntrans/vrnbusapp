@@ -36,7 +36,6 @@ import kotlin.random.Random
  */
 class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapReadyCallback {
     private var mActivity: Activity = activity
-    private var mMapFragment: SupportMapFragment = mapFragment
     private var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var mMap: GoogleMap
@@ -67,15 +66,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         }
 
 
-
         val res = mActivity.resources
         val theme = mActivity.theme
-         small = res.getDrawable(R.drawable.ic_bus_small, theme)
-         medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
-         big = res.getDrawable(R.drawable.ic_bus_large, theme)
-         bigFloor = res.getDrawable(R.drawable.ic_bus_large_low_floor, theme)
-         trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
+        small = res.getDrawable(R.drawable.ic_bus_small, theme)
+        medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
+        big = res.getDrawable(R.drawable.ic_bus_large, theme)
+        bigFloor = res.getDrawable(R.drawable.ic_bus_large_low_floor, theme)
+        trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
     }
+
     fun subscribeReady(callback: () -> Unit) {
         mReadyCallback = callback
     }
@@ -90,11 +89,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private val markerZoom = 14
     private val markerSmallZoom = 12
 
-    private lateinit var mStationMarkers: List<Marker>
-    private lateinit var mStationMarkersSmall: List<Marker>
-    private lateinit var mFavoritesStationMarkers: MutableList<Marker>
-    private lateinit var mInFavoriteStationMarkers: MutableList<Marker>
-    private lateinit var mInFavoriteStationSmallMarkers: MutableList<Marker>
+    private var mStationMarkers: List<Marker> = listOf()
+    private var mStationMarkersSmall: List<Marker> = listOf()
+    private var mFavoritesStationMarkers: MutableList<Marker> = mutableListOf()
+    private var mInFavoriteStationMarkers: MutableList<Marker> = mutableListOf()
+    private var mInFavoriteStationSmallMarkers: MutableList<Marker> = mutableListOf()
 
     private lateinit var mAllStations: List<StationOnMap>
     private var favoriteStations: List<Int>? = null
@@ -233,26 +232,26 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     fun showBusesOnMap(buses: List<Bus>?) {
 
-        if (buses==null) {
+        if (buses == null) {
             clearBusesOnMap()
             return
         }
 
         var neededType = 0
-        if (mMap.cameraPosition.zoom>=markerZoom) {
-            neededType=2
-        } else if (mMap.cameraPosition.zoom>=markerSmallZoom) {
-            neededType=1
+        if (mMap.cameraPosition.zoom >= markerZoom) {
+            neededType = 2
+        } else if (mMap.cameraPosition.zoom >= markerSmallZoom) {
+            neededType = 1
         }
 
-        if (mBusesMarkerType==neededType) return
+        if (mBusesMarkerType == neededType) return
         clearBusesOnMap()
         mBuses = buses
         mBusesMarkerType = neededType
 
         val d = mActivity.resources.displayMetrics.density
         var size = (36 * d).toInt()
-        if (neededType==0) size/=2
+        if (neededType == 0) size /= 2
 
         val newBusesMarkers = buses.map {
             val typeIcon = when {
@@ -274,13 +273,12 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
             val options = MarkerOptions().position(it.getPosition()).title(it.route).zIndex(1.0f)
-            if (it.getSnippet()!=null) options.snippet(it.getSnippet())
+            if (it.getSnippet() != null) options.snippet(it.getSnippet())
             options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
             if (neededType == 2) {
                 options.anchor(1 / 6f, .5f)
                 options.infoWindowAnchor(1 / 6f, .2f)
-            }
-            else {
+            } else {
                 options.anchor(.5f, .5f)
                 options.infoWindowAnchor(.5f, .2f)
             }
@@ -321,7 +319,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
         checkZoom()
     }
-
 
 
     private fun loadPreferences() {

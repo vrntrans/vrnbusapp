@@ -1,60 +1,204 @@
 package ru.boomik.vrnbus.managers
 
-import android.annotation.SuppressLint
 import android.content.Context
-import kotlinx.coroutines.GlobalScope
+import com.github.kittinunf.fuel.core.FuelManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
+import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataService
-import ru.boomik.vrnbus.objects.Station
+import ru.boomik.vrnbus.Log
+import ru.boomik.vrnbus.dto.RoutesDto
+import ru.boomik.vrnbus.dto.StationResultDto
+import ru.boomik.vrnbus.objects.Route
+import ru.boomik.vrnbus.objects.StationOnMap
+import ru.boomik.vrnbus.utils.loadStringFromFile
+import ru.boomik.vrnbus.utils.loadStringFromNetwork
+import ru.boomik.vrnbus.utils.saveStringToFile
 import java.io.File
-import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 object DataStorageManager {
 
+    private const val routeNamesFileName = "routeNames.json"
+    private const val routesFileName = "routes.json"
+    private const val stationsFileName = "stations.json"
 
-    var routesList: List<String>? = null
+
+    private lateinit var cacheDir: File
+
+    private lateinit var routeNamesFile: File
+    private lateinit var routesFile: File
+    private lateinit var stationsFile: File
+    private lateinit var cacheTimeFile: File
+
+    var routeNames: List<String>? = null
+    var stations: List<StationOnMap>? = null
+    var routes: List<Route>? = null
     var activeStationId: Int = 0
+
     private var alreadyChecked: Boolean = false
+    private var needReload: Boolean = false
 
-    fun load(context: Context) {
-        // isNeedReload(mContext)
-        DataService.loadRoutes(context) {
-            routesList = it
+
+    val gson: Gson = Gson()
+
+
+    suspend fun loadRouteNames(context: Context): List<String>? {
+        load(context)
+        return routeNames
+    }
+
+    suspend fun loadBusStations(context: Context): List<StationOnMap>? {
+        load(context)
+        return stations
+    }
+
+    suspend fun loadRoutes(context: Context): List<Route>? {
+        load(context)
+        return routes
+    }
+
+
+    private fun initCache(context: Context) {
+        val dir = context.externalCacheDir ?: context.cacheDir
+        val dataDir = File(dir.absolutePath + "/" + "data")
+        if (!dataDir.exists())
+            dataDir.mkdirs()
+        cacheDir = dataDir
+        routeNamesFile = File(dataDir.absolutePath + "/" + routeNamesFileName)
+        routesFile = File(dataDir.absolutePath + "/" + routesFileName)
+        stationsFile = File(dataDir.absolutePath + "/" + stationsFileName)
+        cacheTimeFile = File(dataDir.absolutePath + "/cache_time.txt")
+    }
+
+    private var filesExist: Boolean = false
+
+    suspend fun load(context: Context): Boolean {
+        Log.e("Loaded start 1")
+        initCache(context)
+        needReload = isNeedReload()
+        filesExist = checkFiles()
+        val initialized = (routeNames?.isNotEmpty() ?: false) && (stations?.isNotEmpty()
+                ?: false) && (routes?.isNotEmpty() ?: false)
+        Log.e("Loaded check 1")
+        if (!needReload && filesExist && initialized) return true
+
+        var ok = false
+        try {
+            loadFiles()
+            ok = true
+        } catch (e: Throwable) {
+            Log.e("something went wrong", e)
+        }
+        if (!ok)
+            try {
+                loadFiles()
+                ok = true
+            } catch (e: Throwable) {
+                Log.e("something went wrong", e)
+            }
+
+        Log.e("Loaded done 1")
+        return ok
+    }
+
+    private suspend fun loadFiles() = withContext(Dispatchers.IO) {
+        if (!needReload && filesExist)
+            loadFromSaved()
+        else loadFromNetwork()
+    }
+
+    private suspend fun loadFromNetwork() = withContext(Dispatchers.IO) {
+
+        FuelManager.instance.basePath = Consts.API_URL
+
+        val routeNames = async { loadNamesRoutesNetwork() }
+        val routes = async { loadRoutesNetwork() }
+        val stations = async { loadStationsNetwork() }
+        listOf(routeNames, routes, stations).awaitAll()
+        saveStringToFile(cacheTimeFile, System.currentTimeMillis().toString())
+    }
+
+    private suspend fun loadNamesRoutesNetwork() {
+        val result = loadStringFromNetwork(Consts.API_BUS_LIST).await()
+        result?.let { data ->
+            val routes: RoutesDto = gson.fromJson(data, object : TypeToken<RoutesDto>() {}.type)
+            routeNames = routes.result
+            saveStringToFile(routeNamesFile, data)
+
         }
     }
 
-    suspend fun loadRoutes(context: Context) = GlobalScope.async {
-
-        suspendCoroutine<List<String>> { cont ->
-            if (routesList != null) {
-                cont.resume(routesList!!)
-                return@suspendCoroutine
-            }
-            async {
-                if (isNeedReload(context)) {
-                    loadAll(context).await()
-                }
-            }
+    private suspend fun loadStationsNetwork() {
+        val result = loadStringFromNetwork(Consts.API_STATIONS).await()
+        result?.let { data ->
+            val stationsResult: StationResultDto = DataService.gson.fromJson(data, object : TypeToken<StationResultDto>() {}.type)
+            stations = StationOnMap.parseListDto(stationsResult.result)
+            saveStringToFile(stationsFile, data)
         }
     }
 
+    private suspend fun loadRoutesNetwork() {
+        val result = loadStringFromNetwork(Consts.API_ROUTES).await()
+        result?.let { data ->
+            val routesParsed: Map<String, List<List<Any>>> = gson.fromJson(data, object : TypeToken<Map<String, List<List<Any>>>>() {}.type)
+            routes = routesParsed.map {
+                Route(it.key, it.value.map { point ->
+                    StationOnMap(point[1] as String, 0, point[2] as Double, point[3] as Double)
+                })
+            }
+            saveStringToFile(routesFile, data)
+        }
+    }
 
-    fun isNeedReload(context: Context): Boolean {
+    private suspend fun loadFromSaved() = withContext(Dispatchers.IO) {
+        val routeNames = async { loadNamesRoutes() }
+        val routes = async { loadRouteNames() }
+        val stations = async { loadStations() }
+        listOf(routeNames, routes, stations).awaitAll()
+    }
+
+    private suspend fun loadNamesRoutes() = withContext(Dispatchers.IO) {
+        val data = loadStringFromFile(routeNamesFile)
+        val routes: RoutesDto = gson.fromJson(data, object : TypeToken<RoutesDto>() {}.type)
+        routeNames = routes.result
+    }
+
+    private suspend fun loadRouteNames() = withContext(Dispatchers.IO) {
+        val data = loadStringFromFile(routesFile)
+        val routesParsed: Map<String, List<List<Any>>> = gson.fromJson(data, object : TypeToken<Map<String, List<List<Any>>>>() {}.type)
+        routes = routesParsed.map {
+            Route(it.key, it.value.map { point ->
+                StationOnMap(point[1] as String, 0, point[2] as Double, point[3] as Double)
+            })
+        }
+    }
+
+    private suspend fun loadStations() = withContext(Dispatchers.IO) {
+        val data = loadStringFromFile(stationsFile)
+        val stationsResult: StationResultDto = gson.fromJson(data, object : TypeToken<StationResultDto>() {}.type)
+        stations = StationOnMap.parseListDto(stationsResult.result)
+    }
+
+    private fun checkFiles(): Boolean {
+        return routeNamesFile.exists() && routesFile.exists() && stationsFile.exists()
+    }
+
+
+    private fun isNeedReload(): Boolean {
         if (alreadyChecked) return false
         alreadyChecked = true
 
         val week = 594000000
-        val min = 60000 * 30
+        // val min = 60000 * 30
 
-        val dir = context.externalCacheDir ?: context.cacheDir
-        if (dir == null || !dir.exists() || dir.listFiles().isEmpty()) return true
-
-        val cacheTime = File(dir.absolutePath + "/cache.txt")
-        if (!cacheTime.exists()) return true
-        val timeString = cacheTime.readLines().first()
+        if (!cacheDir.exists() || cacheDir.listFiles().isEmpty()) return true
+        if (!cacheTimeFile.exists()) return true
+        val timeString = cacheTimeFile.readLines().first()
         if (timeString.isEmpty()) return true
         val time = timeString.toLongOrNull() ?: return true
         val difference = System.currentTimeMillis() - time
@@ -62,13 +206,8 @@ object DataStorageManager {
         //604800000
         //594000000
 
-        return difference > min
+        return difference > week
     }
 
-    suspend fun loadAll(context: Context) = GlobalScope.async {
-        suspendCoroutine<Station?> { cont ->
-
-        }
-    }
 
 }
