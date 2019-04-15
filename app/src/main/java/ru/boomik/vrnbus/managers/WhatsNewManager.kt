@@ -19,13 +19,8 @@ fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) {
                 .let {
                     nowVersionCode = it.versionCode
                 }
-        when (nowVersionCode) {
-            7 -> showWhatsNewFor7(activity, insets)
-            0 -> return
-            else -> {
-                throw NotImplementedError()
-            }
-        }
+        if (nowVersionCode>7) showWhatsNewFor7(activity, insets)
+
     } catch (t: IllegalStateException) {
 
     }

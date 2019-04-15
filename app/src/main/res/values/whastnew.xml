@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="map_title">OSM карты</string>
-    <string name="map_desc">Google карты в приложение заменены на Open Street Maps, как вы и просили</string>
+    <string name="map_desc">Теперь, как вы и просили, в приложении можно использовать карты OpenStreetMap (OSM) </string>
     <string name="night_title">Ночной режим</string>
     <string name="night_desc">Теперь приложением приятно пользоваться и в темноте! Сменить режим можно в настройках</string>
     <string name="zoom_title">Кнопки масштаба</string>

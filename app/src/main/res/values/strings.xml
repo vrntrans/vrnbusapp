@@ -14,7 +14,7 @@
     <string name="Referer">Реферер</string>
     <string name="Ок">Ок</string>
     <string name="Cancel">Отмена</string>
-    <string name="enter_referer">Введите реферер</string>
+    <string name="enter_referer">Необходим только для служебного использования</string>
     <string name="favorite">Избранное</string>
     <string name="big_capacity">Большой вместимости</string>
     <string name="medium_capacity">Средней вместимости</string>
@@ -43,4 +43,6 @@
     <string name="default_notification_channel_id">Информация</string>
     <string name="whatsnew">Что нового?</string>
     <string name="cont">Продолжить</string>
+    <string name="favorites">Избранные</string>
+    <string name="all">Все</string>
 </resources>

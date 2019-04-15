@@ -14,8 +14,10 @@ import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
+import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.managers.DataStorageManager
+import ru.boomik.vrnbus.managers.SettingsManager
 
 class SelectBusDialog {
 
@@ -91,7 +93,27 @@ class SelectBusDialog {
                 dialog.dismiss()
                 imm.hideSoftInputFromWindow(nachos.windowToken, 0)
             }
+            val allButton = dialogView.findViewById<Button>(R.id.all)
+            allButton.setOnClickListener {
+                val routes = "*"
+                selected(routes)
+                dialog.dismiss()
+                imm.hideSoftInputFromWindow(nachos.windowToken, 0)
+            }
+            val favoritesButton = dialogView.findViewById<Button>(R.id.favorites)
+            favoritesButton.setOnClickListener {
 
+                val favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+
+                if (favorites==null || favorites.count()==0) {
+                    Toast.makeText(activity, "Нет избранных маршрутов. Для добавления нажмите на звездочку у нужного маршрута", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                val routes = favorites.asSequence().distinct().joinToString(",")
+                selected(routes)
+                dialog.dismiss()
+                imm.hideSoftInputFromWindow(nachos.windowToken, 0)
+            }
 
             val showList = dialogView.findViewById<ImageButton>(R.id.showList)
             showList.setOnClickListener { _ ->

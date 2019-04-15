@@ -19,6 +19,7 @@ object Consts{
     const val SETTINGS_NIGHT = "nightMode"
     const val SETTINGS_REFERER = "referer"
     const val SETTINGS_ZOOM = "zoomButtons"
+    const val SETTINGS_OSM = "osmMap"
 
     const val LOCATION_PERMISSION_REQUEST = 10
 

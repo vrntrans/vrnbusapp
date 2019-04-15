@@ -4,7 +4,13 @@
         <SwitchPreference
             android:key="zoomButtons"
             android:icon="@drawable/ic_zoom"
-            android:title="Кнопки масштабирования" />
+            android:title="Кнопки масштабирования"
+            android:summary="Отображать на карте кнопки + и -"/>
+        <SwitchPreference
+            android:key="osmMap"
+            android:icon="@drawable/ic_map_dark"
+            android:title="Карты OSM"
+            android:summary="Использовать карты OpenStreetMap. \nДля применения необходим перезапуск приложения" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Прочее">
@@ -14,7 +20,7 @@
             android:entries="@array/entries"
             android:entryValues="@array/entry_values"
             android:key="nightMode"
-            android:summary="%s"
+            android:summary="Ночь - темная тема. День - светлая тема."
             android:title="@string/night_mode" />
         <EditTextPreference
             android:key="referer"

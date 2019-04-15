@@ -63,6 +63,10 @@ class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Prefere
         zoom.isChecked = SettingsManager.getBool(Consts.SETTINGS_ZOOM)
         zoom.onPreferenceChangeListener = this
 
+        val osm = preferenceScreen.findPreference(Consts.SETTINGS_OSM) as androidx.preference.SwitchPreference
+        osm.isChecked = SettingsManager.getBool(Consts.SETTINGS_OSM)
+        osm.onPreferenceChangeListener = this
+
     }
 
 }

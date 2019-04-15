@@ -16,6 +16,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -89,10 +90,15 @@ class MapsActivity : AppCompatActivity() {
         val fragmentParent = findViewById<FrameLayout>(R.id.fragmentParent)
 
 
+        val showOsm = SettingsManager.getBool(Consts.SETTINGS_OSM)
         zoomButtons.visibility = if (settingsManager.getBool(Consts.SETTINGS_ZOOM)) View.VISIBLE else View.GONE
         appVersion.text = "Версия " + getVersionString()
+
+
         osmCopyright.text = HtmlCompat.fromHtml(getString(R.string.osm_copyright), HtmlCompat.FROM_HTML_MODE_COMPACT)
         osmCopyright.movementMethod = LinkMovementMethod.getInstance()
+
+        osmCopyright.visibility = if (showOsm) View.VISIBLE else View.GONE
 
 // настройка поведения нижнего экрана
         //   bottomSheetBehavior = BottomSheetBehavior.from<View>(stationView)
@@ -118,7 +124,7 @@ class MapsActivity : AppCompatActivity() {
             fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
 
             GlobalScope.async(Dispatchers.Main) {
-                delay( 1000)
+                delay(1000)
                 showWhatsNew(this@MapsActivity, insets)
             }
 
@@ -195,7 +201,6 @@ class MapsActivity : AppCompatActivity() {
         DataBus.subscribe<String>(DataBus.AddRoutes) { addRoutes(it.data) }
 
 
-
     }
 
     private fun addRoutes(route: String) {
@@ -266,7 +271,7 @@ class MapsActivity : AppCompatActivity() {
         GlobalScope.async(Dispatchers.Main) {
 
             Log.e("Loaded start 2")
-            var dialog : ProgressDialog? = null
+            var dialog: AlertDialog? = null
             try {
                 dialog = progressDialog(this@MapsActivity)
                 DataStorageManager.load(this@MapsActivity.applicationContext)
@@ -377,7 +382,7 @@ class MapsActivity : AppCompatActivity() {
         try {
             GlobalScope.async(Dispatchers.Main) {
                 delay(500)
-               val data = DataStorageManager.loadBusStations(this@MapsActivity)
+                val data = DataStorageManager.loadBusStations(this@MapsActivity)
                 runOnUiThread {
                     mapManager.showStations(data)
                 }

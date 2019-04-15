@@ -107,32 +107,37 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
         val night = currentNightMode == Configuration.UI_MODE_NIGHT_YES
 
-        if (night) {
-            try {
-                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(mActivity, R.raw.map_style_json))
-            } catch (e: Resources.NotFoundException) {
-                Log.e("Can't find style. Error: ", e)
+        try {
+            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(mActivity, if (night) R.raw.map_style_json_dark else R.raw.map_style_json))
+        } catch (e: Resources.NotFoundException) {
+            Log.e("Can't find style. Error: ", e)
+        }
+
+        val showOsm = SettingsManager.getBool(Consts.SETTINGS_OSM)
+
+        if (showOsm) {
+
+
+            val r = Random(System.currentTimeMillis()).nextInt(1, 3)
+
+            val url = if (!night) when (r) {
+                1 -> Consts.TILES_URL_A
+                2 -> Consts.TILES_URL_B
+                3 -> Consts.TILES_URL_C
+                else -> Consts.TILES_URL_A
+            } else when (r) {
+                1 -> Consts.TILES_URL_DARK_A
+                2 -> Consts.TILES_URL_DARK_B
+                3 -> Consts.TILES_URL_DARK_C
+                else -> Consts.TILES_URL_DARK_A
             }
+
+            val mTileProvider = CustomUrlTileProvider(256, 256, url)
+
+            mMap.addTileOverlay(TileOverlayOptions().tileProvider(mTileProvider).zIndex(0f))
+            mMap.mapType = GoogleMap.MAP_TYPE_NONE
         }
 
-        val r = Random(System.currentTimeMillis()).nextInt(1, 3)
-
-        val url = if (!night) when (r) {
-            1 -> Consts.TILES_URL_A
-            2 -> Consts.TILES_URL_B
-            3 -> Consts.TILES_URL_C
-            else -> Consts.TILES_URL_A
-        } else when (r) {
-            1 -> Consts.TILES_URL_DARK_A
-            2 -> Consts.TILES_URL_DARK_B
-            3 -> Consts.TILES_URL_DARK_C
-            else -> Consts.TILES_URL_DARK_A
-        }
-
-        val mTileProvider = CustomUrlTileProvider(256, 256, url)
-
-        mMap.addTileOverlay(TileOverlayOptions().tileProvider(mTileProvider).zIndex(0f))
-        mMap.mapType = GoogleMap.MAP_TYPE_NONE
         mMap.setMaxZoomPreference(19f)
 
         mMap.uiSettings.isMyLocationButtonEnabled = false
@@ -449,5 +454,4 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         if (!::mMap.isInitialized) return
         mMap.animateCamera(CameraUpdateFactory.zoomOut())
     }
-
 }
