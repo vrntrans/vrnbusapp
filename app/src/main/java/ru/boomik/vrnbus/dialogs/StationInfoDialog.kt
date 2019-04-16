@@ -110,6 +110,7 @@ class StationInfoDialog {
                     return@setOnClickListener
                 }
 
+                DataStorageManager.searchStationId = station.id
                 Toast.makeText(activity, "Прибывающие автобусы отобразились на карте", Toast.LENGTH_SHORT).show()
                 DataBus.sendEvent(DataBus.BusToMap, buses)
                 dialog.dismiss()

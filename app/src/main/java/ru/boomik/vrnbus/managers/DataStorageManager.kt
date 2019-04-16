@@ -43,6 +43,8 @@ object DataStorageManager {
     private var alreadyChecked: Boolean = false
     private var needReload: Boolean = false
 
+    private var filesExist: Boolean = false
+    var searchStationId: Int = -1
 
     val gson: Gson = Gson()
 
@@ -75,7 +77,6 @@ object DataStorageManager {
         cacheTimeFile = File(dataDir.absolutePath + "/cache_time.txt")
     }
 
-    private var filesExist: Boolean = false
 
     suspend fun load(context: Context): Boolean {
         Log.e("Loaded start 1")

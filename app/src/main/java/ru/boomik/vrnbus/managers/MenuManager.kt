@@ -11,6 +11,10 @@ import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.SettingsFragment
 import ru.boomik.vrnbus.dialogs.aboutDialog
+import android.content.DialogInterface
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.appcompat.app.AlertDialog
 
 
 class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNavigationItemSelectedListener {
@@ -44,6 +48,10 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
                 aboutDialog(activity)
                 return true
             }
+            R.id.privacy -> {
+                showPrivacy(activity)
+                return true
+            }
             else -> false
         }
     }
@@ -56,5 +64,23 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
         transaction.addToBackStack("settings")
         transaction.commit()
         return true
+    }
+
+    private fun showPrivacy(activity: AppCompatActivity) {
+        val alert = AlertDialog.Builder(activity)
+        alert.setTitle(activity.getString(R.string.privacy_policy))
+
+        val wv = WebView(activity)
+        wv.loadUrl("https://vk.com/topic-173386498_39457988")
+        wv.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                view.loadUrl(url)
+
+                return true
+            }
+        }
+        alert.setView(wv)
+        alert.setNegativeButton("Закрыть", DialogInterface.OnClickListener { dialog, id -> dialog.dismiss() })
+        alert.show()
     }
 }

@@ -13,10 +13,7 @@ import android.os.Bundle
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
@@ -43,7 +40,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     private var mBusesMarkers: List<Marker>? = null
     private var mRouteOnMap: Polyline? = null
-    private val mBusIcon: BitmapDescriptor
     private var mTraffic: Boolean = false
 
 
@@ -54,8 +50,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private var trolleybus: Drawable?
 
     init {
+        MapsInitializer.initialize(activity.applicationContext)
+
         mapFragment.getMapAsync(this)
-        mBusIcon = BitmapDescriptorFactory.fromResource(R.drawable.bus_round)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mActivity)
 
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
@@ -116,10 +113,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val showOsm = SettingsManager.getBool(Consts.SETTINGS_OSM)
 
         if (showOsm) {
-
-
             val r = Random(System.currentTimeMillis()).nextInt(1, 3)
-
             val url = if (!night) when (r) {
                 1 -> Consts.TILES_URL_A
                 2 -> Consts.TILES_URL_B
@@ -131,9 +125,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 3 -> Consts.TILES_URL_DARK_C
                 else -> Consts.TILES_URL_DARK_A
             }
-
             val mTileProvider = CustomUrlTileProvider(256, 256, url)
-
             mMap.addTileOverlay(TileOverlayOptions().tileProvider(mTileProvider).zIndex(0f))
             mMap.mapType = GoogleMap.MAP_TYPE_NONE
         }
@@ -199,7 +191,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mShowBig = showBig
         mShowSmall = showSmall
 
-        showBusesOnMap(mBuses)
+        showBusesOnMap(mBuses, false)
 
         if (showBig) {
             if (stationVisible && !stationVisibleSmall) return
@@ -235,7 +227,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     private var mBuses: List<Bus>? = null
 
-    fun showBusesOnMap(buses: List<Bus>?) {
+    fun showBusesOnMap(buses: List<Bus>?, ignoreType : Boolean = true) {
 
         if (buses == null) {
             clearBusesOnMap()
@@ -249,7 +241,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             neededType = 1
         }
 
-        if (mBusesMarkerType == neededType) return
+       if (!ignoreType && mBusesMarkerType == neededType) return
         clearBusesOnMap()
         mBuses = buses
         mBusesMarkerType = neededType

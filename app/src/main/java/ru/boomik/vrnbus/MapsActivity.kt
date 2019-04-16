@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
@@ -28,7 +27,6 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.Dispatchers
@@ -38,19 +36,16 @@ import kotlinx.coroutines.delay
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
 import ru.boomik.vrnbus.dialogs.progressDialog
-import ru.boomik.vrnbus.dto.StationResultDto
 import ru.boomik.vrnbus.managers.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
-import ru.boomik.vrnbus.utils.loadJSONFromAsset
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
 
 
 class MapsActivity : AppCompatActivity() {
 
-    private var mRoutes: String = ""
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
     private lateinit var settingsManager: SettingsManager
@@ -75,7 +70,7 @@ class MapsActivity : AppCompatActivity() {
 
         settingsManager = SettingsManager
         settingsManager.initialize(this)
-        AnalyticsManager.initByActivity(this)
+        AnalyticsManager.initByActivity(this, settingsManager.getBool(Consts.SETTINGS_ANALYTICS))
         val night = settingsManager.getString(Consts.SETTINGS_NIGHT)
         setUiMode(night, false)
 
@@ -251,11 +246,15 @@ class MapsActivity : AppCompatActivity() {
 
 
     private var mAutoUpdateRoutes: Boolean = true
+    private var mRoutes: String = ""
+    private var mRouteUpdate: String = ""
 
     private fun updateBuses() {
 
-        if (!mAutoUpdateRoutes || mRoutes.isBlank() || !mActive) return
-        runOnUiThread { showBuses(mRoutes) }
+        val stationId = DataStorageManager.searchStationId
+        if (!mAutoUpdateRoutes || (mRoutes.isBlank() && stationId > 0) || !mActive) return
+        if (stationId > 0) runOnUiThread { showBusesFromStation(stationId) }
+        else if (!mRoutes.isBlank()) runOnUiThread { showBuses(mRoutes) }
     }
 
 
@@ -313,6 +312,7 @@ class MapsActivity : AppCompatActivity() {
 
     public override fun onDestroy() {
         super.onDestroy()
+        DataBus.unsubscribeAll()
         val map = supportFragmentManager?.findFragmentById(R.id.map)
         if (map != null) supportFragmentManager.beginTransaction().remove(map).commit()
 
@@ -339,7 +339,29 @@ class MapsActivity : AppCompatActivity() {
         showBuses(query)
     }
 
+    private fun showBusesFromStation(stationId: Int) {
+        try {
+            mapManager.clearRoutes()
+
+            GlobalScope.async(Dispatchers.Main) {
+                progress.startAnimate()
+                val stationInfo = DataService.loadArrivalInfoAsync(stationId).await()
+                if (stationInfo != null) {
+                    val buses = stationInfo.buses
+                    DataBus.sendEvent(DataBus.BusToMap, buses)
+                }
+                progress.stopAnimate()
+            }
+
+        } catch (exception: Throwable) {
+            Log.e("Hm..", exception)
+            progress.stopAnimate()
+        }
+    }
+
+
     private fun showBuses(q: String) {
+        DataStorageManager.searchStationId=-1
         mAutoUpdateRoutes = true
         if (!q.isNotEmpty()) {
             mapManager.clearBusesOnMap()

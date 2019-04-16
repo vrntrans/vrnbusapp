@@ -11,9 +11,6 @@
             android:icon="@drawable/ic_map_dark"
             android:title="Карты OSM"
             android:summary="Использовать карты OpenStreetMap. \nДля применения необходим перезапуск приложения" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Прочее">
         <ListPreference
             android:defaultValue="1"
             android:icon="@drawable/ic_night"
@@ -22,11 +19,19 @@
             android:key="nightMode"
             android:summary="Ночь - темная тема. День - светлая тема."
             android:title="@string/night_mode" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Прочее">
         <EditTextPreference
             android:key="referer"
             android:icon="@drawable/ic_referer"
             android:singleLine="true"
             android:summary="@string/enter_referer"
             android:title="@string/Referer" />
+        <SwitchPreference
+            android:key="analytics"
+            android:icon="@drawable/ic_privacy"
+            android:title="Отключить аналитику"
+            android:summary="Запретить приложению собирать данные об использовании. Собираемые данные обезличены и необходимы для улучшения приложения.\nПросмотреть политику конфиденциальности можно через боковое меню." />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -67,6 +67,10 @@ class SettingsFragment : PreferenceFragmentCompat(), androidx.preference.Prefere
         osm.isChecked = SettingsManager.getBool(Consts.SETTINGS_OSM)
         osm.onPreferenceChangeListener = this
 
+        val analytics = preferenceScreen.findPreference(Consts.SETTINGS_ANALYTICS) as androidx.preference.SwitchPreference
+        analytics.isChecked = SettingsManager.getBool(Consts.SETTINGS_ANALYTICS)
+        analytics.onPreferenceChangeListener = this
+
     }
 
 }
