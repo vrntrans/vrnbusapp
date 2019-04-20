@@ -264,7 +264,12 @@ class MapsActivity : AppCompatActivity() {
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
         mActive = true
         updateBuses()
-        // mapManager.resume()
+
+    }
+
+
+    override fun onStart() {
+        super.onStart()
 
 
         GlobalScope.async(Dispatchers.Main) {

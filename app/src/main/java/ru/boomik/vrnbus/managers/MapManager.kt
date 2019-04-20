@@ -32,6 +32,7 @@ import kotlin.random.Random
  * Created by boomv on 18.03.2018.
  */
 class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapReadyCallback {
+    private var mLastZoom: Float = -1f
     private var mActivity: Activity = activity
     private var fusedLocationClient: FusedLocationProviderClient
 
@@ -185,9 +186,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private fun checkZoom() {
         var showBig = false
         var showSmall = false
+
+        if (mLastZoom == mMap.cameraPosition.zoom) return
         if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
         else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
-
+        mLastZoom = mMap.cameraPosition.zoom
         mShowBig = showBig
         mShowSmall = showSmall
 
@@ -210,13 +213,13 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     }
 
     private fun setVisibleStationBig(visible: Boolean) {
-        stationVisible = visible
         mStationMarkers.filter { !mInFavoriteStationMarkers.contains(it) }.forEach { it.isVisible = visible }
+        stationVisible = visible
     }
 
     private fun setVisibleStationSmall(visible: Boolean) {
-        stationVisibleSmall = visible
         mStationMarkersSmall.filter { !mInFavoriteStationSmallMarkers.contains(it) }.forEach { it.isVisible = visible }
+        stationVisibleSmall = visible
     }
 
     fun clearBusesOnMap() {
@@ -291,10 +294,18 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
         mAllStations = stationsOnMap
 
-        val showBig = mMap.cameraPosition.zoom >= stationVisibleZoomSmall
-        val showSmall = mMap.cameraPosition.zoom >= stationVisibleZoom
+        var showBig = false
+        var showSmall = false
+
+        if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
+        else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
+
         val icon: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station)
         val iconSmall: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station_small)
+
+
+        stationVisible = showBig
+        stationVisibleSmall = showSmall
 
         val newStationMarkers = stationsOnMap.map {
             val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(icon).zIndex(0.9f).anchor(.5f, .5f).visible(showBig))
@@ -306,8 +317,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             marker.tag = it
             marker
         }
-        stationVisible = showBig
-        stationVisibleSmall = showSmall
 
         mStationMarkers = newStationMarkers
         mStationMarkersSmall = newStationSmallMarkers

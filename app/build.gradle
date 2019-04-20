@@ -23,8 +23,8 @@ android {
         applicationId "ru.boomik.vrnbus"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 9
-        versionName "1.5"
+        versionCode 11
+        versionName "2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
@@ -33,6 +33,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            ext.enableCrashlytics = true
         }
         debug {
             signingConfig signingConfigs.release
@@ -40,7 +41,7 @@ android {
             splits.density.enable = false
             aaptOptions.cruncherEnabled = false
             ext.enableCrashlytics = false
-            ext.alwaysUpdateBuildId = false
+            ext.alwaysUpdateBuildId = true
         }
     }
 

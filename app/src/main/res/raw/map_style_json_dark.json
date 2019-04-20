@@ -230,14 +230,6 @@
     ]
   },
   {
-    "elementType": "labels.text",
-    "stylers": [
-      {
-        "color": "#9d9f9d"
-      }
-    ]
-  },
-  {
     "featureType": "poi.business",
     "elementType": "all",
     "stylers": [

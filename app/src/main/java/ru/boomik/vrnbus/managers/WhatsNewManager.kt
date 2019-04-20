@@ -19,14 +19,14 @@ fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) {
                 .let {
                     nowVersionCode = it.versionCode
                 }
-        if (nowVersionCode>7) showWhatsNewFor7(activity, insets)
+        if (nowVersionCode>11) showWhatsNewFor11(activity, insets)
 
     } catch (t: IllegalStateException) {
 
     }
 }
 
-private fun showWhatsNewFor7(activity: AppCompatActivity, insets: WindowInsetsCompat) {
+private fun showWhatsNewFor11(activity: AppCompatActivity, insets: WindowInsetsCompat) {
     val whatsNew = WhatsNew.newInstance(
             itemFromRes(R.string.map_title, R.string.map_desc, R.drawable.ic_map, activity),
             itemFromRes(R.string.bus_type_title, R.string.bus_type_desc, R.drawable.ic_bus, activity),
