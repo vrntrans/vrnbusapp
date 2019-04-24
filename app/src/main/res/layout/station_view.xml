@@ -58,9 +58,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Время обновления: 23:00:00" />
 
-
         <ProgressBar
-            android:id="@+id/progress"
+            android:id="@+id/station_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="4dp"
@@ -94,7 +93,7 @@
             android:paddingBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_close" />
+            android:src="@drawable/ic_close" />
 
         <ImageButton
             android:id="@+id/favorite"
@@ -110,7 +109,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/list"
-            app:srcCompat="@drawable/ic_no_favorite" />
+            android:src="@drawable/ic_no_favorite" />
 
         <ImageButton
             android:id="@+id/showBuses"
@@ -127,7 +126,7 @@
             app:layout_constraintStart_toEndOf="@+id/favorite"
             app:layout_constraintTop_toBottomOf="@+id/list"
             app:layout_constraintVertical_bias="0.533"
-            app:srcCompat="@drawable/ic_map" />
+            android:src="@drawable/ic_map" />
 
         <ImageButton
             android:id="@+id/more"
@@ -145,7 +144,7 @@
             app:layout_constraintStart_toEndOf="@+id/showBuses"
             app:layout_constraintTop_toBottomOf="@+id/list"
             app:layout_constraintVertical_bias="0.0"
-            app:srcCompat="@drawable/ic_more" />
+            android:src="@drawable/ic_more" />
 
         <ImageView
             android:id="@+id/stationImage"
@@ -155,6 +154,7 @@
             android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_station" />
+            android:src="@drawable/ic_station" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -16,7 +16,7 @@ import ru.boomik.vrnbus.dto.StationResultDto
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.loadStringFromFile
-import ru.boomik.vrnbus.utils.loadStringFromNetwork
+import ru.boomik.vrnbus.utils.loadStringFromNetworkAsync
 import ru.boomik.vrnbus.utils.saveStringToFile
 import java.io.File
 
@@ -125,7 +125,7 @@ object DataStorageManager {
     }
 
     private suspend fun loadNamesRoutesNetwork() {
-        val result = loadStringFromNetwork(Consts.API_BUS_LIST).await()
+        val result = loadStringFromNetworkAsync(Consts.API_BUS_LIST).await()
         result?.let { data ->
             val routes: RoutesDto = gson.fromJson(data, object : TypeToken<RoutesDto>() {}.type)
             routeNames = routes.result
@@ -135,7 +135,7 @@ object DataStorageManager {
     }
 
     private suspend fun loadStationsNetwork() {
-        val result = loadStringFromNetwork(Consts.API_STATIONS).await()
+        val result = loadStringFromNetworkAsync(Consts.API_STATIONS).await()
         result?.let { data ->
             val stationsResult: StationResultDto = DataService.gson.fromJson(data, object : TypeToken<StationResultDto>() {}.type)
             stations = StationOnMap.parseListDto(stationsResult.result)
@@ -144,7 +144,7 @@ object DataStorageManager {
     }
 
     private suspend fun loadRoutesNetwork() {
-        val result = loadStringFromNetwork(Consts.API_ROUTES).await()
+        val result = loadStringFromNetworkAsync(Consts.API_ROUTES).await()
         result?.let { data ->
             val routesParsed: Map<String, List<List<Any>>> = gson.fromJson(data, object : TypeToken<Map<String, List<List<Any>>>>() {}.type)
             routes = routesParsed.map {

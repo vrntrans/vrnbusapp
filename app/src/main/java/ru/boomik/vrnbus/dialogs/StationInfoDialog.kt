@@ -37,14 +37,14 @@ class StationInfoDialog {
             val favorite: ImageButton = dialogView.findViewById(R.id.favorite)
             val showBuses: ImageButton = dialogView.findViewById(R.id.showBuses)
             val stationImage: ImageView = dialogView.findViewById(R.id.stationImage)
-            val progress: ProgressBar = dialogView.findViewById(R.id.progress)
+            val progress: ProgressBar = dialogView.findViewById(R.id.station_progress)
             val progressIndeterminate: ProgressBar = dialogView.findViewById(R.id.progressIndeterminate)
             TextViewCompat.setAutoSizeTextTypeWithDefaults(title, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
             title.text = station.name
             progress.isIndeterminate = false
 
 
-            val wheelchair: Drawable = activity.resources.getDrawable(R.drawable.ic_close, activity.theme)
+            val wheelchair: Drawable = ContextCompat.getDrawable(activity,R.drawable.ic_close)!!
             wheelchair.setColorFilter(ContextCompat.getColor(activity, R.color.textColor), PorterDuff.Mode.SRC_ATOP)
             close.setImageDrawable(wheelchair)
 

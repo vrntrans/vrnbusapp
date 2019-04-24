@@ -7,13 +7,13 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +25,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -42,6 +41,7 @@ import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
 import java.util.*
+import android.widget.TextView as WidgetTextView
 
 
 class MapsActivity : AppCompatActivity() {
@@ -55,8 +55,6 @@ class MapsActivity : AppCompatActivity() {
 
     private lateinit var timer: Timer
 
-
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //region SetupView
@@ -80,8 +78,8 @@ class MapsActivity : AppCompatActivity() {
         val zoomButtons = findViewById<LinearLayout>(R.id.zoomButtons)
         val plus = findViewById<FloatingActionButton>(R.id.plus)
         val minus = findViewById<FloatingActionButton>(R.id.minus)
-        val appVersion = findViewById<TextView>(R.id.app_version)
-        val osmCopyright = findViewById<TextView>(R.id.osmCopyright)
+        val appVersion = findViewById<WidgetTextView>(R.id.app_version)
+        val osmCopyright = findViewById<WidgetTextView>(R.id.osmCopyright)
         val fragmentParent = findViewById<FrameLayout>(R.id.fragmentParent)
 
 
@@ -103,28 +101,33 @@ class MapsActivity : AppCompatActivity() {
 
         mapManager = MapManager(this, mapFragment)
 
-        window.statusBarColor = Color.parseColor("#40111111")
-        window.navigationBarColor = Color.parseColor("#40111111")
-        ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
-            val params = v.layoutParams as ViewGroup.MarginLayoutParams
-            val d = resources.displayMetrics.density
-            mInsets = insets
-            params.leftMargin = insets.systemWindowInsetLeft
-            params.topMargin = insets.systemWindowInsetTop
-            params.rightMargin = insets.systemWindowInsetRight
-            params.bottomMargin = insets.systemWindowInsetBottom
-            app_version.setPadding((16 * d).toInt(), 0, 0, (insets.systemWindowInsetBottom + 16 * d).toInt())
-            val rect = Rect(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
-            mapManager.padding = rect
-            fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor = Color.parseColor("#40111111")
+            window.navigationBarColor = Color.parseColor("#40111111")
 
-            GlobalScope.async(Dispatchers.Main) {
-                delay(1000)
-                showWhatsNew(this@MapsActivity, insets)
+            ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
+                val params = v.layoutParams as ViewGroup.MarginLayoutParams
+                val d = resources.displayMetrics.density
+                mInsets = insets
+                params.leftMargin = insets.systemWindowInsetLeft
+                params.topMargin = insets.systemWindowInsetTop
+                params.rightMargin = insets.systemWindowInsetRight
+                params.bottomMargin = insets.systemWindowInsetBottom
+                app_version.setPadding((16 * d).toInt(), 0, 0, (insets.systemWindowInsetBottom + 16 * d).toInt())
+                val rect = Rect(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+                mapManager.padding = rect
+                fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+
+                GlobalScope.async(Dispatchers.Main) {
+                    delay(1000)
+                    showWhatsNew(this@MapsActivity, insets)
+                }
+
+                insets.consumeSystemWindowInsets()
             }
-
-
-            insets.consumeSystemWindowInsets()
+        } else {
+            mInsets = WindowInsetsCompat(null)
+            fragmentParent.setPadding(0, resources.getDimension(R.dimen.activity_vertical_margin).toInt(), 0, 0)
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
@@ -368,7 +371,7 @@ class MapsActivity : AppCompatActivity() {
     private fun showBuses(q: String) {
         DataStorageManager.searchStationId=-1
         mAutoUpdateRoutes = true
-        if (!q.isNotEmpty()) {
+        if (q.isEmpty()) {
             mapManager.clearBusesOnMap()
             mapManager.clearRoutes()
             return

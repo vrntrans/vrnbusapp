@@ -73,7 +73,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_no_star" />
+        android:src="@drawable/ic_no_star" />
 
     <ImageView
         android:id="@+id/low_floor"
@@ -86,7 +86,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/bus_type"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_wheelchair" />
+        android:src="@drawable/ic_wheelchair" />
 
     <ImageView
         android:id="@+id/bus_type"
@@ -99,6 +99,6 @@
         app:layout_constraintBottom_toBottomOf="@+id/low_floor"
         app:layout_constraintEnd_toStartOf="@+id/absoluteTime"
         app:layout_constraintTop_toTopOf="@+id/low_floor"
-        app:srcCompat="@drawable/ic_bus_large" />
+        android:src="@drawable/ic_bus_large" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

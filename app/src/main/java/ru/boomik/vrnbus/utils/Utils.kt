@@ -11,13 +11,13 @@ import java.io.IOException
 import java.nio.charset.Charset
 import android.graphics.drawable.Drawable
 import android.os.Build
-import com.github.kittinunf.fuel.core.requests.write
 import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.OutputStreamWriter
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -63,8 +63,9 @@ suspend fun saveStringToFile(file: File, value: String) = withContext(Dispatcher
     try {
         if (file.exists()) file.delete()
         val outputStream = file.outputStream()
-        outputStream.write(value)
-        outputStream.close()
+        val osw = OutputStreamWriter(outputStream)
+        osw.write(value)
+        osw.close()
     } catch (exception: IOException) {
         Log.e("Hm..", exception)
         ""
@@ -72,13 +73,17 @@ suspend fun saveStringToFile(file: File, value: String) = withContext(Dispatcher
 }
 
 
-fun loadStringFromNetwork(url: String) = GlobalScope.async(Dispatchers.IO) {
+fun loadStringFromNetworkAsync(url: String) = GlobalScope.async(Dispatchers.IO) {
     suspendCoroutine<String?> { cont ->
-        url.httpGet().responseString(Charsets.UTF_8) { _, response, result ->
-            Log.e("Request", response.statusCode.toString() + "(" + response.url + ")")
-            if (result.component2() != null) cont.resumeWithException(result.component2()!!)
-            else cont.resume(result.component1())
-        }
+       try {
+           url.httpGet().responseString(Charsets.UTF_8) { _, response, result ->
+               Log.e("Request", response.statusCode.toString() + "(" + response.url + ")")
+               if (result.component2() != null) cont.resumeWithException(result.component2()!!)
+               else cont.resume(result.component1())
+           }
+       } catch (e: Throwable) {
+           cont.resumeWithException(e)
+       }
     }
 }
 

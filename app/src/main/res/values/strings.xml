@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!--<string name="com.crashlytics.android.build_id" translatable="false" tools:ignore="ExtraTranslation">35654b7a-09ce-4cb3-8c53-707efc8f4bdf</string>-->
+<resources>
     <string name="app_name">VrnBus</string>
     <string name="select_buses">Выберите маршруты</string>
     <string name="search">Поиск</string>

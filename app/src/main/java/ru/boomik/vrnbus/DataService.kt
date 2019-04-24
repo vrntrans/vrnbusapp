@@ -43,62 +43,70 @@ object DataService {
 
     fun loadBusInfo(q: String, callback: (List<Bus>?) -> Unit) {
         val query = if (q == "*") "" else q
-        Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
-            //make a GET to http://httpbin.org/get and do something with response
-            Log.d("log", request.toString())
-            Log.d("log", response.toString())
-            val (_, error) = result
-            if (error == null) {
+        try {
+            Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
+                //make a GET to http://httpbin.org/get and do something with response
+                Log.d("log", request.toString())
+                Log.d("log", response.toString())
+                val (_, error) = result
+                if (error == null) {
 
-                try {
-                    val info = result.get()
-                    val busDtos = info.buses
-                    callback(busDtos.filter { it.count() == 2 }.map {
-                        val bus = Bus()
-                        bus.route = it[0].route
-                        bus.number = it[0].number
-                        bus.nextStationName = it[1].nextStationName ?: ""
-                        bus.lastStationTime = it[0].lastStationTime
-                        bus.lastSpeed = it[0].lastSpeed
-                        bus.time = it[0].time
-                        bus.lat = it[1].lat
-                        bus.lon = it[1].lon
-                        bus.lastLat = it[0].lastLat
-                        bus.lastLon = it[0].lastLon
-                        bus.lowFloor = it[0].lowFloor == 1
-                        bus.busType = it[0].busType
-                        bus.init()
-                        bus
-                    })
-                } catch (exception: Throwable) {
-                    Log.e("VrnBus", "Hm..", exception)
+                    try {
+                        val info = result.get()
+                        val busDtos = info.buses
+                        callback(busDtos.filter { it.count() == 2 }.map {
+                            val bus = Bus()
+                            bus.route = it[0].route
+                            bus.number = it[0].number
+                            bus.nextStationName = it[1].nextStationName ?: ""
+                            bus.lastStationTime = it[0].lastStationTime
+                            bus.lastSpeed = it[0].lastSpeed
+                            bus.time = it[0].time
+                            bus.lat = it[1].lat
+                            bus.lon = it[1].lon
+                            bus.lastLat = it[0].lastLat
+                            bus.lastLon = it[0].lastLon
+                            bus.lowFloor = it[0].lowFloor == 1
+                            bus.busType = it[0].busType
+                            bus.init()
+                            bus
+                        })
+                    } catch (exception: Throwable) {
+                        Log.e("VrnBus", "Hm..", exception)
+                        callback(null)
+                    }
+                } else {
                     callback(null)
                 }
-            } else {
-                callback(null)
-            }
 
+            }
+        } catch (e: Throwable) {
+            callback(null)
         }
     }
 
     suspend fun loadArrivalInfoAsync(station: Int) = GlobalScope.async {
         suspendCoroutine<Station?> { cont ->
-            Consts.ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
-                Log.d("log", request.toString())
-                Log.d("log", response.toString())
-                val (_, error) = result
-                if (error == null) {
-                    try {
-                        val info = result.get()
-                        val stationObject = Station.parseDto(info)
-                        cont.resume(stationObject)
-                    } catch (exception: Throwable) {
-                        Log.e("VrnBus", "Hm..", exception)
-                        cont.resumeWithException(exception)
+            try {
+                Consts.ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
+                    Log.d("log", request.toString())
+                    Log.d("log", response.toString())
+                    val (_, error) = result
+                    if (error == null) {
+                        try {
+                            val info = result.get()
+                            val stationObject = Station.parseDto(info)
+                            cont.resume(stationObject)
+                        } catch (exception: Throwable) {
+                            Log.e("VrnBus", "Hm..", exception)
+                            cont.resumeWithException(exception)
+                        }
+                    } else {
+                        cont.resumeWithException(error)
                     }
-                } else {
-                    cont.resumeWithException(error)
                 }
+            } catch (e: Throwable) {
+                cont.resumeWithException(e)
             }
         }
     }

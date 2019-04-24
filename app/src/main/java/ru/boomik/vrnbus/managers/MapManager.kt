@@ -64,13 +64,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         }
 
 
-        val res = mActivity.resources
-        val theme = mActivity.theme
-        small = res.getDrawable(R.drawable.ic_bus_small, theme)
-        medium = res.getDrawable(R.drawable.ic_bus_middle, theme)
-        big = res.getDrawable(R.drawable.ic_bus_large, theme)
-        bigFloor = res.getDrawable(R.drawable.ic_bus_large_low_floor, theme)
-        trolleybus = res.getDrawable(R.drawable.ic_trolleybus, theme)
+        small = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_small)
+        medium = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_middle)
+        big = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_large)
+        bigFloor = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_large_low_floor)
+        trolleybus = ContextCompat.getDrawable(mActivity, R.drawable.ic_trolleybus)
     }
 
     fun subscribeReady(callback: () -> Unit) {
@@ -176,7 +174,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 }
             }
         }
-        mActivity.reportFullyDrawn()
+        try {
+            mActivity.reportFullyDrawn()
+        } catch (e: Throwable) {
+        }
         initPosition = null
     }
 
@@ -274,7 +275,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
             val options = MarkerOptions().position(it.getPosition()).title(it.route).zIndex(1.0f)
             if (it.getSnippet() != null) options.snippet(it.getSnippet())
-            options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+            try {
+                options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+            } catch (e: Throwable) {
+                try {
+                    options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(if (neededType>=2) 1 else neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+                } catch (e: Throwable) {
+
+                }
+            }
             if (neededType == 2) {
                 options.anchor(1 / 6f, .5f)
                 options.infoWindowAnchor(1 / 6f, .2f)
@@ -401,6 +410,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     @SuppressLint("MissingPermission")
     fun goToMyLocation() {
+        if (!::mMap.isInitialized) return
         mMap.isMyLocationEnabled = true
         fusedLocationClient.lastLocation.continueWith {
             val location = it.result

@@ -2,6 +2,7 @@ package ru.boomik.vrnbus.dialogs
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
@@ -32,7 +34,11 @@ class SelectBusDialog {
 
             val dialogView = View.inflate(activity, R.layout.select_bus_dialog, null) as LinearLayout
             val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
-            params.topMargin += mInsets.systemWindowInsetTop
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                params.topMargin += mInsets.systemWindowInsetTop
+            } else {
+                params.topMargin +=  activity.resources.getDimension(R.dimen.activity_vertical_margin).toInt()
+            }
 
 
             val adapter = ArrayAdapter(activity, R.layout.bus_complete_view, routesList)

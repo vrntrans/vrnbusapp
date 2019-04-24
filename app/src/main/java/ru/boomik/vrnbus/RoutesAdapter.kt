@@ -3,16 +3,15 @@ package ru.boomik.vrnbus
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.BusType
@@ -28,14 +27,11 @@ class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAd
     private var favorites: List<String>?
 
 
-    val res: Resources = context.resources
-    val theme: Resources.Theme = context.theme
-
-    val small: Drawable = res.getDrawable(R.drawable.ic_bus_small, theme)
-    val medium: Drawable = res.getDrawable(R.drawable.ic_bus_middle, theme)
-    val big: Drawable = res.getDrawable(R.drawable.ic_bus_large, theme)
-    val trolleybus: Drawable = res.getDrawable(R.drawable.ic_trolleybus, theme)
-    val wheelchair: Drawable = res.getDrawable(R.drawable.ic_wheelchair, theme)
+    val small: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_bus_small)!!
+    val medium: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_bus_middle)!!
+    val big: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_bus_large)!!
+    val trolleybus: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_trolleybus)!!
+    val wheelchair: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_wheelchair)!!
 
     init {
         favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)

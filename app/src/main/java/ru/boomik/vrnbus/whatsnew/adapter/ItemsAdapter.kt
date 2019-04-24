@@ -28,7 +28,7 @@ override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             with(holder as ItemViewHolder) {
                 with(itemView) {
                     mData[position].imageRes?.let {
-                        val drawable =  mContext.resources.getDrawable(it, mContext.theme)
+                        val drawable =  ContextCompat.getDrawable(mContext, it)
                         drawable?.setColorFilter(titleColor, PorterDuff.Mode.SRC_ATOP)
                         itemTitleTextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
                     }
