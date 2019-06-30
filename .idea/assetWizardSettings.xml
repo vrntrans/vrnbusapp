@@ -16,26 +16,11 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
-                        <option name="children">
-                          <map>
-                            <entry key="clipartAsset">
-                              <value>
-                                <PersistentState>
-                                  <option name="values">
-                                    <map>
-                                      <entry key="url" value="jar:file:/D:/Soft/android-studio-beta/plugins/android/lib/android.jar!/images/material_design_icons/hardware/ic_security_black_24dp.xml" />
-                                    </map>
-                                  </option>
-                                </PersistentState>
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_privacy" />
+                            <entry key="outputName" value="ic_android" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="D:\Developing\VrnBus\img\trolleybus.svg" />
+                            <entry key="sourceFile" value="D:\Developing\VrnBus\img\Bus_stop_symbol.svg" />
                           </map>
                         </option>
                       </PersistentState>

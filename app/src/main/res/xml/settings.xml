@@ -7,6 +7,11 @@
             android:title="Кнопки масштабирования"
             android:summary="Отображать на карте кнопки + и -"/>
         <SwitchPreference
+            android:key="bigStation"
+            android:icon="@drawable/ic_bus_stop"
+            android:title="Только маленькие иконки остановок"
+            android:summary="Отключить увеличение иконок остановок при крупном масштабе"/>
+        <SwitchPreference
             android:key="osmMap"
             android:icon="@drawable/ic_map_dark"
             android:title="Карты OSM"

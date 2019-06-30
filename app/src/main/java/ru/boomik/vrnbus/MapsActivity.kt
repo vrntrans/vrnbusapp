@@ -191,7 +191,7 @@ class MapsActivity : AppCompatActivity() {
         }
 
         DataBus.subscribe<String>(Consts.SETTINGS_REFERER) { DataService.setReferer(it.data) }
-        DataBus.subscribe<Bus>(DataBus.BusClick) { onBusClicked(it.data.route) }
+        DataBus.subscribe<Bus>(DataBus.BusClick) { onBusClicked(it.data) }
         DataBus.subscribe<StationOnMap>(DataBus.StationClick) { onStationClicked(it.data) }
         DataBus.subscribe<Boolean>(Consts.SETTINGS_ZOOM) { zoomButtons.visibility = if (it.data) View.VISIBLE else View.GONE }
         DataBus.subscribe<String>(Consts.SETTINGS_NIGHT) { setUiMode(it.data, true) }
@@ -300,8 +300,9 @@ class MapsActivity : AppCompatActivity() {
     }
 
 
-    private fun onBusClicked(bus: String) {
-        Toast.makeText(this, bus, Toast.LENGTH_LONG).show()
+    private fun onBusClicked(bus: Bus) {
+        val text = if (bus.number.isNullOrBlank())  bus.route else "${bus.route}\n Госномер:\n ${bus.number}"
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -310,8 +311,11 @@ class MapsActivity : AppCompatActivity() {
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        restoreInstanceState(savedInstanceState)
+        try {
+            super.onRestoreInstanceState(savedInstanceState)
+            restoreInstanceState(savedInstanceState)
+        } catch (e: Throwable) {
+        }
     }
 
     private fun restoreInstanceState(savedInstanceState: Bundle?) {

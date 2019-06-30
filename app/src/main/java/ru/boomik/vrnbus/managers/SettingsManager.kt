@@ -67,8 +67,10 @@ object SettingsManager {
     fun loadPreferences() {
         val traffic = mPreferences.getBoolean(Consts.SETTINGS_TRAFFIC_JAM, false)
         val referer = mPreferences.getString(Consts.SETTINGS_REFERER, "") ?: ""
+        val bigStations = mPreferences.getBoolean(Consts.SETTINGS_BIG_STATION,false )
         DataBus.sendEvent(DataBus.Traffic, traffic)
         DataBus.sendEvent(Consts.SETTINGS_REFERER, referer)
+        DataBus.sendEvent(Consts.SETTINGS_BIG_STATION, bigStations)
     }
 
     fun saveIntToList(key : String, id : Int, inFavorite : Boolean) {

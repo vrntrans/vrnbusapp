@@ -10,9 +10,8 @@ object Consts{
     const val API_ROUTES="/bus_stations.json"
     const val API_BUS_LIST="/buslist"
     const val API_STATIONS="/bus_stops"
-
-
     const val ARRIVAL="/arrival_by_id"
+
     const val SETTINGS_TRAFFIC_JAM = "traffic_jam"
     const val SETTINGS_FAVORITE_ROUTE = "favorite_route"
     const val SETTINGS_FAVORITE_STATIONS = "favorite_stations"
@@ -21,6 +20,7 @@ object Consts{
     const val SETTINGS_ZOOM = "zoomButtons"
     const val SETTINGS_OSM = "osmMap"
     const val SETTINGS_ANALYTICS = "analytics"
+    const val SETTINGS_BIG_STATION = "bigStation"
 
     const val LOCATION_PERMISSION_REQUEST = 10
 

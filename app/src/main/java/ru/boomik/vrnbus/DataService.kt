@@ -9,7 +9,6 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import ru.boomik.vrnbus.dto.ArrivalDto
 import ru.boomik.vrnbus.dto.BusInfoDto
 import ru.boomik.vrnbus.dto.StationDto

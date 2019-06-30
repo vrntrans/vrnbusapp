@@ -42,6 +42,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private var mBusesMarkers: List<Marker>? = null
     private var mRouteOnMap: Polyline? = null
     private var mTraffic: Boolean = false
+    private var mBigStationsDisabled: Boolean = false
 
 
     private var small: Drawable?
@@ -59,6 +60,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
             setTrafficJam(it.data)
         }
+        DataBus.subscribe<Boolean>(Consts.SETTINGS_BIG_STATION) {
+            setBigStations(it.data)
+        }
         DataBus.subscribe<List<Bus>>(DataBus.BusToMap) {
             showBusesOnMap(it.data)
         }
@@ -69,6 +73,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         big = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_large)
         bigFloor = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_large_low_floor)
         trolleybus = ContextCompat.getDrawable(mActivity, R.drawable.ic_trolleybus)
+    }
+
+    private fun setBigStations(data: Boolean) {
+        mBigStationsDisabled = data
+        checkZoom()
     }
 
     fun subscribeReady(callback: () -> Unit) {
@@ -185,15 +194,27 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private var mShowSmall: Boolean = false
 
     private fun checkZoom() {
+        if (!::mMap.isInitialized) return
+        val zoom = mMap.cameraPosition.zoom
+        if (mLastZoom == zoom) return
+        mLastZoom = mMap.cameraPosition.zoom
+
+
         var showBig = false
         var showSmall = false
 
-        if (mLastZoom == mMap.cameraPosition.zoom) return
         if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
         else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
-        mLastZoom = mMap.cameraPosition.zoom
         mShowBig = showBig
         mShowSmall = showSmall
+
+        if (mBigStationsDisabled) {
+            mShowBig=false
+            setVisibleStationBig(false)
+            setVisibleStationSmall(showSmall)
+            return
+        }
+
 
         showBusesOnMap(mBuses, false)
 
@@ -309,6 +330,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
         else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
 
+        if (mBigStationsDisabled) {
+            showBig = false
+            showSmall = true
+        }
+
         val icon: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station)
         val iconSmall: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station_small)
 
@@ -321,6 +347,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             marker.tag = it
             marker
         }
+
         val newStationSmallMarkers = stationsOnMap.map {
             val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(iconSmall).zIndex(0.8f).anchor(.5f, .5f).visible(showSmall))
             marker.tag = it

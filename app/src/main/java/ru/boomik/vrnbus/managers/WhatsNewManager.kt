@@ -19,12 +19,33 @@ fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) {
                 .let {
                     nowVersionCode = it.versionCode
                 }
+        if (nowVersionCode==13) showWhatsNewFor13(activity, insets)
         if (nowVersionCode==12) showWhatsNewFor12(activity, insets)
         if (nowVersionCode==11) showWhatsNewFor11(activity, insets)
 
     } catch (t: IllegalStateException) {
 
     }
+}
+
+private fun showWhatsNewFor13(activity: AppCompatActivity, insets: WindowInsetsCompat) {
+    val whatsNew = WhatsNew.newInstance(
+            itemFromRes(R.string.kitkat_title, R.string.kitkat_desc, R.drawable.ic_android, activity),
+            itemFromRes(R.string.big_station_title, R.string.big_station_desc, R.drawable.ic_bus_stop, activity),
+            itemFromRes(R.string.other_title, R.string.other_desc, R.drawable.ic_optimization, activity)
+    )
+    with(whatsNew) {
+        buttonText = activity.getString(R.string.cont)
+        buttonTextColor = ContextCompat.getColor(activity, R.color.background)
+        buttonBackground = ContextCompat.getColor(activity, R.color.textColor)
+        itemTitleColor = ContextCompat.getColor(activity, R.color.textColor)
+        itemContentColor = ContextCompat.getColor(activity, R.color.textColor)
+        titleColor = ContextCompat.getColor(activity, R.color.textColor)
+        titleText = activity.getString(R.string.whatsnew)
+        presentationOption = PresentationOption.IF_NEEDED
+        windowInsets = insets
+    }
+    whatsNew.presentAutomatically(activity)
 }
 
 private fun showWhatsNewFor12(activity: AppCompatActivity, insets: WindowInsetsCompat) {
@@ -49,6 +70,7 @@ private fun showWhatsNewFor12(activity: AppCompatActivity, insets: WindowInsetsC
     }
     whatsNew.presentAutomatically(activity)
 }
+
 private fun showWhatsNewFor11(activity: AppCompatActivity, insets: WindowInsetsCompat) {
     val whatsNew = WhatsNew.newInstance(
             itemFromRes(R.string.map_title, R.string.map_desc, R.drawable.ic_map, activity),
