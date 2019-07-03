@@ -26,9 +26,9 @@
     <string name="night_mode">Ночной режим</string>
     <string name="about_html"><![CDATA[
     <p><bold>Прогноз прибытия автобусов в Воронеже</bold><br>Сайт: <a href="http://vrnbus.herokuapp.com" target="_blank">vrnbus.herokuapp.com</a>
-    <br>Telegram-бот: <a href="http://t.me/vrnbusbot" target="_blank">@vrnbusbot</a>
-    <br>Android: <a href="https://play.google.com/store/apps/details?id=ru.boomik.vrnbus" target="_blank">https://play.google.com/store/apps/details?id=ru.boomik.vrnbus</a> (автор - Кирилл Ашихмин )
-    <br>iOS: <a href="https://itunes.apple.com/us/app/vrnbus/id1436397112" target="_blank">https://itunes.apple.com/us/app/vrnbus/id1436397112</a> (автор Денис Евграфов ) </p>
+    <br>Telegram-бот: <a href="http://t.me/vrnbusbot" target="_blank">@vrnbusbot</a> (автор: Михаил Аксенов)
+    <br>Android: <a href="https://play.google.com/store/apps/details?id=ru.boomik.vrnbus" target="_blank">https://play.google.com/store/apps/details?id=ru.boomik.vrnbus</a> (автор: Кирилл Ашихмин)
+    <br>iOS: <a href="https://itunes.apple.com/us/app/vrnbus/id1436397112" target="_blank">https://itunes.apple.com/us/app/vrnbus/id1436397112</a> (автор: Денис Евграфов) </p>
     <p><bold>Город и транспорт</bold>
     <br>Telegram: канал <a href="http://t.me/vrntrans" target="_blank">@vrntrans</a>,
     <br>Telegram: чат <a href="http://t.me/vrntranschat" target="_blank">@vrntranschat</a>
