@@ -34,6 +34,7 @@ object AnalyticsManager {
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, preferenceName)
         bundle.putString(FirebaseAnalytics.Param.VALUE, data?.toString())
         mFirebaseAnalytics.logEvent("preference", bundle)
+        mFirebaseAnalytics.logEvent("preference_$preferenceName", bundle)
         mFirebaseAnalytics.setUserProperty(preferenceName, data?.toString())
     }
 

@@ -46,6 +46,8 @@ import android.widget.TextView as WidgetTextView
 
 class MapsActivity : AppCompatActivity() {
 
+    private var _loaded: Boolean = false
+    private var _loading: Boolean = false
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
     private lateinit var settingsManager: SettingsManager
@@ -274,22 +276,23 @@ class MapsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-
+        if (_loaded || _loading) return
+        _loading=true
         GlobalScope.async(Dispatchers.Main) {
-
-            Log.e("Loaded start 2")
             var dialog: AlertDialog? = null
             try {
                 dialog = progressDialog(this@MapsActivity)
                 DataStorageManager.load(this@MapsActivity.applicationContext)
+                _loaded = true
             } catch (e: Throwable) {
+                _loaded = false
                 // if one of the long operation throw, this should be called once, even if multiple long operations failed.
 
                 Log.e("something went wrong", e)
             }
             dialog?.hide()
             showBusStations()
-            Log.e("Loaded done 2")
+            _loading=false
         }
     }
 
@@ -327,7 +330,6 @@ class MapsActivity : AppCompatActivity() {
         DataBus.unsubscribeAll()
         val map = supportFragmentManager?.findFragmentById(R.id.map)
         if (map != null) supportFragmentManager.beginTransaction().remove(map).commit()
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -417,6 +419,7 @@ class MapsActivity : AppCompatActivity() {
             GlobalScope.async(Dispatchers.Main) {
                 delay(500)
                 val data = DataStorageManager.loadBusStations(this@MapsActivity)
+
                 runOnUiThread {
                     mapManager.showStations(data)
                 }

@@ -56,10 +56,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         zoom.isChecked = SettingsManager.getBool(Consts.SETTINGS_ZOOM)
         zoom.onPreferenceChangeListener = this
 
-        val bigStations= preferenceScreen.findPreference(Consts.SETTINGS_BIG_STATION) as SwitchPreference
-        bigStations.isChecked = SettingsManager.getBool(Consts.SETTINGS_BIG_STATION)
-        bigStations.onPreferenceChangeListener = this
-
         val osm = preferenceScreen.findPreference(Consts.SETTINGS_OSM) as SwitchPreference
         osm.isChecked = SettingsManager.getBool(Consts.SETTINGS_OSM)
         osm.onPreferenceChangeListener = this

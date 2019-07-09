@@ -26,6 +26,9 @@ import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.CustomUrlTileProvider
 import ru.boomik.vrnbus.utils.createImageRoundedBitmap
 import kotlin.random.Random
+import android.location.LocationManager
+import com.google.android.gms.maps.model.LatLng
+import android.location.Location
 
 
 /**
@@ -84,7 +87,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mReadyCallback = callback
     }
 
-    private var stationVisible: Boolean = true
     private var stationVisibleSmall: Boolean = true
     private val stationVisibleZoom = 16
     private val stationVisibleZoomSmall = 14
@@ -94,11 +96,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private val markerZoom = 14
     private val markerSmallZoom = 12
 
-    private var mStationMarkers: List<Marker> = listOf()
     private var mStationMarkersSmall: List<Marker> = listOf()
-    private var mFavoritesStationMarkers: MutableList<Marker> = mutableListOf()
-    private var mInFavoriteStationMarkers: MutableList<Marker> = mutableListOf()
     private var mInFavoriteStationSmallMarkers: MutableList<Marker> = mutableListOf()
+
+    private var mFavoriteStationMarkers: MutableList<Marker> = mutableListOf()
 
     private lateinit var mAllStations: List<StationOnMap>
     private var favoriteStations: List<Int>? = null
@@ -107,7 +108,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        mMap.setPadding(padding.left, padding.top, padding.right, padding.bottom)
+        mMap.setPadding(padding.left, (padding.top + 64 * mActivity.resources.displayMetrics.density).toInt(), padding.right, padding.bottom)
         val currentNightMode = mActivity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 
         val night = currentNightMode == Configuration.UI_MODE_NIGHT_YES
@@ -141,11 +142,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mMap.setMaxZoomPreference(19f)
 
         mMap.uiSettings.isMyLocationButtonEnabled = false
-        mMap.uiSettings.isCompassEnabled = false
+       // mMap.uiSettings.isCompassEnabled = false
         mMap.uiSettings.isMapToolbarEnabled = false
-        mMap.uiSettings.isRotateGesturesEnabled = false
+     //   mMap.uiSettings.isRotateGesturesEnabled = false
         mMap.uiSettings.isIndoorLevelPickerEnabled = false
-        mMap.uiSettings.isTiltGesturesEnabled = false
+      //  mMap.uiSettings.isTiltGesturesEnabled = false
         mMap.isTrafficEnabled = mTraffic
 
 
@@ -179,7 +180,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 val location = it.result
                 if (location != null && it.isSuccessful) {
                     val latLng = LatLng(location.latitude, location.longitude)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                    val distance = distanceBetween(latLng, LatLng(51.673909, 39.207646))
+                    if (distance<20000)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
                 }
             }
         }
@@ -190,7 +193,20 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         initPosition = null
     }
 
-    private var mShowBig: Boolean = false
+    private fun distanceBetween(latLng1: LatLng, latLng2: LatLng): Float {
+
+        val loc1 = Location(LocationManager.GPS_PROVIDER)
+        loc1.latitude = latLng1.latitude
+        loc1.longitude = latLng1.longitude
+
+        val loc2 = Location(LocationManager.GPS_PROVIDER)
+        loc2.latitude = latLng2.latitude
+        loc2.longitude = latLng2.longitude
+
+
+        return loc1.distanceTo(loc2)
+    }
+
     private var mShowSmall: Boolean = false
 
     private fun checkZoom() {
@@ -200,43 +216,18 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mLastZoom = mMap.cameraPosition.zoom
 
 
-        var showBig = false
         var showSmall = false
 
-        if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
-        else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
-        mShowBig = showBig
+       if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
         mShowSmall = showSmall
-
-        if (mBigStationsDisabled) {
-            mShowBig=false
-            setVisibleStationBig(false)
-            setVisibleStationSmall(showSmall)
-            return
-        }
-
 
         showBusesOnMap(mBuses, false)
 
-        if (showBig) {
-            if (stationVisible && !stationVisibleSmall) return
-            if (!stationVisible) setVisibleStationBig(true)
-            if (stationVisibleSmall) setVisibleStationSmall(false)
-        } else {
-            if (showSmall) {
-                if (!stationVisible && stationVisibleSmall) return
-                if (stationVisible) setVisibleStationBig(false)
-                if (!stationVisibleSmall) setVisibleStationSmall(true)
-            } else {
-                if (stationVisible) setVisibleStationBig(false)
-                if (stationVisibleSmall) setVisibleStationSmall(false)
-            }
-        }
-    }
+        if (stationVisibleSmall == showSmall) return
+        setVisibleStationSmall(showSmall)
 
-    private fun setVisibleStationBig(visible: Boolean) {
-        mStationMarkers.filter { !mInFavoriteStationMarkers.contains(it) }.forEach { it.isVisible = visible }
-        stationVisible = visible
+
+
     }
 
     private fun setVisibleStationSmall(visible: Boolean) {
@@ -266,7 +257,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             neededType = 1
         }
 
-       if (!ignoreType && mBusesMarkerType == neededType) return
+        if (!ignoreType && mBusesMarkerType == neededType) return
         clearBusesOnMap()
         mBuses = buses
         mBusesMarkerType = neededType
@@ -294,7 +285,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             }
 
 
-            val options = MarkerOptions().position(it.getPosition()).title(it.route).zIndex(1.0f)
+            val options = MarkerOptions().position(it.getPosition()).title(it.route).zIndex(1.0f).flat(true)
             if (it.getSnippet() != null) options.snippet(it.getSnippet())
             try {
                 options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
@@ -321,32 +312,22 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     fun showStations(stationsOnMap: List<StationOnMap>?) {
         if (stationsOnMap == null) return
+        if (::mAllStations.isInitialized && mAllStations.any()) return
+
 
         mAllStations = stationsOnMap
 
-        var showBig = false
         var showSmall = false
 
-        if (mMap.cameraPosition.zoom >= stationVisibleZoom) showBig = true
-        else if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
+        if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
 
-        if (mBigStationsDisabled) {
-            showBig = false
-            showSmall = true
-        }
 
-        val icon: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station)
+
         val iconSmall: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station_small)
 
 
-        stationVisible = showBig
         stationVisibleSmall = showSmall
 
-        val newStationMarkers = stationsOnMap.map {
-            val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(icon).zIndex(0.9f).anchor(.5f, .5f).visible(showBig))
-            marker.tag = it
-            marker
-        }
 
         val newStationSmallMarkers = stationsOnMap.map {
             val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(iconSmall).zIndex(0.8f).anchor(.5f, .5f).visible(showSmall))
@@ -354,7 +335,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             marker
         }
 
-        mStationMarkers = newStationMarkers
         mStationMarkersSmall = newStationSmallMarkers
 
         loadPreferences()
@@ -364,9 +344,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
     private fun loadPreferences() {
-        mInFavoriteStationMarkers = mutableListOf()
         mInFavoriteStationSmallMarkers = mutableListOf()
-        mFavoritesStationMarkers = mutableListOf()
         favoriteStations = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
         checkFavoritesStations()
         DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
@@ -377,29 +355,20 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
     private fun checkFavoritesStations() {
-        if (mShowBig) mInFavoriteStationMarkers.forEach { it.isVisible = true }
-        if (mShowSmall) mInFavoriteStationSmallMarkers.forEach { it.isVisible = true }
 
         if (favoriteStations != null) {
 
-            mInFavoriteStationMarkers.clear()
             mInFavoriteStationSmallMarkers.clear()
 
-            mInFavoriteStationMarkers.addAll(mStationMarkers.filter {
-                val station = it.tag as StationOnMap
-                favoriteStations!!.contains(station.id)
-            })
             mInFavoriteStationSmallMarkers.addAll(mStationMarkersSmall.filter {
                 val station = it.tag as StationOnMap
                 favoriteStations!!.contains(station.id)
             })
 
-            mInFavoriteStationMarkers.forEach { it.isVisible = false }
             mInFavoriteStationSmallMarkers.forEach { it.isVisible = false }
 
-            mFavoritesStationMarkers.forEach { it.remove() }
-            mFavoritesStationMarkers.clear()
-
+            mFavoriteStationMarkers.forEach { it.remove() }
+            mFavoriteStationMarkers.clear()
             val icon: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station_favorite)
             val favoritesMarkers = mAllStations.filter { favoriteStations!!.contains(it.id) }.map {
                 val marker = mMap.addMarker(MarkerOptions().position(it.getPosition()).title(it.getTitle()).icon(icon).zIndex(1.0f).anchor(.5f, .5f))
@@ -407,13 +376,13 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 marker
             }.toMutableList()
 
-            mFavoritesStationMarkers = favoritesMarkers
+            mFavoriteStationMarkers = favoritesMarkers
         } else {
-            mInFavoriteStationMarkers.clear()
+            mFavoriteStationMarkers.forEach { it.remove() }
+            mFavoriteStationMarkers.clear()
             mInFavoriteStationSmallMarkers.clear()
-            mFavoritesStationMarkers.forEach { it.remove() }
-            mFavoritesStationMarkers.clear()
         }
+        setVisibleStationSmall(mShowSmall)
         checkZoom()
     }
 
