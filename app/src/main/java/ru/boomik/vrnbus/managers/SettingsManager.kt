@@ -30,7 +30,6 @@ object SettingsManager {
             saveIntToList(Consts.SETTINGS_FAVORITE_STATIONS, it.data.first, it.data.second)
         }
 
-
         DataBus.subscribe<Pair<String, Boolean>>(DataBus.Settings) {
             it.data.let { data -> if(data.second:: class == Boolean::class) mPreferences.edit().putBoolean(data.first, data.second).apply() }
         }
@@ -47,7 +46,7 @@ object SettingsManager {
 
     private var refreshRate: Double = 30.0
 
-    private val LAST_VERSION_CODE = "LAST_VERSION_CODE_SETTINGS"
+    private const val LAST_VERSION_CODE = "LAST_VERSION_CODE_SETTINGS"
 
     private fun setDefaultValues(activity: Activity) {
         val lastCode = mPreferences.getLong(LAST_VERSION_CODE, 0)
@@ -55,7 +54,6 @@ object SettingsManager {
 
         if (lastCode==0L || currentVersion>lastCode) {
             mPreferences.edit().putBoolean(Consts.SETTINGS_ROTATE, true).apply()
-
 
             mPreferences.edit().putLong(LAST_VERSION_CODE, currentVersion).apply()
         }

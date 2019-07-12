@@ -10,7 +10,7 @@
             android:key="osmMap"
             android:icon="@drawable/ic_map_dark"
             android:title="Карты OSM"
-            android:summary="Использовать карты OpenStreetMap. \nДля применения необходим перезапуск приложения" />
+            android:summary="Использовать карты OpenStreetMap. \nДля применения необходим перезапуск приложения (могут не работать)" />
         <SwitchPreference
             android:key="rotateMap"
             android:icon="@drawable/ic_rotate"

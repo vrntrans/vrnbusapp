@@ -71,8 +71,6 @@ class MapsActivity : AppCompatActivity() {
         settingsManager = SettingsManager
         settingsManager.initialize(this)
         AnalyticsManager.initByActivity(this, settingsManager.getBool(Consts.SETTINGS_ANALYTICS))
-        val night = settingsManager.getString(Consts.SETTINGS_NIGHT)
-        setUiMode(night, false)
 
         setContentView(R.layout.activity_drawer)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -225,6 +223,7 @@ class MapsActivity : AppCompatActivity() {
             3 -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         }
+
         AppCompatDelegate.setDefaultNightMode(mode)
         if (needRecreate) {
             recreate()
