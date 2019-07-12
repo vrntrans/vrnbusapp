@@ -5,12 +5,17 @@
             android:key="zoomButtons"
             android:icon="@drawable/ic_zoom"
             android:title="Кнопки масштабирования"
-            android:summary="Отображать на карте кнопки + и -"/>\
+            android:summary="Отображать на карте кнопки + и -"/>
         <SwitchPreference
             android:key="osmMap"
             android:icon="@drawable/ic_map_dark"
             android:title="Карты OSM"
             android:summary="Использовать карты OpenStreetMap. \nДля применения необходим перезапуск приложения" />
+        <SwitchPreference
+            android:key="rotateMap"
+            android:icon="@drawable/ic_rotate"
+            android:title="Вращение карты"
+            android:summary="Разрешить вращение и наклон карты двумя пальцами" />
         <ListPreference
             android:defaultValue="1"
             android:icon="@drawable/ic_night"

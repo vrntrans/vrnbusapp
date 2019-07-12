@@ -19,16 +19,13 @@ import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
-import ru.boomik.vrnbus.objects.Bus
-import ru.boomik.vrnbus.objects.BusType
-import ru.boomik.vrnbus.objects.Route
-import ru.boomik.vrnbus.objects.StationOnMap
-import ru.boomik.vrnbus.utils.CustomUrlTileProvider
-import ru.boomik.vrnbus.utils.createImageRoundedBitmap
+import ru.boomik.vrnbus.objects.*
+import ru.boomik.vrnbus.utils.*
 import kotlin.random.Random
 import android.location.LocationManager
 import com.google.android.gms.maps.model.LatLng
 import android.location.Location
+import com.google.android.gms.maps.model.CameraPosition
 
 
 /**
@@ -45,8 +42,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private var mBusesMarkers: List<Marker>? = null
     private var mRouteOnMap: Polyline? = null
     private var mTraffic: Boolean = false
-    private var mBigStationsDisabled: Boolean = false
-
 
     private var small: Drawable?
     private var medium: Drawable?
@@ -63,8 +58,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
             setTrafficJam(it.data)
         }
-        DataBus.subscribe<Boolean>(Consts.SETTINGS_BIG_STATION) {
-            setBigStations(it.data)
+        DataBus.subscribe<Boolean>(Consts.SETTINGS_ROTATE) {
+            loadRotate()
         }
         DataBus.subscribe<List<Bus>>(DataBus.BusToMap) {
             showBusesOnMap(it.data)
@@ -78,17 +73,12 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         trolleybus = ContextCompat.getDrawable(mActivity, R.drawable.ic_trolleybus)
     }
 
-    private fun setBigStations(data: Boolean) {
-        mBigStationsDisabled = data
-        checkZoom()
-    }
 
     fun subscribeReady(callback: () -> Unit) {
         mReadyCallback = callback
     }
 
     private var stationVisibleSmall: Boolean = true
-    private val stationVisibleZoom = 16
     private val stationVisibleZoomSmall = 14
     private var initPosition: LatLng? = null
     private var initZoom: Float = 12F
@@ -142,12 +132,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         mMap.setMaxZoomPreference(19f)
 
         mMap.uiSettings.isMyLocationButtonEnabled = false
-       // mMap.uiSettings.isCompassEnabled = false
         mMap.uiSettings.isMapToolbarEnabled = false
-     //   mMap.uiSettings.isRotateGesturesEnabled = false
         mMap.uiSettings.isIndoorLevelPickerEnabled = false
-      //  mMap.uiSettings.isTiltGesturesEnabled = false
         mMap.isTrafficEnabled = mTraffic
+        loadRotate()
 
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Consts.INITIAL_POSITION, Consts.INITIAL_ZOOM))
@@ -345,11 +333,32 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     private fun loadPreferences() {
         mInFavoriteStationSmallMarkers = mutableListOf()
+        loadFavoriteStations()
+        DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
+            loadFavoriteStations()
+        }
+    }
+
+    private fun loadFavoriteStations() {
         favoriteStations = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
         checkFavoritesStations()
-        DataBus.subscribe<Pair<Int, Boolean>>(DataBus.FavoriteStation) {
-            favoriteStations = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
-            checkFavoritesStations()
+    }
+
+    private fun loadRotate() {
+        if (!::mMap.isInitialized) return
+        val rotate = SettingsManager.getBool(Consts.SETTINGS_ROTATE)
+
+        if (rotate) {
+             mMap.uiSettings.isCompassEnabled = true
+             mMap.uiSettings.isRotateGesturesEnabled = true
+             mMap.uiSettings.isTiltGesturesEnabled = true
+        } else {
+            mMap.uiSettings.isCompassEnabled = false
+            mMap.uiSettings.isRotateGesturesEnabled = false
+            mMap.uiSettings.isTiltGesturesEnabled = false
+
+            val newCamPos = CameraPosition(mMap.cameraPosition.target, mMap.cameraPosition.zoom, 0f, 0f)
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCamPos))
         }
     }
 

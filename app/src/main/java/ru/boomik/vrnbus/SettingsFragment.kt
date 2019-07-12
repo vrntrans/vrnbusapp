@@ -60,6 +60,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         osm.isChecked = SettingsManager.getBool(Consts.SETTINGS_OSM)
         osm.onPreferenceChangeListener = this
 
+        val rotation = preferenceScreen.findPreference(Consts.SETTINGS_ROTATE) as SwitchPreference
+        rotation.isChecked = SettingsManager.getBool(Consts.SETTINGS_ROTATE)
+        rotation.onPreferenceChangeListener = this
+
         val analytics = preferenceScreen.findPreference(Consts.SETTINGS_ANALYTICS) as SwitchPreference
         analytics.isChecked = SettingsManager.getBool(Consts.SETTINGS_ANALYTICS)
         analytics.onPreferenceChangeListener = this

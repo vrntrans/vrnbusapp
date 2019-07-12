@@ -124,6 +124,8 @@ class WhatsNew : DialogFragment() {
                 // Obtain the last version code from sp.
                 val lastVersionCode = PreferenceManager.getDefaultSharedPreferences(activity)
                         .getInt(LAST_VERSION_CODE, 0)
+
+
                 var nowVersionCode = 0
 
                 var lastFirstNumOfVersionName = 0
@@ -140,9 +142,11 @@ class WhatsNew : DialogFragment() {
                                 tmp = it.versionName
                             }
 
+
+
                     // Obtain the first two numbers of current version name.
                     tmp.split("\\.".toRegex())
-                            .filter { !it.isEmpty() && !it.isBlank() }
+                            .filter { it.isNotEmpty() && !it.isBlank() }
                             .apply {
                                 if (size >= 1) {
                                     nowFirstNumOfVersionName = this[0].toInt()
@@ -154,10 +158,10 @@ class WhatsNew : DialogFragment() {
                             }
 
                     // Obtain the first two numbers of last version name.
-                    PreferenceManager.getDefaultSharedPreferences(activity)
-                            .getString(LAST_VERSION_NAME, "")
+                    (PreferenceManager.getDefaultSharedPreferences(activity)
+                            .getString(LAST_VERSION_NAME, "") ?: "")
                             .split("\\.".toRegex())
-                            .filter { !it.isEmpty() && !it.isBlank() }
+                            .filter { it.isNotEmpty() && !it.isBlank() }
                             .apply {
                                 if (size >= 1) {
                                     lastFirstNumOfVersionName = this[0].toInt()
@@ -185,7 +189,7 @@ class WhatsNew : DialogFragment() {
                                 && (nowVersionCode >= 0 && lastVersionCode >= 0 && nowVersionCode > lastVersionCode)) {
 
                             // Show the dialog.
-                            show(activity.supportFragmentManager, TAG)
+                            if (lastVersionCode>0) show(activity.supportFragmentManager, TAG)
                             // Save the latest version name to sp.
                             PreferenceManager.getDefaultSharedPreferences(activity)
                                     .edit()
@@ -197,11 +201,7 @@ class WhatsNew : DialogFragment() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
             }
-
         }
-
     }
-
 }

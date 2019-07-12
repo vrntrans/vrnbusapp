@@ -1,7 +1,7 @@
 package ru.boomik.vrnbus.managers
 
 import android.app.Activity
-import android.widget.Toast
+import androidx.core.content.pm.PackageInfoCompat
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
@@ -15,6 +15,8 @@ object SettingsManager {
 
     fun initialize(activity: Activity) {
         this.mPreferences = BinaryPreferencesBuilder(activity.applicationContext).build()
+
+
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
             mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it.data ?: false).apply()
         }
@@ -39,10 +41,25 @@ object SettingsManager {
             it.data.let { data -> if(data.second:: class == String::class) mPreferences.edit().putString(data.first, data.second).apply() }
         }
 
+        setDefaultValues(activity)
         initRemoteConfig()
     }
 
     private var refreshRate: Double = 30.0
+
+    private val LAST_VERSION_CODE = "LAST_VERSION_CODE_SETTINGS"
+
+    private fun setDefaultValues(activity: Activity) {
+        val lastCode = mPreferences.getLong(LAST_VERSION_CODE, 0)
+        val currentVersion = PackageInfoCompat.getLongVersionCode(activity.packageManager.getPackageInfo(activity.packageName, 0))
+
+        if (lastCode==0L || currentVersion>lastCode) {
+            mPreferences.edit().putBoolean(Consts.SETTINGS_ROTATE, true).apply()
+
+
+            mPreferences.edit().putLong(LAST_VERSION_CODE, currentVersion).apply()
+        }
+    }
 
     private fun initRemoteConfig() {
         val remoteConfig = FirebaseRemoteConfig.getInstance()
