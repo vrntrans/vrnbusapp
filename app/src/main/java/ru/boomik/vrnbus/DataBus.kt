@@ -1,6 +1,5 @@
 package ru.boomik.vrnbus
 
-import android.annotation.SuppressLint
 import kotlin.reflect.KClass
 
 typealias Notify<T> = (Notification<T>) -> Unit
@@ -17,6 +16,7 @@ object DataBus {
     const val BusToMap = "ToMap"
     const val Update = "Update"
     const val FavoriteRoute = "FavoriteRoute"
+    const val ClickRoute = "ClickRoute"
     const val FavoriteStation = "FavoriteStation"
     const val Settings = "Settings"
     const val ResetRoutes = "ResetRoutes"
@@ -48,6 +48,23 @@ object DataBus {
         }
 
     }
+
+    inline fun <reified T : Any> unsubscribe (key: String) {
+        if (key.isBlank()) throw IllegalStateException("Key not be empty")
+        if (!subscribers.containsKey(key)) return
+        val subs = subscribers[key] ?: return
+        val forUnsubscribe = subs.filter { it.type == T::class }
+        if (!forUnsubscribe.any()) return
+        subs.removeAll(forUnsubscribe)
+        if (!subs.any()) subscribers.remove(key)
+    }
+
+    fun unsubscribeKey (key: String) {
+        if (key.isBlank()) throw IllegalStateException("Key not be empty")
+        if (!subscribers.containsKey(key)) return
+        subscribers.remove(key)
+    }
+
     fun unsubscribeAll() {
         subscribers.clear()
     }

@@ -5,9 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.text.InputType
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -20,11 +18,10 @@ import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import eu.davidea.flexibleadapter.FlexibleAdapter
 import eu.davidea.flexibleadapter.common.SmoothScrollLinearLayoutManager
-import eu.davidea.flexibleadapter.items.AbstractFlexibleItem
-import eu.davidea.flexibleadapter.items.IFlexible
-import eu.davidea.viewholders.FlexibleViewHolder
 import ru.boomik.vrnbus.Consts
+import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
+import ru.boomik.vrnbus.adapters.RouteItem
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
 
@@ -44,9 +41,9 @@ class SelectBusDialog {
 
             val decorView = activity.window.decorView as FrameLayout
 
-            AsyncLayoutInflater(activity).inflate(R.layout.select_bus_dialog_second, null) { view, _, _ ->
-                // val dialogView = View.inflate(activity, R.layout.select_bus_dialog_second, null) as LinearLayout
-                val dialogView = view  as LinearLayout
+            AsyncLayoutInflater(activity).inflate(R.layout.select_bus_dialog_second, decorView) { view, _, _ ->
+            val dialogView = view  as LinearLayout
+           // val dialogView = View.inflate(activity, R.layout.select_bus_dialog_second, null) as LinearLayout
                 dialogView.tag = "dialog"
                 val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
                 val paramsLast = dialogView.getChildAt(dialogView.childCount - 1).layoutParams as ViewGroup.MarginLayoutParams
@@ -151,27 +148,27 @@ class SelectBusDialog {
                 }
 
                 val activeRoutes = nachos.chipValues.asSequence().distinct()
-                val flexibleRoutesList = routesList.map { RouteItem(it, activeRoutes.contains(it)) }
+                val favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
+                val flexibleRoutesList = routesList.map {
+                    RouteItem(it, activeRoutes.contains(it), favorites?.contains(it) ?: false)
+                }.sortedByDescending { it.inFavorites }
                 val routesRecycler = dialogView.findViewById<RecyclerView>(R.id.routesList)
                 val routesAdapter = FlexibleAdapter(flexibleRoutesList)
                 routesRecycler.layoutManager = SmoothScrollLinearLayoutManager(activity)
                 routesRecycler.adapter = routesAdapter
                 routesRecycler.setHasFixedSize(true)
 
-                /*
-                val showList = dialogView.findViewById<ImageButton>(R.id.showList)
-                showList.setOnClickListener { _ ->
-                    nachos.chipifyAllUnterminatedTokens()
-                    alertMultipleChoiceItems(activity, routesList) {
-                        if (it != null) {
-                            val buses = nachos.chipValues
-                            buses.addAll(it)
-                            nachos.setText(buses.distinct())
-                        }
-                    }
-                }*/
+                DataBus.subscribe<Pair<String, Boolean>>(DataBus.FavoriteRoute) { notification ->
+                    flexibleRoutesList.firstOrNull { it.route == notification.data.first }?.inFavorites=notification.data.second
+                }
 
-                //dialog.show()
+                DataBus.unsubscribe<Pair<String, Boolean>>(DataBus.ClickRoute)
+                DataBus.subscribe<Pair<String, Boolean>>(DataBus.ClickRoute) {
+                    val buses = nachos.chipValues
+                    if (it.data.second) buses.add(it.data.first)
+                    else buses.remove(it.data.first)
+                    nachos.setText(buses.distinct())
+                }
 
                 decorView.postDelayed({
                     val t = Slide(Gravity.TOP)
@@ -180,71 +177,22 @@ class SelectBusDialog {
                     //nachos.requestFocus()
                     //imm.showSoftInput(nachos, InputMethodManager.SHOW_FORCED)
                 }, 0)
+           }
+        }
 
+        fun Hide() {
+            val decorView = window.decorView as FrameLayout?
+            if (decorView != null && decorView.childCount > 0) {
+                val last = decorView.getChildAt(decorView.childCount - 1)
+                if (last.tag == "dialog") {
+                    val t = Slide(Gravity.TOP)
+                    TransitionManager.beginDelayedTransition(decorView, t)
+                    decorView.removeView(last)
+                    return
+                }
             }
         }
 
     }
 }
 
-/**
- * Where AbstractFlexibleItem implements IFlexible!
- */
-class RouteItem(private val route: String, var checked: Boolean) : AbstractFlexibleItem<RouteItem.MyViewHolder/*(2)*/>() {
-
-
-    /**
-     * When an item is equals to another?
-     * Write your own concept of equals, mandatory to implement or use
-     * default java implementation (return this == o;) if you don't have unique IDs!
-     * This will be explained in the "Item interfaces" Wiki page.
-     */
-    override fun equals(other: Any?): Boolean {
-        return if (other is RouteItem) {
-            this.route == other.route
-        } else false
-    }
-
-    /**
-     * For the item type we need an int value: the layoutResID is sufficient.
-     */
-    override fun getLayoutRes(): Int {
-        return R.layout.route_cell
-    }
-
-
-    override fun hashCode(): Int {
-        return route.hashCode()
-    }
-
-    /**
-     * Delegates the creation of the ViewHolder to the user (AutoMap).
-     * The inflated view is already provided as well as the Adapter.
-     */
-    override fun createViewHolder(view: View?, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>?): MyViewHolder {
-        return MyViewHolder(view, adapter)
-    }
-
-    /**
-     * The Adapter and the Payload are provided to perform and get more specific
-     * information.
-     */
-    override fun bindViewHolder(adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>?, holder: MyViewHolder?, position: Int, payloads: MutableList<Any>?) {
-        if (holder == null) return
-        holder.mCheckBox?.let {
-            it.text = route
-            it.isChecked = checked
-        }
-    }
-
-    /**
-     * The ViewHolder used by this item.
-     * Extending from FlexibleViewHolder is recommended especially when you will use
-     * more advanced features.
-     */
-    inner class MyViewHolder(view: View?, adapter: FlexibleAdapter<IFlexible<RecyclerView.ViewHolder>>?) : FlexibleViewHolder(view, adapter) {
-
-        var mCheckBox = view?.findViewById<CheckBox>(R.id.checkBox)
-
-    }
-}

@@ -1,4 +1,4 @@
-package ru.boomik.vrnbus
+package ru.boomik.vrnbus.adapters
 
 import android.animation.ValueAnimator
 import android.app.Activity
@@ -12,6 +12,9 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import ru.boomik.vrnbus.Consts
+import ru.boomik.vrnbus.DataBus
+import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.BusType
@@ -19,7 +22,7 @@ import ru.boomik.vrnbus.utils.BusViewHolder
 import ru.boomik.vrnbus.utils.color
 import java.util.*
 
-class RoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAdapter() {
+class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) : BaseAdapter() {
 
     private var busesList: List<Bus> = BussList
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

@@ -15,6 +15,7 @@ import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
 import kotlinx.coroutines.*
 import ru.boomik.vrnbus.*
+import ru.boomik.vrnbus.adapters.StationRoutesAdapter
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
@@ -76,7 +77,7 @@ class StationInfoDialog {
                 DataStorageManager.activeStationId = 0
             }
 
-            val adapter = RoutesAdapter(activity, listOf())
+            val adapter = StationRoutesAdapter(activity, listOf())
             list.adapter = adapter
 
             list.setOnItemClickListener { parent, _, position, _ ->
@@ -116,7 +117,7 @@ class StationInfoDialog {
 
         private lateinit var mBuses: List<Bus>
 
-        private fun startUpdateStationInfo(activity: Activity, station: StationOnMap, dialog: DialogPlus?, time: TextView, adapter: RoutesAdapter, progress: ProgressBar, progressIndeterminate: ProgressBar) {
+        private fun startUpdateStationInfo(activity: Activity, station: StationOnMap, dialog: DialogPlus?, time: TextView, adapter: StationRoutesAdapter, progress: ProgressBar, progressIndeterminate: ProgressBar) {
 
             GlobalScope.async(Dispatchers.Main) {
                 var first = true
