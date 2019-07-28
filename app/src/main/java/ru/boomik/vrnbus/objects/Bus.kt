@@ -1,7 +1,10 @@
 package ru.boomik.vrnbus.objects
 
 import com.google.android.gms.maps.model.LatLng
+import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.atan2
+import kotlin.math.floor
 
 /**
  * Created by boomv on 15.03.2018.
@@ -21,7 +24,7 @@ class Bus {
     var nextStationName: String? = null
     var lastStationTime: String? = null
     var lastSpeed: Int = 0
-    var time: String? = null
+    var time: Calendar? = null
     var lat: Double = .0
     var lon: Double = .0
     var lastLat: Double = .0
@@ -62,10 +65,24 @@ class Bus {
 
 
     fun getSnippet(): String? {
-        return if (nextStationName!=null)
-            "$nextStationName\nскорость: $lastSpeed"
-        else
-            "скорость: $lastSpeed"
+        val station = if (nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n$nextStationName\n"
+        val speed = "Скорость: $lastSpeed"
+        var updateTime = ""
+        var gosnumber = ""
+
+        if (!number.isNullOrBlank()) gosnumber = "\nГосномер: $number"
+
+        if (time != null) {
+
+            val now = Calendar.getInstance()
+            val difference = (now.timeInMillis - time!!.timeInMillis)/1000
+
+
+            val date = time!!.time
+            val format1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ru"))
+            updateTime = "" + (if (difference < 0 || difference>0) "\nОбновлено: $difference секунд назад (${format1.format(date)})" else "Обновлено: ${format1.format(date)}")
+        }
+        return "$station$speed$gosnumber$updateTime"
     }
 
     fun getPosition(): LatLng {
@@ -76,7 +93,7 @@ class Bus {
         val x = lat - lastLat
         val y = lon - lastLon
 
-        return Math.floor(Math.atan2(y, x) * 180 / Math.PI)
+        return floor(atan2(y, x) * 180 / Math.PI)
     }
 
     override fun toString(): String {

@@ -18,6 +18,9 @@ import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.loadJSONFromAsset
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -53,14 +56,21 @@ object DataService {
                     try {
                         val info = result.get()
                         val busDtos = info.buses
+                        val pattern = "yyyy-MM-dd'T'HH:mm:ss"
                         callback(busDtos.filter { it.count() == 2 }.map {
+
+                            val date = SimpleDateFormat(pattern, Locale("ru")).parse(it[0].time)
+                            val calendar = Calendar.getInstance()
+                            calendar.time = date
+
+
                             val bus = Bus()
                             bus.route = it[0].route
                             bus.number = it[0].number
                             bus.nextStationName = it[1].nextStationName ?: ""
                             bus.lastStationTime = it[0].lastStationTime
                             bus.lastSpeed = it[0].lastSpeed
-                            bus.time = it[0].time
+                            bus.time = calendar
                             bus.lat = it[1].lat
                             bus.lon = it[1].lon
                             bus.lastLat = it[0].lastLat

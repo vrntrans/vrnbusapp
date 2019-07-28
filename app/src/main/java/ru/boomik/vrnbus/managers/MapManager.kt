@@ -8,8 +8,15 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.view.Gravity
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -19,13 +26,14 @@ import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
-import ru.boomik.vrnbus.objects.*
-import ru.boomik.vrnbus.utils.*
+import ru.boomik.vrnbus.objects.Bus
+import ru.boomik.vrnbus.objects.BusType
+import ru.boomik.vrnbus.objects.Route
+import ru.boomik.vrnbus.objects.StationOnMap
+import ru.boomik.vrnbus.utils.CustomUrlTileProvider
+import ru.boomik.vrnbus.utils.createImageRoundedBitmap
+import java.util.*
 import kotlin.random.Random
-import android.location.LocationManager
-import com.google.android.gms.maps.model.LatLng
-import android.location.Location
-import com.google.android.gms.maps.model.CameraPosition
 
 
 /**
@@ -158,6 +166,35 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         }
         mReadyCallback()
 
+        mMap.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+
+            override fun getInfoWindow(arg0: Marker): View? {
+                return null
+            }
+
+            override fun getInfoContents(marker: Marker): View {
+
+                val info = LinearLayout(mActivity)
+                info.orientation = LinearLayout.VERTICAL
+
+                val title = TextView(mActivity)
+                title.setTextColor(Color.BLACK)
+                title.gravity = Gravity.CENTER
+                title.setTypeface(null, Typeface.BOLD)
+                title.text = marker.title
+
+                val snippet = TextView(mActivity)
+                snippet.setTextColor(Color.GRAY)
+                snippet.text = marker.snippet
+
+                info.addView(title)
+                info.addView(snippet)
+
+                return info
+            }
+        })
+
+
 
         if (initPosition != null) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initPosition, initZoom))
@@ -254,6 +291,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         var size = (36 * d).toInt()
         if (neededType == 0) size /= 2
 
+        val now = Calendar.getInstance()
         val newBusesMarkers = buses.map {
             val typeIcon = when {
                 it.type == BusType.Small -> small
@@ -279,7 +317,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
             } catch (e: Throwable) {
                 try {
-                    options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(if (neededType>=2) 1 else neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+                    options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(if (neededType >= 2) 1 else neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
                 } catch (e: Throwable) {
 
                 }
@@ -291,6 +329,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 options.anchor(.5f, .5f)
                 options.infoWindowAnchor(.5f, .2f)
             }
+
+            if (it.time != null) {
+                val difference = (now.timeInMillis - it.time!!.timeInMillis) / 1000
+                when {
+                    difference > 180L -> options.alpha(0.5f)
+                    difference > 60L -> options.alpha(0.8f)
+                }
+            }
+
             val marker = mMap.addMarker(options)
             marker.tag = it
             marker

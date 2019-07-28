@@ -10,8 +10,12 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.transition.Fade
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -19,10 +23,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -63,6 +70,8 @@ class MapsActivity : AppCompatActivity() {
         setTheme(R.style.AppTheme_NoActionBar)
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) window.enterTransition= Fade()
 
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
 
@@ -234,7 +243,7 @@ class MapsActivity : AppCompatActivity() {
         try {
             val pInfo = packageManager.getPackageInfo(packageName, 0)
             val version = pInfo.versionName
-            val versionCode = pInfo.versionCode
+            val versionCode = PackageInfoCompat.getLongVersionCode(pInfo)
             return "$version ($versionCode)"
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
@@ -251,7 +260,6 @@ class MapsActivity : AppCompatActivity() {
 
     private var mAutoUpdateRoutes: Boolean = true
     private var mRoutes: String = ""
-    private var mRouteUpdate: String = ""
 
     private fun updateBuses() {
 
@@ -303,8 +311,7 @@ class MapsActivity : AppCompatActivity() {
 
 
     private fun onBusClicked(bus: Bus) {
-        val text = if (bus.number.isNullOrBlank())  bus.route else "${bus.route}\n Госномер:\n ${bus.number}"
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Маршрут: ${bus.route}\n${bus.getSnippet()}", Toast.LENGTH_LONG).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -340,6 +347,21 @@ class MapsActivity : AppCompatActivity() {
                     goToMyLocation()
             }
         }
+    }
+
+    override fun onBackPressed() {
+
+        val decorView = window.decorView as FrameLayout?
+        if (decorView != null && decorView.childCount > 0) {
+            val last = decorView.getChildAt(decorView.childCount - 1)
+            if (last.tag == "dialog") {
+                val t = Slide(Gravity.TOP)
+                TransitionManager.beginDelayedTransition(decorView, t)
+                decorView.removeView(last)
+                return
+            }
+        }
+        super.onBackPressed()
     }
 
     @SuppressLint("MissingPermission")

@@ -2,6 +2,7 @@ package ru.boomik.vrnbus.objects
 
 import ru.boomik.vrnbus.dto.ArrivalDto
 import ru.boomik.vrnbus.dto.BusStopInfoDto
+import java.text.SimpleDateFormat
 import java.util.*
 
 class Station(
@@ -20,14 +21,20 @@ class Station(
 
             val detail = info.arrivalInfo.arrivalDetails.first()
 
+            val pattern = "yyyy-MM-dd'T'HH:mm:ss"
             val buses = detail.arrivalBuses.asSequence().map {
+
+                val date = SimpleDateFormat(pattern, Locale("ru")).parse(it.bus.time)
+                val calendar = Calendar.getInstance()
+                calendar.time = date
+
                 val bus = Bus()
                 bus.route = it.bus.route
                 bus.number=it.bus.number
                 bus.nextStationName=it.bus.busStation
                 bus.lastStationTime=it.bus.lastStationTime
                 bus.lastSpeed=it.bus.lastSpeed
-                bus.time=it.bus.time
+                bus.time=calendar
                 bus.lat=detail.lat
                 bus.lon=detail.lon
                 bus.lastLat=it.bus.lastLat

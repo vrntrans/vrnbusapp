@@ -1,44 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:focusable="false"
+    android:clickable="true"
+    android:orientation="vertical"
+    tools:ignore="KeyboardInaccessibleWidget">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/corner_background"
         android:orientation="vertical"
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
-        <LinearLayout
+
+        <com.hootsuite.nachos.NachoTextView
+            android:id="@+id/nacho_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:completionThreshold="1"
+            android:hint="@string/enter_routes"
+            android:inputType="textMultiLine" />
 
-            <com.hootsuite.nachos.NachoTextView
-                android:id="@+id/nacho_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:completionThreshold="1"
-                android:hint="@string/enter_routes"
-                android:inputType="textMultiLine" />
-
-            <ImageButton
-                android:id="@+id/showList"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="44dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="0"
-                android:contentDescription="routes list"
-                android:minHeight="44dp"
-                android:src="@drawable/ic_list" />
-
-        </LinearLayout>
 
         <Button
             android:id="@+id/search"
@@ -50,9 +42,14 @@
 
     </LinearLayout>
 
+
     <LinearLayout
+        android:id="@+id/buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="horizontal">
 
         <Button
@@ -60,9 +57,7 @@
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="16dp"
             android:layout_weight="1"
             android:background="@drawable/corner_background"
             android:text="@string/all" />
@@ -73,16 +68,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
             android:layout_weight="1"
             android:background="@drawable/corner_background"
             android:text="@string/favorites" />
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/routesList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/corner_background"
+        tools:itemCount="4"
+        tools:listitem="@layout/route_cell" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

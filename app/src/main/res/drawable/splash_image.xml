@@ -4,9 +4,9 @@
 
     <item>
 
-        <shape android:shape="rectangle" >
-            <gradient android:startColor="@color/gradientStart" android:endColor="@color/gradientEnd" android:angle="270" />
-        </shape>
+        <bitmap
+            android:gravity="fill"
+            android:src="@drawable/back"  />
     </item>
     <item>
         <bitmap
