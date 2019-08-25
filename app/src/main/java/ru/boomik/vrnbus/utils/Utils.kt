@@ -45,6 +45,25 @@ fun loadJSONFromAsset(context: Context, fileName: String, loaded: (String) -> Un
     }.run()
 }
 
+
+fun toPluralValue(number: Int, one: String, few: String, many: String): String {
+    val tens = number % 100 / 10
+    if (tens == 1) return "$number $many"
+    val unity = number % 10
+    if (unity == 1)
+        return "$number $one"
+    return if (unity > 1 && unity < 5) "$number $few" else "$number $many"
+}
+
+fun toPluralValue(number: Long, one: String, few: String, many: String): String {
+    val tens = number % 100 / 10
+    if (tens == 1L) return "$number $many"
+    val unity = number % 10
+    if (unity == 1L)
+        return "$number $one"
+    return if (unity > 1 && unity < 5) "$number $few" else "$number $many"
+}
+
 suspend fun loadStringFromFile(file: File): String = withContext(Dispatchers.IO) {
     try {
         val inputStream = file.inputStream()

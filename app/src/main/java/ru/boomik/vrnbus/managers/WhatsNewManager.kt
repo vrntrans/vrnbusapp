@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import io.github.tonnyl.whatsnew.WhatsNew
 import io.github.tonnyl.whatsnew.item.WhatsNewItem
 import io.github.tonnyl.whatsnew.util.PresentationOption
+import ru.boomik.vrnbus.BuildConfig
 import ru.boomik.vrnbus.R
 
 
@@ -20,6 +21,7 @@ fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) : Bool
                     nowVersionCode = it.versionCode
                 }
         val whatsNew = when {
+            nowVersionCode >= 18 -> showWhatsNewFor18(activity)
             nowVersionCode >= 16 -> showWhatsNewFor16(activity)
             nowVersionCode >= 14 -> showWhatsNewFor14(activity)
             nowVersionCode >= 13 -> showWhatsNewFor13(activity)
@@ -48,6 +50,16 @@ fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) : Bool
     return false
 }
 
+
+private fun showWhatsNewFor18(activity: AppCompatActivity): WhatsNew {
+    return WhatsNew.newInstance(
+            itemFromRes(R.string.more_info_title, R.string.more_info_desc, R.drawable.ic_list, activity),
+            itemFromRes(R.string.select_route_title, R.string.select_route_desc, R.drawable.ic_star, activity),
+            itemFromRes(R.string.old_bus_title, R.string.old_bus_desc, R.drawable.ic_bus, activity),
+            itemFromRes(R.string.save_route_title, R.string.save_route_desc, R.drawable.ic_rotate, activity),
+            itemFromRes(R.string.other_title, R.string.other_desc, R.drawable.ic_optimization, activity)
+    )
+}
 
 private fun showWhatsNewFor16(activity: AppCompatActivity): WhatsNew {
     return WhatsNew.newInstance(

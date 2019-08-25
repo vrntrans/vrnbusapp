@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.atan2
 import kotlin.math.floor
+import android.R
+import ru.boomik.vrnbus.utils.toPluralValue
+
 
 /**
  * Created by boomv on 15.03.2018.
@@ -37,26 +40,27 @@ class Bus {
 
     constructor()
 
-    constructor(route: String){
+    constructor(route: String) {
         this.route = route
     }
-    var timeToArrival : Long = 0
-    var arrivalTime : Date? = null
+
+    var timeToArrival: Long = 0
+    var arrivalTime: Date? = null
 
     var type: BusType = BusType.Unknown
 
-     fun init() {
+    fun init() {
         type = when {
             route.startsWith("Тр.") -> BusType.Trolleybus
             lowFloor -> BusType.BigLowFloor
-            busType==3 -> BusType.Medium
-            busType==4 -> BusType.Big
-            busType==-1 -> BusType.Unknown
+            busType == 3 -> BusType.Medium
+            busType == 4 -> BusType.Big
+            busType == -1 -> BusType.Unknown
             else -> BusType.Small
         }
 
-        timeToArrival = (System.currentTimeMillis() + timeLeft*60*1000).toLong()
-        if (timeLeft!=Double.MAX_VALUE) {
+        timeToArrival = (System.currentTimeMillis() + timeLeft * 60 * 1000).toLong()
+        if (timeLeft != Double.MAX_VALUE) {
             val cal = Calendar.getInstance()
             cal.add(Calendar.MILLISECOND, (timeLeft * 60 * 1000).toInt())
             arrivalTime = cal.time
@@ -66,7 +70,7 @@ class Bus {
 
     fun getSnippet(): String? {
         val station = if (nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n$nextStationName\n"
-        val speed = "Скорость: $lastSpeed"
+        val speed = "Скорость: $lastSpeed км/ч"
         var updateTime = ""
         var gosnumber = ""
 
@@ -75,12 +79,13 @@ class Bus {
         if (time != null) {
 
             val now = Calendar.getInstance()
-            val difference = (now.timeInMillis - time!!.timeInMillis)/1000
+            val difference = (now.timeInMillis - time!!.timeInMillis) / 1000
 
 
             val date = time!!.time
             val format1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ru"))
-            updateTime = "" + (if (difference < 0 || difference>0) "\nОбновлено: $difference секунд назад (${format1.format(date)})" else "Обновлено: ${format1.format(date)}")
+            val seconds = toPluralValue(difference, "секунду", "секунды", "секунд")
+            updateTime = "" + (if (difference < 0 || difference > 0) "\nОбновлено: $seconds назад (${format1.format(date)})" else "Обновлено: ${format1.format(date)}")
         }
         return "$station$speed$gosnumber$updateTime"
     }

@@ -48,4 +48,9 @@
     <string name="all">Все</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="privacy_policy_menu">Политика конфиденц.</string>
+    <plurals name="seconds">
+        <item quantity="one">%d секунду</item>
+        <item quantity="few">%d секунды</item>
+        <item quantity="many">%d секунд</item>
+    </plurals>
 </resources>

@@ -293,6 +293,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         if (neededType == 0) size /= 2
 
         val now = Calendar.getInstance()
+       /*
         Log.e("Start")
         Log.e(" ")
         Log.e(" ")
@@ -301,6 +302,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         Log.e(" ")
         Log.e(" ")
         Log.e(" ")
+        */
         val newBusesMarkers = buses.map {
             val typeIcon = when {
                 it.type == BusType.Small -> small
@@ -345,18 +347,19 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                     difference > 180L -> options.alpha(0.5f)
                     difference > 60L -> options.alpha(0.8f)
                 }
-
+/*
                 if (difference < 0) {
                     val date = it.time!!.time
                     val format1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ru"))
                     Log.e("Route ${it.route} | Nimber = ${it.number} | Difference $difference sec. | Time ${format1.format(date)} | Now time: ${format1.format(now.time)}")
-                }
+                }*/
             }
 
             val marker = mMap.addMarker(options)
             marker.tag = it
             marker
         }
+        /*
         Log.e(" ")
         Log.e(" ")
         Log.e(" ")
@@ -365,6 +368,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         Log.e(" ")
         Log.e(" ")
         Log.e("End")
+        */
         mBusesMarkers = newBusesMarkers
     }
 

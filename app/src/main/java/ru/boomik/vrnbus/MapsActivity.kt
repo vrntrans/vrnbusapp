@@ -213,7 +213,10 @@ class MapsActivity : AppCompatActivity() {
 
 
         val routes = SettingsManager.getString("routes")
-        if (routes != null) mRoutes = routes
+        if (routes != null) {
+            mRoutes = routes
+            updateBuses()
+        }
     }
 
 
@@ -379,7 +382,10 @@ class MapsActivity : AppCompatActivity() {
     private fun restoreInstanceState(savedInstanceState: Bundle?) {
         mapManager.restoreInstanceStateBundle(savedInstanceState)
         val routes = savedInstanceState?.getString("routes")
-        if (routes != null) mRoutes = routes
+        if (routes != null) {
+            mRoutes = routes
+            updateBuses()
+        }
     }
 
     public override fun onDestroy() {
