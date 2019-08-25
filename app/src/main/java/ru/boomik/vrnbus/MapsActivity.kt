@@ -4,18 +4,18 @@ import android.Manifest
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.text.method.LinkMovementMethod
 import android.transition.Fade
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
-import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -33,6 +33,7 @@ import androidx.transition.TransitionManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.Dispatchers
@@ -58,8 +59,10 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var menuManager: MenuManager
     private lateinit var mapManager: MapManager
     private lateinit var settingsManager: SettingsManager
+    private lateinit var mActivityView: ConstraintLayout
 
     private var mActive: Boolean = true
+    private var mReadyCalled: Boolean = false
     private lateinit var mInsets: WindowInsetsCompat
 
     private lateinit var timer: Timer
@@ -71,7 +74,7 @@ class MapsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) window.enterTransition= Fade()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) window.enterTransition = Fade()
 
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
 
@@ -84,6 +87,7 @@ class MapsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_drawer)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val container = findViewById<ConstraintLayout>(R.id.container)
+        val activityView = findViewById<ConstraintLayout>(R.id.activityView)
         val zoomButtons = findViewById<LinearLayout>(R.id.zoomButtons)
         val plus = findViewById<FloatingActionButton>(R.id.plus)
         val minus = findViewById<FloatingActionButton>(R.id.minus)
@@ -91,6 +95,7 @@ class MapsActivity : AppCompatActivity() {
         val osmCopyright = findViewById<WidgetTextView>(R.id.osmCopyright)
         val fragmentParent = findViewById<FrameLayout>(R.id.fragmentParent)
 
+        mActivityView = activityView
 
         val showOsm = SettingsManager.getBool(Consts.SETTINGS_OSM)
         zoomButtons.visibility = if (settingsManager.getBool(Consts.SETTINGS_ZOOM)) View.VISIBLE else View.GONE
@@ -129,7 +134,7 @@ class MapsActivity : AppCompatActivity() {
 
                 GlobalScope.async(Dispatchers.Main) {
                     delay(1000)
-                    showWhatsNew(this@MapsActivity, insets)
+                    if (!showWhatsNew(this@MapsActivity, insets)) onPrepareForReady()
                 }
 
                 insets.consumeSystemWindowInsets()
@@ -172,14 +177,12 @@ class MapsActivity : AppCompatActivity() {
         //endregion
 
         mapManager.subscribeReady {
-            Toast.makeText(this@MapsActivity, "Выберите на карте остановку или номер маршрута нажав кнопку с автобусом", Toast.LENGTH_LONG).show()
         }
 
         menuManager = MenuManager(this)
         menuManager.initialize(nav_view)
 
 
-        settingsManager.loadPreferences()
 
 
         timer = Timer()
@@ -206,8 +209,44 @@ class MapsActivity : AppCompatActivity() {
         DataBus.subscribe<String>(Consts.SETTINGS_NIGHT) { setUiMode(it.data, true) }
         DataBus.subscribe<String>(DataBus.ResetRoutes) { resetRoutes(it.data) }
         DataBus.subscribe<String>(DataBus.AddRoutes) { addRoutes(it.data) }
+        settingsManager.loadPreferences()
 
 
+        val routes = SettingsManager.getString("routes")
+        if (routes != null) mRoutes = routes
+    }
+
+
+    private fun onReady() {
+        showSettingsSnackbar()
+    }
+
+    private fun showSettingsSnackbar() : Boolean{
+        if (SettingsManager.getBool("settingsSnackShowed")) return false
+        val snack = Snackbar.make(mActivityView, "Загляните в настройки, там интересно", Snackbar.LENGTH_LONG).setAction("Открыть") {
+            menuManager.openSettings()
+            SettingsManager.setBool("settingsSnackShowed", true)
+        }
+
+        displaySnackBarWithBottomMargin(snack, mInsets.systemWindowInsetLeft, mInsets.systemWindowInsetRight, mInsets.systemWindowInsetBottom)
+        return true
+    }
+
+
+    private fun displaySnackBarWithBottomMargin(snackbar: Snackbar, leftMargin: Int, rightMargin: Int, marginBottom: Int) {
+        val snackBarView = snackbar.view
+        val params = snackBarView.layoutParams as (FrameLayout.LayoutParams)
+
+        params.setMargins(params.leftMargin + leftMargin,
+                params.topMargin,
+                params.rightMargin + rightMargin,
+                params.bottomMargin + marginBottom)
+
+        snackBarView.layoutParams = params
+
+        Handler().postDelayed({
+            snackbar.show()
+        }, 2000)
     }
 
     private fun addRoutes(route: String) {
@@ -284,7 +323,7 @@ class MapsActivity : AppCompatActivity() {
         super.onStart()
 
         if (_loaded || _loading) return
-        _loading=true
+        _loading = true
         GlobalScope.async(Dispatchers.Main) {
             var dialog: AlertDialog? = null
             try {
@@ -299,9 +338,18 @@ class MapsActivity : AppCompatActivity() {
             }
             dialog?.hide()
             showBusStations()
-            _loading=false
+            _loading = false
+            onPrepareForReady()
         }
     }
+
+    private fun onPrepareForReady() {
+        if (mReadyCalled) return
+        if (!_loaded || !::mInsets.isInitialized) return
+        mReadyCalled=true
+        onReady()
+    }
+
 
     override fun onPause() {
         super.onPause()
@@ -316,6 +364,7 @@ class MapsActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle?) {
         mapManager.getInstanceStateBundle(outState)
+        outState?.putString("routes", mRoutes)
         super.onSaveInstanceState(outState)
     }
 
@@ -329,6 +378,8 @@ class MapsActivity : AppCompatActivity() {
 
     private fun restoreInstanceState(savedInstanceState: Bundle?) {
         mapManager.restoreInstanceStateBundle(savedInstanceState)
+        val routes = savedInstanceState?.getString("routes")
+        if (routes != null) mRoutes = routes
     }
 
     public override fun onDestroy() {
@@ -396,7 +447,8 @@ class MapsActivity : AppCompatActivity() {
 
 
     private fun showBuses(q: String) {
-        DataStorageManager.searchStationId=-1
+        SettingsManager.setString("routes", q)
+        DataStorageManager.searchStationId = -1
         mAutoUpdateRoutes = true
         if (q.isEmpty()) {
             mapManager.clearBusesOnMap()

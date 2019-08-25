@@ -111,14 +111,14 @@ class WhatsNew : DialogFragment() {
         return view
     }
 
-    fun presentAutomatically(activity: AppCompatActivity) {
+    fun presentAutomatically(activity: AppCompatActivity) : Boolean {
 
         when (presentationOption) {
             PresentationOption.DEBUG -> {
                 show(activity.supportFragmentManager, TAG)
             }
             PresentationOption.NEVER -> {
-                return
+                return false
             }
             else -> {
                 // Obtain the last version code from sp.
@@ -182,20 +182,27 @@ class WhatsNew : DialogFragment() {
                                     .edit()
                                     .putInt(LAST_VERSION_CODE, nowVersionCode)
                                     .apply()
+                            return true
                         }
                     } else { // presentationOption == PresentationOption.IF_NEEDED
                         if (((nowFirstNumOfVersionName >= 0 && nowFirstNumOfVersionName > lastFirstNumOfVersionName)
                                         || (nowSecondNumOfVersionName >= 0 && nowSecondNumOfVersionName > lastSecondNumOfVersionName))
                                 && (nowVersionCode >= 0 && lastVersionCode >= 0 && nowVersionCode > lastVersionCode)) {
 
-                            // Show the dialog.
-                            if (lastVersionCode>0) show(activity.supportFragmentManager, TAG)
+
                             // Save the latest version name to sp.
                             PreferenceManager.getDefaultSharedPreferences(activity)
                                     .edit()
                                     .putInt(LAST_VERSION_CODE, nowVersionCode)
                                     .putString(LAST_VERSION_NAME, "$nowFirstNumOfVersionName.$nowSecondNumOfVersionName")
                                     .apply()
+
+                            // Show the dialog.
+                            if (lastVersionCode>0) {
+                                show(activity.supportFragmentManager, TAG)
+                                return true
+                            }
+
                         }
                     }
                 } catch (e: Exception) {
@@ -203,5 +210,6 @@ class WhatsNew : DialogFragment() {
                 }
             }
         }
+        return false
     }
 }

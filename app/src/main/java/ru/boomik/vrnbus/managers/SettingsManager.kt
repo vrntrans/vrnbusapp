@@ -18,7 +18,7 @@ object SettingsManager {
 
 
         DataBus.subscribe<Boolean>(DataBus.Traffic) {
-            mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it.data ?: false).apply()
+            mPreferences.edit().putBoolean(Consts.SETTINGS_TRAFFIC_JAM, it.data).apply()
         }
         DataBus.subscribe<String>(Consts.SETTINGS_REFERER) {
             mPreferences.edit().putString(Consts.SETTINGS_REFERER, it.data).apply()
@@ -46,7 +46,7 @@ object SettingsManager {
 
     private var refreshRate: Double = 30.0
 
-    private const val LAST_VERSION_CODE = "LAST_VERSION_CODE_SETTINGS"
+    const val LAST_VERSION_CODE = "LAST_VERSION_CODE_SETTINGS"
 
     private fun setDefaultValues(activity: Activity) {
         val lastCode = mPreferences.getLong(LAST_VERSION_CODE, 0)
@@ -54,7 +54,7 @@ object SettingsManager {
 
         if (lastCode==0L || currentVersion>lastCode) {
             mPreferences.edit().putBoolean(Consts.SETTINGS_ROTATE, true).apply()
-
+            mPreferences.edit().putBoolean(Consts.SETTINGS_ZOOM, true).apply()
             mPreferences.edit().putLong(LAST_VERSION_CODE, currentVersion).apply()
         }
     }
@@ -64,14 +64,14 @@ object SettingsManager {
         val configSettings = FirebaseRemoteConfigSettings.Builder()
                 .setDeveloperModeEnabled(BuildConfig.DEBUG)
                 .build()
-        remoteConfig.setConfigSettings(configSettings)
+        remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.setDefaults(R.xml.remote_config_defaults)
         remoteConfig.fetch(60*60*24).addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.e("Fetch Succeeded")
                 val busRefreshRate = FirebaseRemoteConfig.getInstance().getDouble("bus_refresh_rate")
                 if (busRefreshRate>0) refreshRate = busRefreshRate
-                remoteConfig.activateFetched()
+                remoteConfig.activate()
             } else {
                 Log.e("Fetch Failed")
             }
@@ -109,6 +109,9 @@ object SettingsManager {
     fun geInt(key : String) : Int {
         return mPreferences.getInt(key, 0)
     }
+    fun getLong(key : String) : Long {
+        return mPreferences.getLong(key, 0L)
+    }
     fun getString(key : String) : String? {
         return mPreferences.getString(key, null)
     }
@@ -117,6 +120,25 @@ object SettingsManager {
     }
     fun getStringArray(key : String) : List<String>? {
         return stringToListOfString(mPreferences.getString(key, null))
+    }
+
+    fun setBool(key : String, value : Boolean) {
+        mPreferences.edit().putBoolean(key, value).apply()
+    }
+    fun setInt(key : String, value : Int) {
+        mPreferences.edit().putInt(key, value).apply()
+    }
+    fun setLong(key : String, value : Long) {
+        mPreferences.edit().putLong(key, value).apply()
+    }
+    fun setString(key : String, value : String) {
+        mPreferences.edit().putString(key, value).apply()
+    }
+    fun setIntArray(key : String, value : List<Int>?){
+        mPreferences.edit().putString(key, listOfIntToString(value)).apply()
+    }
+    fun setStringArray(key : String, value :List<String>?) {
+        mPreferences.edit().putString(key, listOfStringToString(value)).apply()
     }
 
     //region Internals

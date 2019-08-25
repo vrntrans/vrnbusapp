@@ -11,7 +11,7 @@ import io.github.tonnyl.whatsnew.util.PresentationOption
 import ru.boomik.vrnbus.R
 
 
-fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) {
+fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) : Boolean {
     try {
         var nowVersionCode: Int
         activity.packageManager
@@ -39,12 +39,13 @@ fun showWhatsNew(activity: AppCompatActivity, insets: WindowInsetsCompat) {
                 presentationOption = PresentationOption.IF_NEEDED
                 windowInsets = insets
             }
-            whatsNew.presentAutomatically(activity)
+            return whatsNew.presentAutomatically(activity)
         }
 
     } catch (t: Throwable) {
 
     }
+    return false
 }
 
 

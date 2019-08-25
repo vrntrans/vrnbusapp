@@ -21,7 +21,7 @@ fun alertMultipleChoiceItems(activity: Activity, items: List<String>, selected: 
     AlertDialog.Builder(activity)
             .setMultiChoiceItems(items.toTypedArray(), null) { _, which, isChecked ->
                 if (isChecked) {
-                    // if the user checked the item, add it to the selected items
+                    // if the user checked the item, add it to the selected routes
                     selectedItems.add(items[which])
                 } else if (selectedItems.contains(items[which])) {
                     // else if the item is already in the array, remove it

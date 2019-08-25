@@ -11,8 +11,8 @@ class TokenService : FirebaseMessagingService() {
      * the previous token had been compromised. Note that this is called when the InstanceID token
      * is initially generated so this is where you would retrieve the token.
      */
-    override fun onNewToken(token: String?) {
-        Log.d("FCM Refreshed token: $token")
+    override fun onNewToken(p0: String) {
+        Log.d("FCM Refreshed token: $p0")
 
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
@@ -28,7 +28,7 @@ class TokenService : FirebaseMessagingService() {
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
     // [START receive_message]
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onMessageReceived(p0: RemoteMessage) {
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -41,12 +41,12 @@ class TokenService : FirebaseMessagingService() {
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d("FCM From: ${remoteMessage?.from}")
+        Log.d("FCM From: ${p0.from}")
 
 
 
         // Check if message contains a notification payload.
-        remoteMessage?.notification?.let {
+        p0.notification?.let {
             Log.d("Message Notification Body: ${it.body}")
         }
 

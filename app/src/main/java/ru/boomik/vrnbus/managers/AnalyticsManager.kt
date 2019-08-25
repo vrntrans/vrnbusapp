@@ -40,9 +40,8 @@ object AnalyticsManager {
 
     fun logPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (isDisabled) return
-        permissions.forEachIndexed { id, name ->
-            val status = grantResults[0]
-            val statusName = when (status) {
+        permissions.forEachIndexed { _, name ->
+            val statusName = when (grantResults[0]) {
                 PackageManager.PERMISSION_GRANTED -> "Granted"
                 PackageManager.PERMISSION_DENIED -> "Denied"
                 else -> "Unknown"
@@ -52,7 +51,7 @@ object AnalyticsManager {
             bundle.putString(FirebaseAnalytics.Param.ITEM_ID, requestCode.toString())
             bundle.putString(FirebaseAnalytics.Param.VALUE, statusName)
             mFirebaseAnalytics.logEvent("permission", bundle)
-            mFirebaseAnalytics.setUserProperty("permission" + name , statusName)
+            mFirebaseAnalytics.setUserProperty("permission$name", statusName)
         }
     }
 

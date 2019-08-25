@@ -5,21 +5,16 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dto.ArrivalDto
 import ru.boomik.vrnbus.dto.BusInfoDto
-import ru.boomik.vrnbus.dto.StationDto
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
-import ru.boomik.vrnbus.objects.StationOnMap
-import ru.boomik.vrnbus.utils.loadJSONFromAsset
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -45,53 +40,55 @@ object DataService {
 
     fun loadBusInfo(q: String, callback: (List<Bus>?) -> Unit) {
         val query = if (q == "*") "" else q
-        try {
-            Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
-                //make a GET to http://httpbin.org/get and do something with response
-                Log.d("log", request.toString())
-                Log.d("log", response.toString())
-                val (_, error) = result
-                if (error == null) {
+        Thread(Runnable {
+            try {
+                Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
+                    //make a GET to http://httpbin.org/get and do something with response
+                    Log.d("log", request.toString())
+                    Log.d("log", response.toString())
+                    val (_, error) = result
+                    if (error == null) {
 
-                    try {
-                        val info = result.get()
-                        val busDtos = info.buses
-                        val pattern = "yyyy-MM-dd'T'HH:mm:ss"
-                        callback(busDtos.filter { it.count() == 2 }.map {
+                        try {
+                            val info = result.get()
+                            val busDtos = info.buses
+                            val pattern = "yyyy-MM-dd'T'HH:mm:ss"
+                            callback(busDtos.filter { it.count() == 2 }.map {
 
-                            val date = SimpleDateFormat(pattern, Locale("ru")).parse(it[0].time)
-                            val calendar = Calendar.getInstance()
-                            calendar.time = date
+                                val date = SimpleDateFormat(pattern, Locale("ru")).parse(it[0].time)
+                                val calendar = Calendar.getInstance()
+                                calendar.time = date
 
 
-                            val bus = Bus()
-                            bus.route = it[0].route
-                            bus.number = it[0].number
-                            bus.nextStationName = it[1].nextStationName ?: ""
-                            bus.lastStationTime = it[0].lastStationTime
-                            bus.lastSpeed = it[0].lastSpeed
-                            bus.time = calendar
-                            bus.lat = it[1].lat
-                            bus.lon = it[1].lon
-                            bus.lastLat = it[0].lastLat
-                            bus.lastLon = it[0].lastLon
-                            bus.lowFloor = it[0].lowFloor == 1
-                            bus.busType = it[0].busType
-                            bus.init()
-                            bus
-                        })
-                    } catch (exception: Throwable) {
-                        Log.e("VrnBus", "Hm..", exception)
+                                val bus = Bus()
+                                bus.route = it[0].route
+                                bus.number = it[0].number
+                                bus.nextStationName = it[1].nextStationName ?: ""
+                                bus.lastStationTime = it[0].lastStationTime
+                                bus.lastSpeed = it[0].lastSpeed
+                                bus.time = calendar
+                                bus.lat = it[1].lat
+                                bus.lon = it[1].lon
+                                bus.lastLat = it[0].lastLat
+                                bus.lastLon = it[0].lastLon
+                                bus.lowFloor = it[0].lowFloor == 1
+                                bus.busType = it[0].busType
+                                bus.init()
+                                bus
+                            })
+                        } catch (exception: Throwable) {
+                            Log.e("VrnBus", "Hm..", exception)
+                            callback(null)
+                        }
+                    } else {
                         callback(null)
                     }
-                } else {
-                    callback(null)
-                }
 
+                }
+            } catch (e: Throwable) {
+                callback(null)
             }
-        } catch (e: Throwable) {
-            callback(null)
-        }
+        }).start()
     }
 
     suspend fun loadArrivalInfoAsync(station: Int) = GlobalScope.async {
@@ -116,21 +113,6 @@ object DataService {
                 }
             } catch (e: Throwable) {
                 cont.resumeWithException(e)
-            }
-        }
-    }
-
-
-    suspend fun loadBusStations(activity: Activity) = GlobalScope.async {
-        suspendCoroutine<List<StationOnMap>> { cont ->
-            try {
-                loadJSONFromAsset(activity, "bus_stops.json") { busStops ->
-                    val stations: List<StationDto> = gson.fromJson(busStops, object : TypeToken<List<StationDto>>() {}.type)
-                    cont.resume(StationOnMap.parseListDto(stations))
-                }
-            } catch (exception: Throwable) {
-                Log.e("Hm..", exception)
-                cont.resumeWithException(exception)
             }
         }
     }

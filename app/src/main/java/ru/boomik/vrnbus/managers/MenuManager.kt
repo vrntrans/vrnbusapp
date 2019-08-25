@@ -34,7 +34,7 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
             DataBus.sendEvent(DataBus.Settings, Pair(SETTINGS_TRAFFIC_JAM, isChecked))
         }
 
-        DataBus.subscribe<Boolean>(DataBus.Traffic) { switchView.isChecked = it.data ?: false }
+        DataBus.subscribe<Boolean>(DataBus.Traffic) { switchView.isChecked = it.data }
 
     }
 
@@ -56,7 +56,7 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
         }
     }
 
-    private fun openSettings(): Boolean {
+    fun openSettings(): Boolean {
         drawer.closeDrawers()
         val fragment = SettingsFragment()
         val transaction = activity.supportFragmentManager.beginTransaction().replace(R.id.fragment, fragment)
@@ -80,7 +80,7 @@ class MenuManager(private val activity: AppCompatActivity) : NavigationView.OnNa
             }
         }
         alert.setView(wv)
-        alert.setNegativeButton("Закрыть", DialogInterface.OnClickListener { dialog, id -> dialog.dismiss() })
+        alert.setNegativeButton("Закрыть", DialogInterface.OnClickListener { dialog, _ -> dialog.dismiss() })
         alert.show()
     }
 }
