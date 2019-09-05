@@ -20,7 +20,6 @@ import ru.boomik.vrnbus.utils.loadStringFromNetworkAsync
 import ru.boomik.vrnbus.utils.saveStringToFile
 import java.io.File
 
-
 object DataStorageManager {
 
     private const val routeNamesFileName = "routeNames.json"
@@ -189,6 +188,15 @@ object DataStorageManager {
         return routeNamesFile.exists() && routesFile.exists() && stationsFile.exists()
     }
 
+
+    fun prepareForReload() {
+        alreadyChecked=false
+        try {
+            cacheDir.deleteRecursively()
+        } catch (e: Throwable) {
+
+        }
+    }
 
     private fun isNeedReload(): Boolean {
         if (alreadyChecked) return false

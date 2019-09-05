@@ -362,7 +362,7 @@ public class ChipSpan extends ImageSpan implements Chip {
             int halfSpacing = mChipVerticalSpacing / 2;
 
             // Given that the text is centered vertically within the chip, the amount of space above or below the text (inbetween the text and chip)
-            // is half their difference in height:
+            // is half their timeDifference in height:
             int spaceBetweenChipAndText = (mChipHeight - textHeight) / 2;
 
             int textTop = fm.top;

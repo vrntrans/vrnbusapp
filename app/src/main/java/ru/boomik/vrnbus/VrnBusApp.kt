@@ -7,16 +7,18 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerClient.newBuilder
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
+import com.ironz.binaryprefs.Preferences
 import ru.boomik.vrnbus.managers.AnalyticsManager
 
 
 class VrnBusApp : Application(), InstallReferrerStateListener {
+    private lateinit var preferences: Preferences
     private lateinit var mReferrerClient: InstallReferrerClient
 
     override fun onCreate() {
         super.onCreate()
 
-        val preferences = BinaryPreferencesBuilder(this).build()
+        preferences = BinaryPreferencesBuilder(this).build()
         val night = preferences.getString(Consts.SETTINGS_NIGHT, null)
         setUiMode(night)
 
@@ -30,7 +32,13 @@ class VrnBusApp : Application(), InstallReferrerStateListener {
                 try {
                     val response = mReferrerClient.installReferrer
                     val referrer = response.installReferrer
-                    if (referrer.isNullOrBlank()) AnalyticsManager.logEvent("referrer", referrer)
+                    if (referrer.isNullOrBlank()) {
+                        val savedInstallReferrer = preferences.getString("install_referrer", null)
+                        if (savedInstallReferrer!=referrer) {
+                            AnalyticsManager.logEvent("referrer", referrer)
+                            preferences.edit().putString("install_referrer", referrer).apply()
+                        }
+                    }
                     mReferrerClient.endConnection()
                 } catch (e: RemoteException) {
                     e.printStackTrace()

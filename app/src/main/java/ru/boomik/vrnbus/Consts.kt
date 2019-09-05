@@ -20,6 +20,7 @@ object Consts{
     const val SETTINGS_OSM = "osmMap"
     const val SETTINGS_ANALYTICS = "analytics"
     const val SETTINGS_ROTATE = "rotateMap"
+    const val SETTINGS_CACHE = "cache"
 
     const val LOCATION_PERMISSION_REQUEST = 10
 

@@ -32,7 +32,6 @@ import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.CustomUrlTileProvider
 import ru.boomik.vrnbus.utils.createImageRoundedBitmap
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
 
@@ -176,13 +175,15 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             override fun getInfoContents(marker: Marker): View {
 
                 val info = LinearLayout(mActivity)
+                val d = (mActivity.resources.displayMetrics.density * 8).toInt()
+                info.setPadding(d,d,d,d)
                 info.orientation = LinearLayout.VERTICAL
 
                 val title = TextView(mActivity)
                 title.setTextColor(Color.BLACK)
                 title.gravity = Gravity.CENTER
                 title.setTypeface(null, Typeface.BOLD)
-                title.text = marker.title
+                title.text = "${marker.title}\n"
 
                 val snippet = TextView(mActivity)
                 snippet.setTextColor(Color.GRAY)
@@ -341,19 +342,18 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 options.infoWindowAnchor(.5f, .2f)
             }
 
-            if (it.time != null) {
-                val difference = (now.timeInMillis - it.time!!.timeInMillis) / 1000
-                when {
-                    difference > 180L -> options.alpha(0.5f)
-                    difference > 60L -> options.alpha(0.8f)
-                }
+            val difference = it.timeDifference
+            when {
+                difference > 180L -> options.alpha(0.5f)
+                difference > 60L -> options.alpha(0.8f)
+            }
 /*
-                if (difference < 0) {
+                if (timeDifference < 0) {
                     val date = it.time!!.time
                     val format1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ru"))
-                    Log.e("Route ${it.route} | Nimber = ${it.number} | Difference $difference sec. | Time ${format1.format(date)} | Now time: ${format1.format(now.time)}")
+                    Log.e("Route ${it.route} | Nimber = ${it.number} | Difference $timeDifference sec. | Time ${format1.format(date)} | Now time: ${format1.format(now.time)}")
                 }*/
-            }
+
 
             val marker = mMap.addMarker(options)
             marker.tag = it
@@ -375,7 +375,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun showStations(stationsOnMap: List<StationOnMap>?) {
         if (stationsOnMap == null) return
         if (::mAllStations.isInitialized && mAllStations.any()) return
-
 
         mAllStations = stationsOnMap
 
@@ -475,6 +474,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
     fun showRoute(route: Route) {
+        mRouteOnMap?.remove()
         val line = PolylineOptions()
         val points = route.stations.map { LatLng(it.lat, it.lon) }
         line.addAll(points)

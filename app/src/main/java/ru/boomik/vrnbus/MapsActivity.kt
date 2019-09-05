@@ -479,6 +479,8 @@ class MapsActivity : AppCompatActivity() {
                     //  else Toast.makeText(this, "Загружено ${it.count()} МТС ", Toast.LENGTH_SHORT).show()
                     runOnUiThread {
                         mapManager.clearBusesOnMap()
+
+
                         mapManager.showBusesOnMap(it)
                     }
                 } else {

@@ -42,7 +42,7 @@ object DataService {
         val query = if (q == "*") "" else q
         Thread(Runnable {
             try {
-                Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"))).responseObject<BusInfoDto> { request, response, result ->
+                Consts.API_BUS_INFO.httpGet(listOf(Pair("q", query), Pair("src", "map"), Pair("hide_text", ""))).responseObject<BusInfoDto> { request, response, result ->
                     //make a GET to http://httpbin.org/get and do something with response
                     Log.d("log", request.toString())
                     Log.d("log", response.toString())
@@ -53,9 +53,18 @@ object DataService {
                             val info = result.get()
                             val busDtos = info.buses
                             val pattern = "yyyy-MM-dd'T'HH:mm:ss"
+
+
+                            val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
+                            val serverDate = dateFormat.parse(info.time)
+                            val serverCalendar = Calendar.getInstance()
+
+                            serverCalendar.time = serverDate
+                            val timeInMills = serverCalendar.timeInMillis
+
                             callback(busDtos.filter { it.count() == 2 }.map {
 
-                                val date = SimpleDateFormat(pattern, Locale("ru")).parse(it[0].time)
+                                val date = dateFormat.parse(it[0].time)
                                 val calendar = Calendar.getInstance()
                                 calendar.time = date
 
@@ -73,6 +82,7 @@ object DataService {
                                 bus.lastLon = it[0].lastLon
                                 bus.lowFloor = it[0].lowFloor == 1
                                 bus.busType = it[0].busType
+                                bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
                                 bus.init()
                                 bus
                             })

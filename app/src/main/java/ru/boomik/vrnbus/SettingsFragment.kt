@@ -1,5 +1,6 @@
 package ru.boomik.vrnbus
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.*
 import ru.boomik.vrnbus.managers.AnalyticsManager
+import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
@@ -68,6 +70,18 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         analytics.isChecked = SettingsManager.getBool(Consts.SETTINGS_ANALYTICS)
         analytics.onPreferenceChangeListener = this
 
+        val cache = preferenceScreen.findPreference(Consts.SETTINGS_CACHE)
+        cache.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            clearCache()
+            true
+        }
+
+    }
+
+    private fun clearCache() {
+        DataStorageManager.prepareForReload()
+        activity?.finish()
+        context?.startActivity( Intent(context, MapsActivity::class.java))
     }
 
 }

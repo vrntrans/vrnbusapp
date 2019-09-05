@@ -22,9 +22,16 @@ class Station(
             val detail = info.arrivalInfo.arrivalDetails.first()
 
             val pattern = "yyyy-MM-dd'T'HH:mm:ss"
+
+
+            val now = Calendar.getInstance()
+            val timeInMills = now.timeInMillis
+
+            val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
+
             val buses = detail.arrivalBuses.asSequence().map {
 
-                val date = SimpleDateFormat(pattern, Locale("ru")).parse(it.bus.time)
+                val date = dateFormat.parse(it.bus.time)
                 val calendar = Calendar.getInstance()
                 calendar.time = date
 
@@ -43,6 +50,7 @@ class Station(
                 bus.distance=it.distance
                 bus.lowFloor=it.bus.lowFloor==1
                 bus.busType=it.bus.busType
+                bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
                 bus.init()
                 bus
             }.toMutableList()

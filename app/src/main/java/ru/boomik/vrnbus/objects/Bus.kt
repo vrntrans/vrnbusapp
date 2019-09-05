@@ -7,6 +7,7 @@ import kotlin.math.atan2
 import kotlin.math.floor
 import android.R
 import ru.boomik.vrnbus.utils.toPluralValue
+import kotlin.math.abs
 
 
 /**
@@ -36,6 +37,7 @@ class Bus {
     var distance: Double = .0
     var lowFloor: Boolean = false
     var busType: Int = -1
+    var timeDifference: Long = 0
 
 
     constructor()
@@ -51,7 +53,7 @@ class Bus {
 
     fun init() {
         type = when {
-            route.startsWith("Тр.") -> BusType.Trolleybus
+            route.startsWith("Т") -> BusType.Trolleybus
             lowFloor -> BusType.BigLowFloor
             busType == 3 -> BusType.Medium
             busType == 4 -> BusType.Big
@@ -69,7 +71,17 @@ class Bus {
 
 
     fun getSnippet(): String? {
-        val station = if (nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n$nextStationName\n"
+
+        val typeString = when (type) {
+            BusType.Small -> "Автобус малой вместимости\n"
+            BusType.Medium -> "Автобус средней вместимости\n"
+            BusType.Big -> "Автобус большой вместимости\n"
+            BusType.BigLowFloor -> "Низкопольный автобус большой вместимости\n"
+            BusType.Trolleybus -> "Троллейбус\n"
+            else -> ""
+        }
+
+        val station = if (nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n\t$nextStationName\n\n"
         val speed = "Скорость: $lastSpeed км/ч"
         var updateTime = ""
         var gosnumber = ""
@@ -78,16 +90,17 @@ class Bus {
 
         if (time != null) {
 
-            val now = Calendar.getInstance()
-            val difference = (now.timeInMillis - time!!.timeInMillis) / 1000
-
+            val difference = timeDifference
 
             val date = time!!.time
-            val format1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ru"))
-            val seconds = toPluralValue(difference, "секунду", "секунды", "секунд")
-            updateTime = "" + (if (difference < 0 || difference > 0) "\nОбновлено: $seconds назад (${format1.format(date)})" else "Обновлено: ${format1.format(date)}")
+            val format1 = SimpleDateFormat("HH:mm:ss", Locale("ru"))
+            val timeString = if (abs(difference) >=60*5) {
+                toPluralValue((difference/60).toInt(), "минуту", "минуты", "минут")
+            } else toPluralValue(difference, "секунду", "секунды", "секунд")
+
+            updateTime = "" + (if (difference < 0 || difference > 0) "\nОбновлено: $timeString назад (${format1.format(date)})" else "Обновлено: ${format1.format(date)}")
         }
-        return "$station$speed$gosnumber$updateTime"
+        return "$station$typeString$speed$gosnumber$updateTime"
     }
 
     fun getPosition(): LatLng {

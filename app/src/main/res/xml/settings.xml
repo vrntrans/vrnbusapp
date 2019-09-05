@@ -27,6 +27,11 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Прочее">
+        <Preference
+            android:key="cache"
+            android:icon="@drawable/ic_cached"
+            android:title="Очистить кэш"
+            android:summary="Удалить данные о остановках и маршрутах, что бы получить актуальные. Автоматически обновляется раз в неделю (при запуске приложения)." />
         <EditTextPreference
             android:key="referer"
             android:icon="@drawable/ic_referer"
@@ -37,6 +42,7 @@
             android:key="analytics"
             android:icon="@drawable/ic_privacy"
             android:title="Отключить аналитику"
-            android:summary="Запретить приложению собирать данные об использовании. Собираемые данные обезличены и необходимы для улучшения приложения.\nПросмотреть политику конфиденциальности можно через боковое меню." />
+            android:summary="Запретить приложению собирать данные об использовании. Собираемые данные обезличены и необходимы для улучшения приложения.\nПросмотреть политику конфиденциальности можно через боковое меню.\nПриложение будет перезапущено" />
+
     </PreferenceCategory>
 </PreferenceScreen>

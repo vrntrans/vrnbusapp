@@ -52,6 +52,7 @@ class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
         view.tag = null
         view.setOnClickListener { _ ->
             mCheckBoxSelected.let{it.isChecked = !it.isChecked}
+            DataBus.sendEvent(DataBus.ClickRoute, Pair(mCheckBoxSelected.tag as String, mCheckBoxSelected.isChecked))
         }
 
         mCheckBoxSelected.setOnCheckedChangeListener { checkBox, isChecked ->
