@@ -8,7 +8,8 @@ import com.google.gson.annotations.SerializedName
  */
 
 class ArrivalDto(
-        val result: String,
+        @SerializedName( "server_time")
+        var time: String,
         @SerializedName("arrival_info")
         val arrivalInfo: ArrivalInfoDto)
 
