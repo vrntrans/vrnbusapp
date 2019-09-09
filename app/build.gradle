@@ -27,6 +27,7 @@ android {
         versionName "2.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {

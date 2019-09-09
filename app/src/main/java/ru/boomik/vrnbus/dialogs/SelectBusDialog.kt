@@ -110,6 +110,7 @@ class SelectBusDialog {
                     imm.hideSoftInputFromWindow(nachos.windowToken, 0)
                     Hide(activity)
                 }
+                /*
                 val favoritesButton = dialogView.findViewById<Button>(R.id.favorites)
                 favoritesButton.setOnClickListener {
 
@@ -125,7 +126,7 @@ class SelectBusDialog {
                     nachos.clearFocus()
                     imm.hideSoftInputFromWindow(nachos.windowToken, 0)
                     Hide(activity)
-                }
+                }*/
 
                 val selectedRoutes = nachos.chipValues.asSequence().distinct().toList()
                 var favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
