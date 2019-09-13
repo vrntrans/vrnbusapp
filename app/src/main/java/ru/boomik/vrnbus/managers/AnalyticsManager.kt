@@ -28,7 +28,7 @@ object AnalyticsManager {
         }
     }
 
-    private fun logPreference(preferenceName: String, data: Any?) {
+    fun logPreference(preferenceName: String, data: Any?) {
         if (isDisabled) return
         val bundle = Bundle()
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, preferenceName)

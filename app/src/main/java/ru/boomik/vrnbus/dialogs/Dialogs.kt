@@ -37,6 +37,20 @@ fun alertMultipleChoiceItems(activity: Activity, items: List<String>, selected: 
 
 }
 
+fun faveDialog(activity: Activity) {
+
+    AnalyticsManager.logScreen("about")
+    val dpi = activity.resources.displayMetrics.density
+    val textView = TextView(activity)
+    textView.text = HtmlCompat.fromHtml(activity.getString(R.string.about_html), HtmlCompat.FROM_HTML_MODE_COMPACT)
+    textView.movementMethod = LinkMovementMethod.getInstance()
+    textView.setPadding(((19 * dpi).toInt()), ((5 * dpi).toInt()), ((14 * dpi).toInt()), ((5 * dpi).toInt()))
+    AlertDialog.Builder(activity)
+            .setTitle(R.string.about)
+            .setView(textView)
+            .setPositiveButton(activity.getString(R.string.Ок), null).show()
+}
+
 fun aboutDialog(activity: Activity) {
 
     AnalyticsManager.logScreen("about")

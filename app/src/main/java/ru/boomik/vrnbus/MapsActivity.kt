@@ -4,7 +4,6 @@ import android.Manifest
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
@@ -30,6 +29,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.codemybrainsout.ratingdialog.RatingDialog
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -182,9 +182,6 @@ class MapsActivity : AppCompatActivity() {
         menuManager = MenuManager(this)
         menuManager.initialize(nav_view)
 
-
-
-
         timer = Timer()
         timer.schedule(object : TimerTask() {
             override fun run() {
@@ -222,6 +219,30 @@ class MapsActivity : AppCompatActivity() {
 
     private fun onReady() {
         showSettingsSnackbar()
+
+        val ratingDialog = RatingDialog.Builder(this)
+                .threshold(4f)
+                .session(7)
+                .onRatingBarFormSumbit { feedback, rating ->
+                    AnalyticsManager.logEvent("rating_feedback", rating.toString(), mapOf(Pair<String,String>("feedback", feedback)))
+                    AnalyticsManager.logPreference("rating", rating.toString())
+                }
+                .onRatingChanged { rating,  _ ->
+                    AnalyticsManager.logEvent("rating_feedback", rating.toString())
+                    AnalyticsManager.logPreference("rating", rating.toString())
+                }
+                .build()
+        ratingDialog.show()
+        /*
+
+    <string name="rating_dialog_experience">Нравится приложение?</string>
+    <string name="rating_dialog_maybe_later">Позже</string>
+    <string name="rating_dialog_never">Никогда</string>
+    <string name="rating_dialog_feedback_title">Отзыв</string>
+    <string name="rating_dialog_submit">Отправить</string>
+    <string name="rating_dialog_cancel">Отмена</string>
+    <string name="rating_dialog_suggestions">Предложите нам, что пошло не так, и мы поработаем над этим!</string>
+         */
     }
 
     private fun showSettingsSnackbar() : Boolean{
@@ -365,9 +386,10 @@ class MapsActivity : AppCompatActivity() {
         Toast.makeText(this, "Маршрут: ${bus.route}\n${bus.getSnippet()}", Toast.LENGTH_LONG).show()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+
+    override fun onSaveInstanceState(outState: Bundle) {
         mapManager.getInstanceStateBundle(outState)
-        outState?.putString("routes", mRoutes)
+        outState.putString("routes", mRoutes)
         super.onSaveInstanceState(outState)
     }
 

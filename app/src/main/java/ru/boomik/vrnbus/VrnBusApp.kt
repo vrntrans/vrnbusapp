@@ -22,8 +22,12 @@ class VrnBusApp : Application(), InstallReferrerStateListener {
         val night = preferences.getString(Consts.SETTINGS_NIGHT, null)
         setUiMode(night)
 
-        mReferrerClient = newBuilder(this).build()
-        mReferrerClient.startConnection(this)
+        try {
+            mReferrerClient = newBuilder(this).build()
+            mReferrerClient.startConnection(this)
+        } catch (e: Exception) {
+            //ignored
+        }
     }
 
     override fun onInstallReferrerSetupFinished(responseCode: Int) {

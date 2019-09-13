@@ -93,7 +93,7 @@ class WhatsNew : DialogFragment() {
 
 
         // Make the dialog fullscreen.
-        val window = dialog.window!!
+        val window = dialog?.window!!
         window.setBackgroundDrawableResource(R.color.background)
         if (windowInsets != null) windowInsets?.let {
             window.decorView.setPadding(it.systemWindowInsetLeft, it.systemWindowInsetTop, it.systemWindowInsetRight, it.systemWindowInsetBottom)

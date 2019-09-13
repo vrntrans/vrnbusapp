@@ -48,30 +48,30 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, null)
 
-        val nightMode = preferenceScreen.findPreference(Consts.SETTINGS_NIGHT) as ListPreference
-        nightMode.value = SettingsManager.getString(Consts.SETTINGS_NIGHT)
-        nightMode.onPreferenceChangeListener = this
+        val nightMode = preferenceScreen.findPreference<ListPreference>(Consts.SETTINGS_NIGHT as CharSequence)
+        nightMode?.value = SettingsManager.getString(Consts.SETTINGS_NIGHT)
+        nightMode?.onPreferenceChangeListener = this
 
-        preferenceScreen.findPreference(Consts.SETTINGS_REFERER).onPreferenceChangeListener = this
+        preferenceScreen.findPreference<Preference>(Consts.SETTINGS_REFERER)?.onPreferenceChangeListener = this
 
-        val zoom = preferenceScreen.findPreference(Consts.SETTINGS_ZOOM) as SwitchPreference
-        zoom.isChecked = SettingsManager.getBool(Consts.SETTINGS_ZOOM)
-        zoom.onPreferenceChangeListener = this
+        val zoom = preferenceScreen.findPreference<SwitchPreference>(Consts.SETTINGS_ZOOM as CharSequence)
+        zoom?.isChecked = SettingsManager.getBool(Consts.SETTINGS_ZOOM)
+        zoom?.onPreferenceChangeListener = this
 
-        val osm = preferenceScreen.findPreference(Consts.SETTINGS_OSM) as SwitchPreference
-        osm.isChecked = SettingsManager.getBool(Consts.SETTINGS_OSM)
-        osm.onPreferenceChangeListener = this
+        val osm = preferenceScreen.findPreference<SwitchPreference>(Consts.SETTINGS_OSM as CharSequence)
+        osm?.isChecked = SettingsManager.getBool(Consts.SETTINGS_OSM)
+        osm?.onPreferenceChangeListener = this
 
-        val rotation = preferenceScreen.findPreference(Consts.SETTINGS_ROTATE) as SwitchPreference
-        rotation.isChecked = SettingsManager.getBool(Consts.SETTINGS_ROTATE)
-        rotation.onPreferenceChangeListener = this
+        val rotation = preferenceScreen.findPreference<SwitchPreference>(Consts.SETTINGS_ROTATE as CharSequence)
+        rotation?.isChecked = SettingsManager.getBool(Consts.SETTINGS_ROTATE)
+        rotation?.onPreferenceChangeListener = this
 
-        val analytics = preferenceScreen.findPreference(Consts.SETTINGS_ANALYTICS) as SwitchPreference
-        analytics.isChecked = SettingsManager.getBool(Consts.SETTINGS_ANALYTICS)
-        analytics.onPreferenceChangeListener = this
+        val analytics = preferenceScreen.findPreference<SwitchPreference>(Consts.SETTINGS_ANALYTICS as CharSequence)
+        analytics?.isChecked = SettingsManager.getBool(Consts.SETTINGS_ANALYTICS)
+        analytics?.onPreferenceChangeListener = this
 
-        val cache = preferenceScreen.findPreference(Consts.SETTINGS_CACHE)
-        cache.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+        val cache = preferenceScreen.findPreference<Preference>(Consts.SETTINGS_CACHE as CharSequence)
+        cache?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             clearCache()
             true
         }
