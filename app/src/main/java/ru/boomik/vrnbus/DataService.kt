@@ -59,8 +59,12 @@ object DataService {
                             val serverDate = dateFormat.parse(info.time)
                             val serverCalendar = Calendar.getInstance()
 
+                            val calendarNow = Calendar.getInstance()
                             serverCalendar.time = serverDate
                             val timeInMills = serverCalendar.timeInMillis
+                            val difference = (calendarNow.timeInMillis-timeInMills)/1000
+
+
 
                             callback(busDtos.filter { it.count() == 2 }.map {
 
@@ -83,6 +87,7 @@ object DataService {
                                 bus.lowFloor = it[0].lowFloor == 1
                                 bus.busType = it[0].busType
                                 bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
+                                bus.localServerTimeDifference = difference
                                 bus.init()
                                 bus
                             })

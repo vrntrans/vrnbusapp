@@ -22,6 +22,7 @@ import java.io.File
 
 object DataStorageManager {
 
+    private var loading: Boolean = false
     private const val routeNamesFileName = "routeNames.json"
     private const val routesFileName = "routes.json"
     private const val stationsFileName = "stations.json"
@@ -87,6 +88,9 @@ object DataStorageManager {
         Log.e("Loaded check 1")
         if (!needReload && filesExist && initialized) return true
 
+        if (loading) return false
+        loading = true
+
         var ok = false
         try {
             loadFiles()
@@ -103,6 +107,7 @@ object DataStorageManager {
             }
 
         Log.e("Loaded done 1")
+        loading = false
         return ok
     }
 

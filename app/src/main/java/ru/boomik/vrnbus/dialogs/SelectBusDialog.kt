@@ -20,6 +20,7 @@ import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
+import ru.boomik.vrnbus.adapters.CodesArrayAdapter
 import ru.boomik.vrnbus.adapters.RoutesAdapter
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
@@ -60,7 +61,7 @@ class SelectBusDialog {
                 }
 
 
-                val nachosAdapter = ArrayAdapter(activity, R.layout.bus_complete_view, routesList)
+                val nachosAdapter = CodesArrayAdapter(activity, R.layout.bus_complete_view, routesList)
                 val nachos = dialogView.findViewById<NachoTextView>(R.id.nacho_text_view)
                 nachos.setAdapter(nachosAdapter)
                 nachos.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
@@ -82,12 +83,10 @@ class SelectBusDialog {
 
                 nachos.setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                        nachos.chipifyAllUnterminatedTokens()
-                        val routes = nachos.chipValues.asSequence().distinct().joinToString(",")
-                        selected(routes)
-                        nachos.clearFocus()
+
+                        selectRoutes(nachos, routesList, selected)
                         imm.hideSoftInputFromWindow(nachos.windowToken, 0)
-                        Hide(activity)
+                        hide(activity)
                         true
                     } else
                         false
@@ -95,12 +94,10 @@ class SelectBusDialog {
 
                 val searchButton = dialogView.findViewById<Button>(R.id.search)
                 searchButton.setOnClickListener {
-                    nachos.chipifyAllUnterminatedTokens()
-                    val routes = nachos.chipValues.asSequence().distinct().joinToString(",")
-                    selected(routes)
-                    nachos.clearFocus()
+                    selectRoutes(nachos, routesList, selected)
+
                     imm.hideSoftInputFromWindow(nachos.windowToken, 0)
-                    Hide(activity)
+                    hide(activity)
                 }
                 val allButton = dialogView.findViewById<Button>(R.id.all)
                 allButton.setOnClickListener {
@@ -108,7 +105,7 @@ class SelectBusDialog {
                     selected(routes)
                     nachos.clearFocus()
                     imm.hideSoftInputFromWindow(nachos.windowToken, 0)
-                    Hide(activity)
+                    hide(activity)
                 }
                 /*
                 val favoritesButton = dialogView.findViewById<Button>(R.id.favorites)
@@ -125,7 +122,7 @@ class SelectBusDialog {
                     // dialog.dismiss()
                     nachos.clearFocus()
                     imm.hideSoftInputFromWindow(nachos.windowToken, 0)
-                    Hide(activity)
+                    hide(activity)
                 }*/
 
                 val selectedRoutes = nachos.chipValues.asSequence().distinct().toList()
@@ -149,7 +146,12 @@ class SelectBusDialog {
                 }
 
                 nachos.setOnChipAddListener {
-                    nachos.chipifyAllUnterminatedTokens()
+                    val text = nachos.chipValues
+                    val nachosText = getNachos(nachos, routesList)
+                    if (text.count()!=nachosText.count())
+                        nachos.post {
+                            nachos.setText(nachosText)
+                        }
                     updateSelectedInAdapter(routesAdapter, nachos)
                 }
                 nachos.setOnChipRemoveListener {
@@ -163,6 +165,7 @@ class SelectBusDialog {
                     val buses = nachos.chipValues
                     if (it.data.second) buses.add(it.data.first)
                     else buses.remove(it.data.first)
+                    if (buses.contains("*")) buses.remove("*")
                     nachos.setText(buses.distinct())
                     updateSelectedInAdapter(routesAdapter, nachos)
                 }
@@ -177,6 +180,22 @@ class SelectBusDialog {
             }
         }
 
+        private fun selectRoutes(nachos: NachoTextView, routesList: List<String>, selected: (String) -> Unit) {
+            selected(getNachos(nachos, routesList).joinToString(","))
+            nachos.clearFocus()
+        }
+
+        private fun getNachos(nachos: NachoTextView, routesList: List<String>): MutableList<String> {
+            nachos.chipifyAllUnterminatedTokens()
+            val routes = nachos.chipValues.asSequence().distinct().toMutableList()
+            val newRoutes = mutableListOf<String>()
+            for (route in routes) {
+                if (routesList.contains(route)) newRoutes.add(route)
+            }
+           // if (routes.size>1 && routes.contains("*")) routes.remove("*")
+            return newRoutes
+        }
+
         private fun updateSelectedInAdapter(adapter: RoutesAdapter, nachos: NachoTextView) {
             nachos.post {
                 val selectedRoutes = nachos.chipValues.asSequence().distinct().toList()
@@ -187,7 +206,7 @@ class SelectBusDialog {
 
         }
 
-        fun Hide(activity: Activity) {
+        fun hide(activity: Activity) {
             val decorView = activity.window.decorView as FrameLayout?
             if (decorView != null && decorView.childCount > 0) {
                 val last = decorView.getChildAt(decorView.childCount - 1)

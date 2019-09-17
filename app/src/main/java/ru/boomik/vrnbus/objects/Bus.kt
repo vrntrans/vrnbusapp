@@ -38,6 +38,7 @@ class Bus {
     var lowFloor: Boolean = false
     var busType: Int = -1
     var timeDifference: Long = 0
+    var localServerTimeDifference: Long = 0
 
 
     constructor()
@@ -90,7 +91,12 @@ class Bus {
 
         if (time != null) {
 
-            val difference = timeDifference
+            var difference = timeDifference
+            if (time!=null) {
+                val addidionalDifference = (Calendar.getInstance().timeInMillis - time!!.timeInMillis)/1000 - localServerTimeDifference
+                difference = addidionalDifference
+            }
+
 
             val date = time!!.time
             val format1 = SimpleDateFormat("HH:mm:ss", Locale("ru"))

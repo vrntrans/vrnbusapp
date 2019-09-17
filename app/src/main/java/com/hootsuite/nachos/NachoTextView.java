@@ -125,7 +125,7 @@ import ru.boomik.vrnbus.R;
  * @see DefaultChipTerminatorHandler
  * @see ChipifyingNachoValidator
  */
-public class NachoTextView extends androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView implements TextWatcher, AdapterView.OnItemClickListener {
+public class NachoTextView extends ClearableAutoCompleteTextView implements TextWatcher, AdapterView.OnItemClickListener {
 
     // UI Attributes
     private int mChipHorizontalSpacing = -1;
@@ -873,6 +873,8 @@ public class NachoTextView extends androidx.appcompat.widget.AppCompatMultiAutoC
 
     @Override
     public void onTextChanged(@NonNull CharSequence textChanged, int start, int before, int count) {
+        if (textChanged.toString().isEmpty()) hideClearButton();
+        else showClearButton();
     }
 
     @Override

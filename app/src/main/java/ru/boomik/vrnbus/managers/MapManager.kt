@@ -176,18 +176,23 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
                 val info = LinearLayout(mActivity)
                 val d = (mActivity.resources.displayMetrics.density * 8).toInt()
-                info.setPadding(d,d,d,d)
+                info.setPadding(d, d, d, d)
                 info.orientation = LinearLayout.VERTICAL
 
                 val title = TextView(mActivity)
                 title.setTextColor(Color.BLACK)
                 title.gravity = Gravity.CENTER
                 title.setTypeface(null, Typeface.BOLD)
+
                 title.text = "${marker.title}\n"
 
                 val snippet = TextView(mActivity)
                 snippet.setTextColor(Color.GRAY)
-                snippet.text = marker.snippet
+                if (marker.tag != null) {
+                    val bus = marker.tag as Bus
+                    snippet.text = bus.getSnippet()
+                } else
+                    snippet.text = marker.snippet
 
                 info.addView(title)
                 info.addView(snippet)
@@ -265,6 +270,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun clearBusesOnMap() {
         mBusesMarkers?.forEach { it.remove() }
         mBusesMarkers = null
+        mBuses=null
         mBusesMarkerType = -1
     }
 
@@ -272,7 +278,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     fun showBusesOnMap(buses: List<Bus>?, ignoreType : Boolean = true) {
 
-        if (buses == null) {
+        if (buses == null || !buses.any()) {
             clearBusesOnMap()
             return
         }
@@ -293,17 +299,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         var size = (36 * d).toInt()
         if (neededType == 0) size /= 2
 
-        val now = Calendar.getInstance()
-       /*
-        Log.e("Start")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        */
+
         val newBusesMarkers = buses.map {
             val typeIcon = when {
                 it.type == BusType.Small -> small
@@ -341,34 +337,22 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 options.anchor(.5f, .5f)
                 options.infoWindowAnchor(.5f, .2f)
             }
+            var difference = it.timeDifference
+            if (it.time!=null) {
+                val addidionalDifference = (Calendar.getInstance().timeInMillis - it.time!!.timeInMillis)/1000 - it.localServerTimeDifference
+                difference = addidionalDifference
+            }
 
-            val difference = it.timeDifference
             when {
                 difference > 180L -> options.alpha(0.5f)
                 difference > 60L -> options.alpha(0.8f)
             }
-/*
-                if (timeDifference < 0) {
-                    val date = it.time!!.time
-                    val format1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("ru"))
-                    Log.e("Route ${it.route} | Nimber = ${it.number} | Difference $timeDifference sec. | Time ${format1.format(date)} | Now time: ${format1.format(now.time)}")
-                }*/
-
 
             val marker = mMap.addMarker(options)
             marker.tag = it
             marker
         }
-        /*
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e(" ")
-        Log.e("End")
-        */
+
         mBusesMarkers = newBusesMarkers
     }
 

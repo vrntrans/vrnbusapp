@@ -27,8 +27,11 @@ class Station(
             val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
             val serverDate = dateFormat.parse(info.time)
             val serverCalendar = Calendar.getInstance()
+
+            val calendarNow = Calendar.getInstance()
             serverCalendar.time = serverDate
             val timeInMills = serverCalendar.timeInMillis
+            val difference = (calendarNow.timeInMillis-timeInMills)/1000
 
 
             val buses = detail.arrivalBuses.asSequence().map {
@@ -53,6 +56,7 @@ class Station(
                 bus.lowFloor = it.bus.lowFloor == 1
                 bus.busType = it.bus.busType
                 bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
+                bus.localServerTimeDifference = difference
                 bus.init()
                 bus
             }.toMutableList()

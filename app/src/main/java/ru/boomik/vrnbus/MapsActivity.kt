@@ -36,10 +36,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
 import ru.boomik.vrnbus.dialogs.progressDialog
@@ -233,16 +230,6 @@ class MapsActivity : AppCompatActivity() {
                 }
                 .build()
         ratingDialog.show()
-        /*
-
-    <string name="rating_dialog_experience">Нравится приложение?</string>
-    <string name="rating_dialog_maybe_later">Позже</string>
-    <string name="rating_dialog_never">Никогда</string>
-    <string name="rating_dialog_feedback_title">Отзыв</string>
-    <string name="rating_dialog_submit">Отправить</string>
-    <string name="rating_dialog_cancel">Отмена</string>
-    <string name="rating_dialog_suggestions">Предложите нам, что пошло не так, и мы поработаем над этим!</string>
-         */
     }
 
     private fun showSettingsSnackbar() : Boolean{
@@ -351,7 +338,7 @@ class MapsActivity : AppCompatActivity() {
         GlobalScope.async(Dispatchers.Main) {
             var dialog: AlertDialog? = null
             try {
-                dialog = progressDialog(this@MapsActivity)
+                 dialog = progressDialog(this@MapsActivity)
                 DataStorageManager.load(this@MapsActivity.applicationContext)
                 _loaded = true
             } catch (e: Throwable) {
@@ -360,7 +347,7 @@ class MapsActivity : AppCompatActivity() {
 
                 Log.e("something went wrong", e)
             }
-            dialog?.hide()
+            dialog?.dismiss()
             showBusStations()
             _loading = false
             onPrepareForReady()
@@ -500,9 +487,6 @@ class MapsActivity : AppCompatActivity() {
                         Toast.makeText(this, "Не найдено МТС на выбранных маршрутах", Toast.LENGTH_SHORT).show()
                     //  else Toast.makeText(this, "Загружено ${it.count()} МТС ", Toast.LENGTH_SHORT).show()
                     runOnUiThread {
-                        mapManager.clearBusesOnMap()
-
-
                         mapManager.showBusesOnMap(it)
                     }
                 } else {
