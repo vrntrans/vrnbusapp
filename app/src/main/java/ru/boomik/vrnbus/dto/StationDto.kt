@@ -1,12 +1,8 @@
 package ru.boomik.vrnbus.dto
 
-
 import com.google.gson.annotations.SerializedName
 
-class StationResultDto(
-@SerializedName("result")
-val result: List<StationDto>)
-
+class StationResultDto(@SerializedName("result") val result: List<StationDto>)
 
 class StationDto(
         @SerializedName("NAME_")

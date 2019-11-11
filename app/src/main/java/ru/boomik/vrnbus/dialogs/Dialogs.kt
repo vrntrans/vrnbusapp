@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.os.Build
 import android.text.method.LinkMovementMethod
 import android.util.TypedValue
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import ru.boomik.vrnbus.R
@@ -38,16 +39,23 @@ fun alertMultipleChoiceItems(activity: Activity, items: List<String>, selected: 
 }
 
 fun faveDialog(activity: Activity) {
+    AnalyticsManager.logScreen("fave")
 
-    AnalyticsManager.logScreen("about")
-    val dpi = activity.resources.displayMetrics.density
-    val textView = TextView(activity)
-    textView.text = HtmlCompat.fromHtml(activity.getString(R.string.about_html), HtmlCompat.FROM_HTML_MODE_COMPACT)
-    textView.movementMethod = LinkMovementMethod.getInstance()
-    textView.setPadding(((19 * dpi).toInt()), ((5 * dpi).toInt()), ((14 * dpi).toInt()), ((5 * dpi).toInt()))
+    val list = listOf("one", "two", "three")
+
+    val layout = activity.layoutInflater.inflate(R.layout.fave_dialog, null)
+    val content = layout.findViewById<LinearLayout>(R.id.content)
+    list.forEach {
+        val view = activity.layoutInflater.inflate(R.layout.fave_cell, null)
+        val checkBox = view.findViewById<CheckBox>(R.id.checkBox)
+        checkBox.text = it
+        view.tag = it
+        content.addView(view)
+    }
+
     AlertDialog.Builder(activity)
             .setTitle(R.string.about)
-            .setView(textView)
+            .setView(layout)
             .setPositiveButton(activity.getString(R.string.Ок), null).show()
 }
 
@@ -101,4 +109,22 @@ fun alertEnterText(activity: Activity, title: String, selected: (String?) -> Uni
             }
             .show()
 
+}
+
+
+fun alertQuestion(activity: Activity, title: String, desc: String, positive: String? = null, negative : String? = null, selected: (Boolean) -> Unit) {
+    val positiveText = positive ?:  activity.getString(R.string.Ок)
+    val negativeText = negative ?:  activity.getString(R.string.Cancel)
+    AlertDialog.Builder(activity)
+            .setTitle(title)
+            .setMessage(desc)
+            .setPositiveButton(positiveText) { _, _ -> selected(true) }
+            .setNegativeButton(negativeText) { _, _ -> selected(false) }
+            .setOnCancelListener {
+                selected(false)
+            }
+            .setOnDismissListener {
+                selected(false)
+            }
+            .show()
 }

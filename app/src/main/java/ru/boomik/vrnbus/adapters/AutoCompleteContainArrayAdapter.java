@@ -8,13 +8,13 @@ import android.widget.Filterable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CodesArrayAdapter extends ArrayAdapter implements Filterable {
+public class AutoCompleteContainArrayAdapter extends ArrayAdapter implements Filterable {
 
     List<String> allCodes;
     List<String> originalCodes;
     StringFilter filter;
 
-    public CodesArrayAdapter(Context context, int resource, List<String> keys) {
+    public AutoCompleteContainArrayAdapter(Context context, int resource, List<String> keys) {
         super(context, resource, keys);
         allCodes=keys;
         originalCodes=keys;

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
 
-class RoutesAdapter(val context: Context, var routes : List<String>, var selected : List<String>, var favorites : List<String>) : RecyclerView.Adapter<ViewHolder>() {
+class RoutesAdapter(val context: Context, var routes : List<String>, var selected : List<String>, var favorites : List<String>) : RecyclerView.Adapter<RoutesViewHolder>() {
 
     // Gets the number of animals in the list
     override fun getItemCount(): Int {
@@ -18,11 +18,11 @@ class RoutesAdapter(val context: Context, var routes : List<String>, var selecte
     }
 
     // Inflates the item views
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.route_cell, parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoutesViewHolder {
+        return RoutesViewHolder(LayoutInflater.from(context).inflate(R.layout.route_cell, parent, false))
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RoutesViewHolder, position: Int) {
 
         val route = routes[position]
 
@@ -42,7 +42,7 @@ class RoutesAdapter(val context: Context, var routes : List<String>, var selecte
     }
 }
 
-class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class RoutesViewHolder (view: View) : RecyclerView.ViewHolder(view) {
 
     var mCheckBoxSelected = view.findViewById<CheckBox>(R.id.checkBox)!!
     var btnFavorite = view.findViewById<ImageButton>(R.id.favorite)!!

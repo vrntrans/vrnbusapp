@@ -14,6 +14,7 @@ import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
+import ru.boomik.vrnbus.objects.StationOnMap
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.resume
@@ -109,7 +110,7 @@ object DataService {
     suspend fun loadArrivalInfoAsync(station: Int) = GlobalScope.async {
         suspendCoroutine<Station?> { cont ->
             try {
-                Consts.ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
+                Consts.API_ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
                     Log.d("log", request.toString())
                     Log.d("log", response.toString())
                     val (_, error) = result
@@ -137,6 +138,33 @@ object DataService {
         try {
             GlobalScope.async(Dispatchers.Main) {
                 val data = DataStorageManager.loadRoutes(activity)?.first { it.route == route }
+                val edges = DataStorageManager.loadRouteEdges(activity)
+                data?.let {
+                    if (it.allStations == null)
+                    edges?.let { edges ->
+                        val validEdges = edges.filter { it.edgeKey.size==2 && it.points.isNotEmpty() }
+                        val route = mutableListOf<StationOnMap>()
+                        val stations = data.stations
+
+
+                        for ((i, first) in data.stations.withIndex()) {
+                            if (stations.size<=i+1) {
+                                route.add(first)
+                                break
+                            }
+                            val second = stations[i+1]
+                            val currentEdges = validEdges.firstOrNull { it.edgeKey[0] == first.id && it.edgeKey[1]==second.id }
+                            if (currentEdges==null) {
+                                route.add(first)
+                                continue
+                            }
+                            route.add(first)
+                            val intermediatePoints = currentEdges.points.map { point-> StationOnMap("",0, point.lat, point.lng)}
+                            route.addAll(intermediatePoints)
+                            data.allStations = route
+                        }
+                    }
+                }
                 loaded(data)
             }
         } catch (exception: Throwable) {

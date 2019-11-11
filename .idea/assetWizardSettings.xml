@@ -33,8 +33,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_clear" />
-                            <entry key="sourceFile" value="D:\Developing\VrnBus\img\Bus_stop_symbol.svg" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="ic_bus" />
+                            <entry key="sourceFile" value="D:\Developing\VrnBus\img\bus.svg" />
                           </map>
                         </option>
                       </PersistentState>

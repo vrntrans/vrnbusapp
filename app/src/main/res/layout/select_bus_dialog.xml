@@ -33,24 +33,6 @@
             android:hint="@string/enter_routes"
             android:inputType="textMultiLine" />
 
-
-        <LinearLayout
-            android:id="@+id/buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/all"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="88dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="@string/all"
-                android:textAlignment="textStart"
-                android:textColor="@color/textColor" />
-
             <Button
                 android:id="@+id/search"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
@@ -60,7 +42,6 @@
                 android:text="@string/search"
                 android:textAlignment="center"
                 android:textColor="@color/textColor" />
-        </LinearLayout>
     </LinearLayout>
 
 
@@ -189,15 +170,42 @@
 
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/routesList"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/corner_background"
-        tools:itemCount="4"
-        tools:listitem="@layout/route_cell" />
+        android:background="@drawable/corner_background">
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/routesList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:itemCount="4"
+            tools:listitem="@layout/route_cell" >
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="#666" />
+
+        <Button
+            android:id="@+id/all"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="@string/all"
+            android:textAlignment="center"
+            android:textColor="@color/textColor" />
+    </LinearLayout>
 
 </LinearLayout>

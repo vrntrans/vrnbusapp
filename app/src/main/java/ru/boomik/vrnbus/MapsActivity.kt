@@ -37,9 +37,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.*
-import ru.boomik.vrnbus.dialogs.SelectBusDialog
-import ru.boomik.vrnbus.dialogs.StationInfoDialog
-import ru.boomik.vrnbus.dialogs.progressDialog
+import ru.boomik.vrnbus.dialogs.*
 import ru.boomik.vrnbus.managers.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
@@ -170,6 +168,12 @@ class MapsActivity : AppCompatActivity() {
                 onQuerySubmit(routes)
             }
         }
+        stationsButton.setOnClickListener {
+            SelectStationDialog.show(this, mInsets) { station ->
+                mapManager.goToStation(station)
+                DataBus.sendEvent(DataBus.StationClick, station)
+            }
+        }
 
         //endregion
 
@@ -216,7 +220,7 @@ class MapsActivity : AppCompatActivity() {
 
     private fun onReady() {
         showSettingsSnackbar()
-
+        //faveDialog(this)
         val ratingDialog = RatingDialog.Builder(this)
                 .threshold(4f)
                 .session(7)
@@ -485,9 +489,8 @@ class MapsActivity : AppCompatActivity() {
                 if (it != null) {
                     if (it.count() == 0)
                         Toast.makeText(this, "Не найдено МТС на выбранных маршрутах", Toast.LENGTH_SHORT).show()
-                    //  else Toast.makeText(this, "Загружено ${it.count()} МТС ", Toast.LENGTH_SHORT).show()
                     runOnUiThread {
-                        mapManager.showBusesOnMap(it)
+                        mapManager.showBusesOnMap(it, clearRoute = false)
                     }
                 } else {
                     Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()

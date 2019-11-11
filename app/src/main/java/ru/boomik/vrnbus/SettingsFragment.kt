@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.*
+import ru.boomik.vrnbus.dialogs.alertQuestion
 import ru.boomik.vrnbus.managers.AnalyticsManager
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
@@ -15,6 +16,21 @@ import ru.boomik.vrnbus.managers.SettingsManager
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
         if (preference==null) return false
+
+        if (preference.key == Consts.SETTINGS_ANALYTICS && newValue is Boolean && newValue) {
+            alertQuestion(activity!!, "Отключить аналитику?", "Запретить приложению собирать данные об использовании. Собираемые данные обезличены и необходимы для улучшения приложения.\nПросмотреть политику конфиденциальности можно через боковое меню.\nПри переключении параметра приложение будет перезапущено"
+                    , "Отключить", "Не отключать") {
+                if (!it) return@alertQuestion
+                processPreference(preference, newValue)
+                val analytics = preferenceScreen.findPreference<SwitchPreference>(Consts.SETTINGS_ANALYTICS as CharSequence)
+                analytics?.isChecked = true
+            }
+            return false
+        }
+        return processPreference(preference, newValue)
+    }
+
+    fun processPreference(preference: Preference, newValue: Any?) : Boolean{
         DataBus.sendEvent(DataBus.Settings, Pair(preference.key, newValue))
         if (newValue!=null) {
             when (newValue) {

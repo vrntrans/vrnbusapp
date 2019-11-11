@@ -20,7 +20,7 @@ import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
-import ru.boomik.vrnbus.adapters.CodesArrayAdapter
+import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.RoutesAdapter
 import ru.boomik.vrnbus.managers.DataStorageManager
 import ru.boomik.vrnbus.managers.SettingsManager
@@ -41,7 +41,7 @@ class SelectBusDialog {
 
             val decorView = activity.window.decorView as FrameLayout
 
-            AsyncLayoutInflater(activity).inflate(R.layout.select_bus_dialog_second, decorView) { view, _, _ ->
+            AsyncLayoutInflater(activity).inflate(R.layout.select_bus_dialog, decorView) { view, _, _ ->
                 val dialogView = view  as LinearLayout
                 dialogView.tag = "dialog"
                 val paramsFirst = dialogView.layoutParams as ViewGroup.MarginLayoutParams
@@ -61,7 +61,7 @@ class SelectBusDialog {
                 }
 
 
-                val nachosAdapter = CodesArrayAdapter(activity, R.layout.bus_complete_view, routesList)
+                val nachosAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, routesList)
                 val nachos = dialogView.findViewById<NachoTextView>(R.id.nacho_text_view)
                 nachos.setAdapter(nachosAdapter)
                 nachos.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)

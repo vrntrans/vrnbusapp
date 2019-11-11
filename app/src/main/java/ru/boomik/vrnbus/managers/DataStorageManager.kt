@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataService
 import ru.boomik.vrnbus.Log
+import ru.boomik.vrnbus.dto.RouteEdgeDto
 import ru.boomik.vrnbus.dto.RoutesDto
 import ru.boomik.vrnbus.dto.StationResultDto
 import ru.boomik.vrnbus.objects.Route
@@ -26,6 +27,7 @@ object DataStorageManager {
     private const val routeNamesFileName = "routeNames.json"
     private const val routesFileName = "routes.json"
     private const val stationsFileName = "stations.json"
+    private const val routeEdgesFileName = "routeEdges.json"
 
 
     private lateinit var cacheDir: File
@@ -33,11 +35,13 @@ object DataStorageManager {
     private lateinit var routeNamesFile: File
     private lateinit var routesFile: File
     private lateinit var stationsFile: File
+    private lateinit var routeEdgesFile: File
     private lateinit var cacheTimeFile: File
 
     var routeNames: List<String>? = null
     var stations: List<StationOnMap>? = null
     var routes: List<Route>? = null
+    var routeEdges: List<RouteEdgeDto>? = null
     var activeStationId: Int = 0
 
     private var alreadyChecked: Boolean = false
@@ -63,6 +67,10 @@ object DataStorageManager {
         load(context)
         return routes
     }
+    suspend fun loadRouteEdges(context: Context): List<RouteEdgeDto>? {
+        load(context)
+        return routeEdges
+    }
 
 
     private fun initCache(context: Context) {
@@ -74,19 +82,25 @@ object DataStorageManager {
         routeNamesFile = File(dataDir.absolutePath + "/" + routeNamesFileName)
         routesFile = File(dataDir.absolutePath + "/" + routesFileName)
         stationsFile = File(dataDir.absolutePath + "/" + stationsFileName)
+        routeEdgesFile = File(dataDir.absolutePath + "/" + routeEdgesFileName)
         cacheTimeFile = File(dataDir.absolutePath + "/cache_time.txt")
     }
 
 
     suspend fun load(context: Context): Boolean {
-        Log.e("Loaded start 1")
+        Log.e("Loaded check")
         initCache(context)
         needReload = isNeedReload()
         filesExist = checkFiles()
-        val initialized = (routeNames?.isNotEmpty() ?: false) && (stations?.isNotEmpty()
-                ?: false) && (routes?.isNotEmpty() ?: false)
-        Log.e("Loaded check 1")
+        val initialized =
+                        (routeNames?.isNotEmpty() ?: false) &&
+                        (stations?.isNotEmpty() ?: false) &&
+                        (routes?.isNotEmpty() ?: false) &&
+                        (routeEdges?.isNotEmpty() ?: false)
+
+
         if (!needReload && filesExist && initialized) return true
+        Log.e("Loaded start")
 
         if (loading) return false
         loading = true
@@ -106,10 +120,42 @@ object DataStorageManager {
                 Log.e("something went wrong", e)
             }
 
-        Log.e("Loaded done 1")
+        Log.e("Loaded done")
         loading = false
         return ok
     }
+
+
+    private fun checkFiles(): Boolean {
+        return routeNamesFile.exists() && routesFile.exists() && stationsFile.exists() && routeEdgesFile.exists()
+    }
+
+
+    fun prepareForReload() {
+        alreadyChecked=false
+        try {
+            cacheDir.deleteRecursively()
+        } catch (e: Throwable) {
+
+        }
+    }
+
+    private fun isNeedReload(): Boolean {
+        if (alreadyChecked) return false
+        alreadyChecked = true
+
+        val week = 594000000
+
+        if (!cacheDir.exists() || cacheDir.listFiles().isEmpty()) return true
+        if (!cacheTimeFile.exists()) return true
+        val timeString = cacheTimeFile.readLines().first()
+        if (timeString.isEmpty()) return true
+        val time = timeString.toLongOrNull() ?: return true
+        val difference = System.currentTimeMillis() - time
+
+        return difference > week
+    }
+
 
     private suspend fun loadFiles() = withContext(Dispatchers.IO) {
         if (!needReload && filesExist)
@@ -124,9 +170,20 @@ object DataStorageManager {
         val routeNames = async { loadNamesRoutesNetwork() }
         val routes = async { loadRoutesNetwork() }
         val stations = async { loadStationsNetwork() }
-        listOf(routeNames, routes, stations).awaitAll()
+        val routeEdges = async { loadRouteEdgesNetwork() }
+        listOf(routeNames, routes, stations, routeEdges).awaitAll()
         saveStringToFile(cacheTimeFile, System.currentTimeMillis().toString())
     }
+
+
+    private suspend fun loadFromSaved() = withContext(Dispatchers.IO) {
+        val routeNames = async { loadNamesRoutes() }
+        val routes = async { loadRouteNames() }
+        val stations = async { loadStations() }
+        val routeEdges = async { loadRouteEdges() }
+        listOf(routeNames, routes, stations, routeEdges).awaitAll()
+    }
+
 
     private suspend fun loadNamesRoutesNetwork() {
         val result = loadStringFromNetworkAsync(Consts.API_BUS_LIST).await()
@@ -153,18 +210,20 @@ object DataStorageManager {
             val routesParsed: Map<String, List<List<Any>>> = gson.fromJson(data, object : TypeToken<Map<String, List<List<Any>>>>() {}.type)
             routes = routesParsed.map {
                 Route(it.key, it.value.map { point ->
-                    StationOnMap(point[1] as String, 0, point[2] as Double, point[3] as Double)
+                    StationOnMap(point[1] as String, (point[6] as Double).toInt(), point[2] as Double, point[3] as Double)
                 })
             }
             saveStringToFile(routesFile, data)
         }
     }
 
-    private suspend fun loadFromSaved() = withContext(Dispatchers.IO) {
-        val routeNames = async { loadNamesRoutes() }
-        val routes = async { loadRouteNames() }
-        val stations = async { loadStations() }
-        listOf(routeNames, routes, stations).awaitAll()
+    private suspend fun loadRouteEdgesNetwork() {
+        val result = loadStringFromNetworkAsync(Consts.API_ROUTE_EDGES).await()
+        result?.let { data ->
+            val edgesResult: List<RouteEdgeDto> = DataService.gson.fromJson(data, object : TypeToken<List<RouteEdgeDto>>() {}.type)
+            routeEdges = edgesResult
+            saveStringToFile(routeEdgesFile, data)
+        }
     }
 
     private suspend fun loadNamesRoutes() = withContext(Dispatchers.IO) {
@@ -178,7 +237,7 @@ object DataStorageManager {
         val routesParsed: Map<String, List<List<Any>>> = gson.fromJson(data, object : TypeToken<Map<String, List<List<Any>>>>() {}.type)
         routes = routesParsed.map {
             Route(it.key, it.value.map { point ->
-                StationOnMap(point[1] as String, 0, point[2] as Double, point[3] as Double)
+                StationOnMap(point[1] as String, (point[6] as Double).toInt(), point[2] as Double, point[3] as Double)
             })
         }
     }
@@ -189,39 +248,12 @@ object DataStorageManager {
         stations = StationOnMap.parseListDto(stationsResult.result)
     }
 
-    private fun checkFiles(): Boolean {
-        return routeNamesFile.exists() && routesFile.exists() && stationsFile.exists()
+    private suspend fun loadRouteEdges() = withContext(Dispatchers.IO) {
+        val data = loadStringFromFile(routeEdgesFile)
+        val edgesResult: List<RouteEdgeDto> = gson.fromJson(data, object : TypeToken<List<RouteEdgeDto>>() {}.type)
+        routeEdges = edgesResult
     }
 
-
-    fun prepareForReload() {
-        alreadyChecked=false
-        try {
-            cacheDir.deleteRecursively()
-        } catch (e: Throwable) {
-
-        }
-    }
-
-    private fun isNeedReload(): Boolean {
-        if (alreadyChecked) return false
-        alreadyChecked = true
-
-        val week = 594000000
-        // val min = 60000 * 30
-
-        if (!cacheDir.exists() || cacheDir.listFiles().isEmpty()) return true
-        if (!cacheTimeFile.exists()) return true
-        val timeString = cacheTimeFile.readLines().first()
-        if (timeString.isEmpty()) return true
-        val time = timeString.toLongOrNull() ?: return true
-        val difference = System.currentTimeMillis() - time
-        //31536000000
-        //604800000
-        //594000000
-
-        return difference > week
-    }
 
 
 }

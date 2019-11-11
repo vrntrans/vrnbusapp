@@ -59,6 +59,7 @@ object AnalyticsManager {
         if (isDisabled) return
         val bundle = Bundle()
         bundle.putString(FirebaseAnalytics.Param.VALUE, screen)
+        //mFirebaseAnalytics.setCurrentScreen(null, )
         mFirebaseAnalytics.logEvent("screen", bundle)
     }
 

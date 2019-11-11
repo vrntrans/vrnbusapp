@@ -62,4 +62,5 @@
     <string name="rating_dialog_cancel">Отмена</string>
     <string name="rating_dialog_suggestions">Предложите нам, что пошло не так, и мы поработаем над этим!</string>
     <string name="rating_dialog_feedback_submitted">Спасибо! Ваш отзыв отправлен.</string>
+    <string name="enter_station_name">Введите остановку</string>
 </resources>

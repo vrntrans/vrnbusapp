@@ -125,7 +125,7 @@ import ru.boomik.vrnbus.R;
  * @see DefaultChipTerminatorHandler
  * @see ChipifyingNachoValidator
  */
-public class NachoTextView extends ClearableAutoCompleteTextView implements TextWatcher, AdapterView.OnItemClickListener {
+public class NachoTextView extends ClearableMultiAutoCompleteTextView implements TextWatcher, AdapterView.OnItemClickListener {
 
     // UI Attributes
     private int mChipHorizontalSpacing = -1;

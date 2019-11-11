@@ -253,13 +253,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
        if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
         mShowSmall = showSmall
 
-        showBusesOnMap(mBuses, false)
+        showBusesOnMap(mBuses, false, false)
 
         if (stationVisibleSmall == showSmall) return
         setVisibleStationSmall(showSmall)
-
-
-
     }
 
     private fun setVisibleStationSmall(visible: Boolean) {
@@ -276,7 +273,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     private var mBuses: List<Bus>? = null
 
-    fun showBusesOnMap(buses: List<Bus>?, ignoreType : Boolean = true) {
+    fun showBusesOnMap(buses: List<Bus>?, ignoreType : Boolean = true, clearRoute : Boolean = true) {
+
+        if (clearRoute) clearRoutes()
 
         if (buses == null || !buses.any()) {
             clearBusesOnMap()
@@ -387,7 +386,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         checkZoom()
     }
 
-
     private fun loadPreferences() {
         mInFavoriteStationSmallMarkers = mutableListOf()
         loadFavoriteStations()
@@ -418,7 +416,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCamPos))
         }
     }
-
 
     private fun checkFavoritesStations() {
 
@@ -459,8 +456,10 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
     fun showRoute(route: Route) {
         mRouteOnMap?.remove()
+        val stations = route.allStations ?: route.stations
+        if (stations.isEmpty()) return
         val line = PolylineOptions()
-        val points = route.stations.map { LatLng(it.lat, it.lon) }
+        val points = stations.map { LatLng(it.lat, it.lon) }
         line.addAll(points)
         val d = mActivity.resources.displayMetrics.density
         line.width(2 * d)
@@ -527,5 +526,11 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun zoomOut() {
         if (!::mMap.isInitialized) return
         mMap.animateCamera(CameraUpdateFactory.zoomOut())
+    }
+
+    fun goToStation(station: StationOnMap) {
+        if (station.lat<=0) return
+        val latLng = LatLng(station.lat-0.0006, station.lon)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
     }
 }

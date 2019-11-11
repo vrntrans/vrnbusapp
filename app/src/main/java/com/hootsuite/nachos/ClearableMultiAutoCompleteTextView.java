@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import ru.boomik.vrnbus.R;
+
 /**
         * sub class of {@link android.widget.AutoCompleteTextView} that includes a clear (dismiss / close) button with
  * a OnClearListener to handle the event of clicking the button
@@ -16,14 +17,14 @@ import ru.boomik.vrnbus.R;
         * @author Michael Derazon
         *
         */
-public class ClearableAutoCompleteTextView extends androidx.appcompat.widget.AppCompatAutoCompleteTextView implements TextWatcher {
+public class ClearableMultiAutoCompleteTextView extends androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView implements TextWatcher {
     // was the text just cleared?
     boolean justCleared = false;
 
     // if not set otherwise, the default clear listener clears the text in the
     // text view
     private OnClearListener defaultClearListener = () -> {
-        ClearableAutoCompleteTextView et = ClearableAutoCompleteTextView.this;
+        ClearableMultiAutoCompleteTextView et = ClearableMultiAutoCompleteTextView.this;
         et.setText("");
     };
 
@@ -53,19 +54,19 @@ public class ClearableAutoCompleteTextView extends androidx.appcompat.widget.App
     }
 
     /* Required methods, not used in this implementation */
-    public ClearableAutoCompleteTextView(Context context) {
+    public ClearableMultiAutoCompleteTextView(Context context) {
         super(context);
         init();
     }
 
     /* Required methods, not used in this implementation */
-    public ClearableAutoCompleteTextView(Context context, AttributeSet attrs, int defStyle) {
+    public ClearableMultiAutoCompleteTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
 
     /* Required methods, not used in this implementation */
-    public ClearableAutoCompleteTextView(Context context, AttributeSet attrs) {
+    public ClearableMultiAutoCompleteTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -76,7 +77,7 @@ public class ClearableAutoCompleteTextView extends androidx.appcompat.widget.App
 
         // if the clear button is pressed, fire up the handler. Otherwise do nothing
         this.setOnTouchListener((v, event) -> {
-            ClearableAutoCompleteTextView et = ClearableAutoCompleteTextView.this;
+            ClearableMultiAutoCompleteTextView et = ClearableMultiAutoCompleteTextView.this;
 
             if (et.getCompoundDrawables()[2] == null)
                 return false;
