@@ -1,17 +1,18 @@
 package ru.boomik.vrnbus
 
-import androidx.appcompat.app.AppCompatDelegate
-import android.app.Application
 import android.os.RemoteException
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.multidex.MultiDexApplication
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerClient.newBuilder
 import com.android.installreferrer.api.InstallReferrerStateListener
+import com.binwell.dal.DataServices
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
 import ru.boomik.vrnbus.managers.AnalyticsManager
 
 
-class VrnBusApp : Application(), InstallReferrerStateListener {
+class VrnBusApp : MultiDexApplication(), InstallReferrerStateListener {
     private lateinit var preferences: Preferences
     private lateinit var mReferrerClient: InstallReferrerClient
 
@@ -28,6 +29,7 @@ class VrnBusApp : Application(), InstallReferrerStateListener {
         } catch (e: Exception) {
             //ignored
         }
+        DataServices.init()
     }
 
     override fun onInstallReferrerSetupFinished(responseCode: Int) {

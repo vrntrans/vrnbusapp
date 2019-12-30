@@ -9,3 +9,5 @@
 .externalNativeBuild
 img/
 app/release/
+DAL/build/
+codegen/

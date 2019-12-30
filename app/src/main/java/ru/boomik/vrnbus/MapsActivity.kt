@@ -29,6 +29,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.binwell.dal.DataServices
 import com.codemybrainsout.ratingdialog.RatingDialog
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
@@ -37,7 +38,10 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.*
-import ru.boomik.vrnbus.dialogs.*
+import ru.boomik.vrnbus.dialogs.SelectBusDialog
+import ru.boomik.vrnbus.dialogs.SelectStationDialog
+import ru.boomik.vrnbus.dialogs.StationInfoDialog
+import ru.boomik.vrnbus.dialogs.progressDialog
 import ru.boomik.vrnbus.managers.*
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
@@ -214,6 +218,12 @@ class MapsActivity : AppCompatActivity() {
         if (routes != null) {
             mRoutes = routes
             updateBuses()
+        }
+        Thread().run {
+            GlobalScope.launch {
+                val stations = DataServices.BusStationService.stations()
+                val s= stations
+            }
         }
     }
 
