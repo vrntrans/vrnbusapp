@@ -55,6 +55,7 @@ class Station(
                 bus.distance = it.distance
                 bus.lowFloor = it.bus.lowFloor == 1
                 bus.busType = it.bus.busType
+                bus.azimuth = it.bus.azimuth
                 bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
                 bus.localServerTimeDifference = difference
                 bus.init()

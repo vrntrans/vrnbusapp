@@ -6,9 +6,9 @@ import androidx.multidex.MultiDexApplication
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerClient.newBuilder
 import com.android.installreferrer.api.InstallReferrerStateListener
-import com.binwell.dal.DataServices
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
+import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.managers.AnalyticsManager
 
 

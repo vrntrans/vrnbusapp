@@ -29,8 +29,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
-import com.binwell.dal.DataServices
-import com.codemybrainsout.ratingdialog.RatingDialog
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -38,6 +36,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.*
+import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.SelectStationDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
@@ -47,6 +46,7 @@ import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
+import ru.codemybrainsout.ratingdialog.RatingDialog
 import java.util.*
 import android.widget.TextView as WidgetTextView
 
@@ -106,7 +106,7 @@ class MapsActivity : AppCompatActivity() {
 
         osmCopyright.visibility = if (showOsm) View.VISIBLE else View.GONE
 
-// настройка поведения нижнего экрана
+        // настройка поведения нижнего экрана
         //   bottomSheetBehavior = BottomSheetBehavior.from<View>(stationView)
         //     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
@@ -221,8 +221,11 @@ class MapsActivity : AppCompatActivity() {
         }
         Thread().run {
             GlobalScope.launch {
-                val stations = DataServices.BusStationService.stations()
+                val stations = DataServices.CoddDataService.stations()
                 val s= stations
+                val buses = DataServices.CoddDataService.getBusesByStationId("123")
+                val buses2 = DataServices.CoddDataService.getBusesByStationId("456")
+                val s2= buses2
             }
         }
     }

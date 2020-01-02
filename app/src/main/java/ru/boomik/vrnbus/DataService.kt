@@ -87,6 +87,7 @@ object DataService {
                                 bus.lastLon = it[0].lastLon
                                 bus.lowFloor = it[0].lowFloor == 1
                                 bus.busType = it[0].busType
+                                bus.azimuth = it[0].azimuth
                                 bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
                                 bus.localServerTimeDifference = difference
                                 bus.init()

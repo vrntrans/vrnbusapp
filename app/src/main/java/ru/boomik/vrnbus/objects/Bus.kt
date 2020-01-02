@@ -1,12 +1,9 @@
 package ru.boomik.vrnbus.objects
 
 import com.google.android.gms.maps.model.LatLng
+import ru.boomik.vrnbus.utils.toPluralValue
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.atan2
-import kotlin.math.floor
-import android.R
-import ru.boomik.vrnbus.utils.toPluralValue
 import kotlin.math.abs
 
 
@@ -39,6 +36,7 @@ class Bus {
     var busType: Int = -1
     var timeDifference: Long = 0
     var localServerTimeDifference: Long = 0
+    var azimuth: Int = 0
 
 
     constructor()
@@ -114,10 +112,11 @@ class Bus {
     }
 
     fun getAzimuth(): Double {
-        val x = lat - lastLat
-        val y = lon - lastLon
 
-        return floor(atan2(y, x) * 180 / Math.PI)
+        //val x = lat - lastLat
+        //val y = lon - lastLon
+        //return floor(atan2(y, x) * 180 / Math.PI)
+        return azimuth.toDouble()
     }
 
     override fun toString(): String {

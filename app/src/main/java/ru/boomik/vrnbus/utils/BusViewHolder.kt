@@ -1,11 +1,8 @@
 package ru.boomik.vrnbus.utils
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.view.View
 import android.widget.*
-import androidx.core.view.ViewCompat
-import androidx.core.widget.TextViewCompat
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.objects.BusType
 @SuppressLint("NewApi")

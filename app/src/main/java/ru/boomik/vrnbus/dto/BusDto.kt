@@ -40,4 +40,6 @@ class BusDto(
         @SerializedName("LAT_")
         var lat: Double,
         @SerializedName("LON_")
-        var lon: Double)
+        var lon: Double,
+        @SerializedName("azimuth")
+        var azimuth: Int)

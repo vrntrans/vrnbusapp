@@ -5,11 +5,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.gms.common.wrappers.PackageManagerWrapper
 import io.github.tonnyl.whatsnew.WhatsNew
 import io.github.tonnyl.whatsnew.item.WhatsNewItem
 import io.github.tonnyl.whatsnew.util.PresentationOption
-import ru.boomik.vrnbus.BuildConfig
 import ru.boomik.vrnbus.R
 
 

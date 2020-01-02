@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
