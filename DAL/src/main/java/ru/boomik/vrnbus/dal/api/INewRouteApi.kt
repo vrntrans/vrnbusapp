@@ -6,7 +6,7 @@ import ru.boomik.vrnbus.dal.dto.FindPathDto
 import ru.boomik.vrnbus.dal.dto.NamedEntityDto
 import ru.boomik.vrnbus.dal.dto.NewRouteWithStationsDto
 
-interface NewRouteApi {
+interface INewRouteApi {
     /**
      * Доступно анонимно
      *

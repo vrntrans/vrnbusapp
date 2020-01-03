@@ -8,7 +8,7 @@ import ru.boomik.vrnbus.dal.Consts.RetryDelayMilliseconds
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KSuspendFunction0
 
-open class BaseRemoteDataService<T : Any>(val serviceClass: T) {
+open class BaseRemoteDataService<T : Any>(open val serviceClass: T) {
 
     val converters = DataConverter()
 
@@ -33,7 +33,7 @@ open class BaseRemoteDataService<T : Any>(val serviceClass: T) {
         }
     }
 
-    private fun statusFromException(e: Throwable): RequestStatus {
+    internal fun statusFromException(e: Throwable): RequestStatus {
         if (e is JsonSyntaxException) return RequestStatus.SerializationError
         if (e is HttpException) return requestStatusFromHttpCode(e.code())
         return RequestStatus.Unknown
@@ -47,7 +47,7 @@ open class BaseRemoteDataService<T : Any>(val serviceClass: T) {
         }
     }
 
-    private suspend fun <T1> invokeWithRetry(loadingFun: KSuspendFunction0<T1>): T1? {
+    internal suspend fun <T1> invokeWithRetry(loadingFun: KSuspendFunction0<T1>): T1? {
         var exception: Throwable?
         var result: T1? = null
         var retryRemained = RetryCount
