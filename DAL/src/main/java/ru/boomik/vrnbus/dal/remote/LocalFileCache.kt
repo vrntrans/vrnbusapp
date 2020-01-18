@@ -41,6 +41,7 @@ class LocalFileCache(cachePath: String) {
             }
             catch (e : Throwable) {
                 //ignored
+                val z = e
             }
 
     }
@@ -59,7 +60,7 @@ class LocalFileCache(cachePath: String) {
     }
 
 
-    fun <T> get(key : String,  serviceClass : Class<T>) : T? {
+    fun <T> get(key : String, cacheClass : Class<T>) : T? {
         try {
             val cacheKey = URLEncoder.encode(key, "UTF-8")
 
@@ -77,7 +78,7 @@ class LocalFileCache(cachePath: String) {
                     inputStream.read(buffer)
                     inputStream.close()
                     val valueString = String(buffer, Charset.forName("UTF-8"))
-                    value = gson.fromJson<T>(valueString, serviceClass)
+                    value = gson.fromJson<T>(valueString, cacheClass)
 
                 }
                 catch (e : Throwable) {
@@ -88,6 +89,7 @@ class LocalFileCache(cachePath: String) {
             return value
         }
         catch  (e : Throwable) {
+            val z = e
             return null
         }
     }
@@ -103,6 +105,7 @@ class LocalFileCache(cachePath: String) {
             }
         }
         catch (e : Throwable) {
+            val z = e
             //ignored
         }
 

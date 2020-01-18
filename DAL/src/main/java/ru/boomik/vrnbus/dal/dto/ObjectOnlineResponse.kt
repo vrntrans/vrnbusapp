@@ -19,7 +19,7 @@ import java.util.*
  */
 class ObjectOnlineResponse {
     @SerializedName("serverTime")
-    val serverTime: String? = null
+    val serverTime: String = ""
     @SerializedName("buses")
     val buses: List<ObjectOnlineDto>? = null
 

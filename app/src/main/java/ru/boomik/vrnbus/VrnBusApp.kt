@@ -29,7 +29,7 @@ class VrnBusApp : MultiDexApplication(), InstallReferrerStateListener {
         } catch (e: Exception) {
             //ignored
         }
-        DataServices.init()
+        DataServices.init(cacheDir.absolutePath)
     }
 
     override fun onInstallReferrerSetupFinished(responseCode: Int) {

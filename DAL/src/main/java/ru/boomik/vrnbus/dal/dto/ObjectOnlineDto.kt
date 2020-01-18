@@ -12,7 +12,6 @@
 package ru.boomik.vrnbus.dal.dto
 
 import com.google.gson.annotations.SerializedName
-import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -20,69 +19,69 @@ import java.util.*
  */
 class ObjectOnlineDto {
     @SerializedName("averageSpeed")
-    private val averageSpeed: Double? = null
+    val averageSpeed: Double = .0
     @SerializedName("minutesLeftToBusStop")
-    private val minutesLeftToBusStop: Double? = null
+    val minutesLeftToBusStop: Double = .0
     @SerializedName("id")
-    private val id: Int? = null
+    val id: Int = 0
     @SerializedName("name")
-    private val name: String? = null
+    val name: String? = null
     @SerializedName("objId")
-    private val objId: Int? = null
+    val objId: Int = 0
     @SerializedName("lastTime")
-    private val lastTime: OffsetDateTime? = null
+    val lastTime: String = ""
     @SerializedName("lastLongitude")
-    private val lastLongitude: Double? = null
+    val lastLongitude: Double = .0
     @SerializedName("lastLatitude")
-    private val lastLatitude: Double? = null
+    val lastLatitude: Double = .0
     @SerializedName("lastSpeed")
-    private val lastSpeed: Int? = null
+    val lastSpeed: Double = .0
     @SerializedName("projectId")
-    private val projectId: Int? = null
+    val projectId: Int = 0
     @SerializedName("lastStationId")
-    private val lastStationId: Int? = null
+    val lastStationId: Int = 0
     @SerializedName("lastStationTime")
-    private val lastStationTime: OffsetDateTime? = null
+    val lastStationTime: String? = null
     @SerializedName("lastRouteId")
-    private val lastRouteId: Int? = null
+    val lastRouteId: Int = 0
     @SerializedName("carTypeId")
-    private val carTypeId: Int? = null
+    val carTypeId: Int = 0
     @SerializedName("azimuth")
-    private val azimuth: Int? = null
+    val azimuth: Int = 0
     @SerializedName("providerId")
-    private val providerId: Int? = null
+    val providerId: Int = 0
     @SerializedName("carBrandId")
-    private val carBrandId: Int? = null
+    val carBrandId: Int = 0
     @SerializedName("userComment")
-    private val userComment: String? = null
+    val userComment: String? = null
     @SerializedName("dateInserted")
-    private val dateInserted: OffsetDateTime? = null
+    val dateInserted: String? = null
     @SerializedName("objectOutput")
-    private val objectOutput: Boolean? = null
+    val objectOutput: Boolean? = null
     @SerializedName("objectOutputDate")
-    private val objectOutputDate: OffsetDateTime? = null
+    val objectOutputDate: String? = null
     @SerializedName("phone")
-    private val phone: Long? = null
+    val phone: Long? = null
     @SerializedName("yearRelease")
-    private val yearRelease: Int? = null
+    val yearRelease: Int = 0
     @SerializedName("dispRouteId")
-    private val dispRouteId: Int? = null
+    val dispRouteId: Int = 0
     @SerializedName("lastAddInfo")
-    private val lastAddInfo: Int? = null
+    val lastAddInfo: Int = 0
     @SerializedName("lowfloor")
-    private val lowfloor: Boolean? = null
+    val lowfloor: Boolean = false
     @SerializedName("statusName")
-    private val statusName: String? = null
+    val statusName: String? = null
     @SerializedName("carBrand")
-    private val carBrand: CarBrandDto? = null
+    val carBrand: CarBrandDto? = null
     @SerializedName("provider")
-    private val provider: ProviderDto? = null
+    val provider: ProviderDto? = null
     @SerializedName("route")
-    private val route: RouteDto? = null
+    val route: RouteDto? = null
     @SerializedName("project")
-    private val project: ProjectDto? = null
+    val project: ProjectDto? = null
     @SerializedName("block")
-    private val block: GranitDto? = null
+    val block: GranitDto? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

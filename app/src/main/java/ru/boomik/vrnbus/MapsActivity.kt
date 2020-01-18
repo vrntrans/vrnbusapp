@@ -221,10 +221,10 @@ class MapsActivity : AppCompatActivity() {
         }
         Thread().run {
             GlobalScope.launch {
-                val stations = DataServices.CoddDataService.stations()
+                val stations = DataServices.CoddPersistentDataService.stations()
                 val s= stations
-                val buses = DataServices.CoddDataService.getBusesByStationId("123")
-                val buses2 = DataServices.CoddDataService.getBusesByStationId("456")
+                val buses = DataServices.CoddDataService.getBusesByRouteId("123")
+                val buses2 = DataServices.CoddDataService.getBusesByRouteId("456")
                 val s2= buses2
             }
         }
