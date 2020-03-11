@@ -1,16 +1,17 @@
 package ru.boomik.vrnbus
 
 import android.app.Activity
+import android.content.Context
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpGet
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.dto.ArrivalDto
 import ru.boomik.vrnbus.dto.BusInfoDto
-import ru.boomik.vrnbus.managers.DataStorageManager
+import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
@@ -24,11 +25,10 @@ import kotlin.coroutines.suspendCoroutine
 
 object DataService {
 
-    val gson: Gson
 
-    init {
-        FuelManager.instance.basePath = Consts.API_URL
-        gson = Gson()
+    fun initialize(context : Context) {
+        val dir = context.externalCacheDir ?: context.cacheDir
+        DataServices.init("")
     }
 
 
@@ -138,8 +138,8 @@ object DataService {
     fun loadRouteByName(activity: Activity, route: String, loaded: (Route?) -> Unit) {
         try {
             GlobalScope.async(Dispatchers.Main) {
-                val data = DataStorageManager.loadRoutes(activity)?.first { it.route == route }
-                val edges = DataStorageManager.loadRouteEdges(activity)
+                val data = DataManager.loadRoutes(activity)?.first { it.route == route }
+                val edges = DataManager.loadRouteEdges(activity)
                 data?.let {
                     if (it.allStations == null)
                     edges?.let { edges ->

@@ -330,7 +330,7 @@ class MapsActivity : AppCompatActivity() {
 
     private fun updateBuses() {
 
-        val stationId = DataStorageManager.searchStationId
+        val stationId = DataManager.searchStationId
         if (!mAutoUpdateRoutes || (mRoutes.isBlank() && stationId > 0) || !mActive) return
         if (stationId > 0) runOnUiThread { showBusesFromStation(stationId) }
         else if (!mRoutes.isBlank()) runOnUiThread { showBuses(mRoutes) }
@@ -356,7 +356,7 @@ class MapsActivity : AppCompatActivity() {
             var dialog: AlertDialog? = null
             try {
                  dialog = progressDialog(this@MapsActivity)
-                DataStorageManager.load(this@MapsActivity.applicationContext)
+                DataManager.load(this@MapsActivity.applicationContext)
                 _loaded = true
             } catch (e: Throwable) {
                 _loaded = false
@@ -480,7 +480,7 @@ class MapsActivity : AppCompatActivity() {
 
     private fun showBuses(q: String) {
         SettingsManager.setString("routes", q)
-        DataStorageManager.searchStationId = -1
+        DataManager.searchStationId = -1
         mAutoUpdateRoutes = true
         if (q.isEmpty()) {
             mapManager.clearBusesOnMap()
@@ -521,7 +521,7 @@ class MapsActivity : AppCompatActivity() {
         try {
             GlobalScope.async(Dispatchers.Main) {
                 delay(500)
-                val data = DataStorageManager.loadBusStations(this@MapsActivity)
+                val data = DataManager.loadBusStations(this@MapsActivity)
 
                 runOnUiThread {
                     mapManager.showStations(data)

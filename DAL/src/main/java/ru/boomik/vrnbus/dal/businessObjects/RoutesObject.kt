@@ -1,6 +1,6 @@
 package ru.boomik.vrnbus.dal.businessObjects
 
-data class RoutesObject(val id : Int, val type: RouteType, val forward : List<StationObject>, val backward : List<StationObject>)
+data class RoutesObject(val id : Int, val type: RouteType, val forward : List<Int>, val backward : List<Int>)
 
 enum class RouteType(type : Int) {
     Direct(1),

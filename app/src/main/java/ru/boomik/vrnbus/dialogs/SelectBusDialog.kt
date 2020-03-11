@@ -22,7 +22,7 @@ import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.RoutesAdapter
-import ru.boomik.vrnbus.managers.DataStorageManager
+import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
 
 
@@ -33,7 +33,7 @@ class SelectBusDialog {
 
         fun show(activity: Activity, mRoutes: String, mInsets: WindowInsetsCompat, selected: (String) -> Unit) {
 
-            val routesList = DataStorageManager.routeNames
+            val routesList = DataManager.routeNames
             if (routesList == null) {
                 Toast.makeText(activity, "Дождитесь загрузки данных", Toast.LENGTH_SHORT).show()
                 return

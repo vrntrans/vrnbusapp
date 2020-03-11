@@ -16,7 +16,7 @@ import com.orhanobut.dialogplus.ViewHolder
 import kotlinx.coroutines.*
 import ru.boomik.vrnbus.*
 import ru.boomik.vrnbus.adapters.StationRoutesAdapter
-import ru.boomik.vrnbus.managers.DataStorageManager
+import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
@@ -25,7 +25,7 @@ class StationInfoDialog {
     companion object {
         fun show(activity: Activity, mInsets: WindowInsetsCompat, station: StationOnMap, selected: (String) -> Unit) {
 
-            DataStorageManager.activeStationId = station.id
+            DataManager.activeStationId = station.id
             val dialogView = View.inflate(activity, R.layout.station_view, null) as LinearLayout
             mBuses = listOf()
             val params = dialogView.getChildAt(0).layoutParams as ViewGroup.MarginLayoutParams
@@ -60,7 +60,7 @@ class StationInfoDialog {
 
             close.setOnClickListener {
                 dialog.dismiss()
-                DataStorageManager.activeStationId = 0
+                DataManager.activeStationId = 0
             }
             showBuses.setOnClickListener {
                 val buses = mBuses.toMutableList()
@@ -70,11 +70,11 @@ class StationInfoDialog {
                     return@setOnClickListener
                 }
 
-                DataStorageManager.searchStationId = station.id
+                DataManager.searchStationId = station.id
                 Toast.makeText(activity, "Прибывающие автобусы отобразились на карте", Toast.LENGTH_SHORT).show()
                 DataBus.sendEvent(DataBus.BusToMap, buses)
                 dialog.dismiss()
-                DataStorageManager.activeStationId = 0
+                DataManager.activeStationId = 0
             }
 
             val adapter = StationRoutesAdapter(activity, listOf())
@@ -88,7 +88,7 @@ class StationInfoDialog {
                 val item = parent.adapter.getItem(position) as Bus
                 DataBus.sendEvent(DataBus.ResetRoutes, item.route)
                 dialog.dismiss()
-                DataStorageManager.activeStationId = 0
+                DataManager.activeStationId = 0
                 true
             }
 
@@ -130,7 +130,7 @@ class StationInfoDialog {
 
                 do {
                     try {
-                        if (dialog == null || !dialog.isShowing || DataStorageManager.activeStationId != station.id) {
+                        if (dialog == null || !dialog.isShowing || DataManager.activeStationId != station.id) {
                             ok = false
                         } else {
                             progressIndeterminate.visibility = View.VISIBLE
@@ -155,7 +155,7 @@ class StationInfoDialog {
                                 adapter.setRoutes(sortedRoutes)
                                 if (first) mAutoUpdateRoutes = false
                             } else {
-                                if (DataStorageManager.activeStationId == station.id) DataStorageManager.activeStationId = 0
+                                if (DataManager.activeStationId == station.id) DataManager.activeStationId = 0
                                     Toast.makeText(activity, "По выбранной остановке не найдено маршрутов", Toast.LENGTH_SHORT).show()
                                     dialog.dismiss()
                                     anim.cancel()
@@ -175,7 +175,7 @@ class StationInfoDialog {
                                 dialog?.dismiss()
                                 anim.cancel()
 
-                            if (DataStorageManager.activeStationId == station.id) DataStorageManager.activeStationId = 0
+                            if (DataManager.activeStationId == station.id) DataManager.activeStationId = 0
                         }
                         delay(10000)
                             progressIndeterminate.visibility = View.GONE

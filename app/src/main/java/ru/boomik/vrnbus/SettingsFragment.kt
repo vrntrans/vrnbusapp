@@ -10,7 +10,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.preference.*
 import ru.boomik.vrnbus.dialogs.alertQuestion
 import ru.boomik.vrnbus.managers.AnalyticsManager
-import ru.boomik.vrnbus.managers.DataStorageManager
+import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener {
@@ -95,7 +95,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun clearCache() {
-        DataStorageManager.prepareForReload()
+        DataManager.prepareForReload()
         activity?.finish()
         context?.startActivity( Intent(context, MapsActivity::class.java))
     }

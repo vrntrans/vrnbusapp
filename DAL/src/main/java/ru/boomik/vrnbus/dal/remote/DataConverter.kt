@@ -65,20 +65,11 @@ class DataConverter {
         return listOf()
     }
 
-    fun toRoutesObject(data: List<RouteWithStationsDto>?, stations: List<StationObject>?): List<RoutesObject> {
+    fun toRoutesObject(data: List<RouteWithStationsDto>?): List<RoutesObject> {
         if (data == null || data.isEmpty()) return listOf()
-        if (stations == null || stations.isEmpty()) return listOf()
-        return data.map { it }.map { RoutesObject(it.id, if (it.type == RouteWithStationsDto.TypeEnum.NUMBER_1) RouteType.Direct else RouteType.Circle, getStations(it.forwardDirectionStations, stations), getStations(it.backDirectionStations, stations)) }
+        return data.map { it }.map { RoutesObject(it.id, if (it.type == RouteWithStationsDto.TypeEnum.NUMBER_1) RouteType.Direct else RouteType.Circle, it.forwardDirectionStations, it.backDirectionStations) }
     }
 
-    private fun getStations(directionStations: List<Int>, stations: List<StationObject>): List<StationObject> {
-        val result: MutableList<StationObject> = mutableListOf()
-        directionStations.forEach {
-            val station = stations.getOrNull(it)
-            if (station != null) result.add(station)
-        }
-        return result.toList()
-    }
 
     fun toTracks(data: List<TrackDto>?): List<TrackObject> {
         if (data == null || data.isEmpty()) return listOf()

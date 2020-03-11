@@ -23,7 +23,7 @@ import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.StationsAdapter
-import ru.boomik.vrnbus.managers.DataStorageManager
+import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.StationOnMap
 
@@ -34,7 +34,7 @@ class SelectStationDialog {
 
         fun show(activity: Activity, mInsets: WindowInsetsCompat, selected: (StationOnMap) -> Unit) {
 
-            val stationsList = DataStorageManager.stations
+            val stationsList = DataManager.stations
             if (stationsList == null) {
                 Toast.makeText(activity, "Дождитесь загрузки данных", Toast.LENGTH_SHORT).show()
                 return
