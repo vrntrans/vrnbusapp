@@ -23,19 +23,19 @@ import java.util.Objects;
 
 public class BusStationDto {
   @SerializedName("id")
-  private Integer id = null;
+  private Integer id = 0;
 
   @SerializedName("name")
-  private String name = null;
+  private String name = "";
 
   @SerializedName("latitude")
-  private Double latitude = null;
+  private Double latitude = .0;
 
   @SerializedName("longitude")
-  private Double longitude = null;
+  private Double longitude = .0;
 
   @SerializedName("azimuth")
-  private Integer azimuth = null;
+  private Integer azimuth = 0;
 
   public BusStationDto id(Integer id) {
     this.id = id;

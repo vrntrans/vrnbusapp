@@ -26,6 +26,7 @@ import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
+import ru.boomik.vrnbus.dal.businessObjects.BusObject
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.BusType
 import ru.boomik.vrnbus.objects.Route
@@ -234,8 +235,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val loc2 = Location(LocationManager.GPS_PROVIDER)
         loc2.latitude = latLng2.latitude
         loc2.longitude = latLng2.longitude
-
-
         return loc1.distanceTo(loc2)
     }
 
@@ -300,31 +299,31 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
         val newBusesMarkers = buses.map {
-            val typeIcon = when {
-                it.type == BusType.Small -> small
-                it.type == BusType.Medium -> medium
-                it.type == BusType.Big -> big
-                it.type == BusType.BigLowFloor -> bigFloor
-                it.type == BusType.Trolleybus -> trolleybus
+            var typeIcon = when (it.bus.busType) {
+                BusObject.BusType.Small -> small
+                BusObject.BusType.Medium -> medium
+                BusObject.BusType.Big -> big
+                BusObject.BusType.Trolleybus -> trolleybus
                 else -> big
             }
-            val color = when {
-                it.type == BusType.Small -> Consts.COLOR_BUS_SMALL
-                it.type == BusType.Medium -> Consts.COLOR_BUS_MEDIUM
-                it.type == BusType.Big -> Consts.COLOR_BUS
-                it.type == BusType.BigLowFloor -> Consts.COLOR_BUS
-                it.type == BusType.Trolleybus -> Consts.COLOR_BUS_TROLLEYBUS
+            if (it.bus.busType == BusObject.BusType.Big && it.bus.lowFloor) typeIcon= bigFloor
+
+            val color = when (it.bus.busType) {
+                BusObject.BusType.Small -> Consts.COLOR_BUS_SMALL
+                BusObject.BusType.Medium -> Consts.COLOR_BUS_MEDIUM
+                BusObject.BusType.Big -> Consts.COLOR_BUS
+                BusObject.BusType.Trolleybus -> Consts.COLOR_BUS_TROLLEYBUS
                 else -> Consts.COLOR_BUS
             }
 
 
-            val options = MarkerOptions().position(it.getPosition()).title(it.route).zIndex(1.0f).flat(true)
+            val options = MarkerOptions().position(it.getPosition()).title(it.bus.routeName).zIndex(1.0f).flat(true)
             if (it.getSnippet() != null) options.snippet(it.getSnippet())
             try {
-                options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+                options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.bus.routeName, it.getAzimuth(), color)))
             } catch (e: Throwable) {
                 try {
-                    options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(if (neededType >= 2) 1 else neededType, typeIcon, size, it.route, it.getAzimuth(), color)))
+                    options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(if (neededType >= 2) 1 else neededType, typeIcon, size, it.bus.routeName, it.getAzimuth(), color)))
                 } catch (e: Throwable) {
 
                 }
@@ -337,9 +336,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 options.infoWindowAnchor(.5f, .2f)
             }
             var difference = it.timeDifference
-            if (it.time!=null) {
-                val addidionalDifference = (Calendar.getInstance().timeInMillis - it.time!!.timeInMillis)/1000 - it.localServerTimeDifference
-                difference = addidionalDifference
+            if (it.bus.lastTime!=null) {
+                val additionalDifference = (Calendar.getInstance().timeInMillis - it.bus.lastTime!!.timeInMillis)/1000 - it.localServerTimeDifference
+                difference = additionalDifference
             }
 
             when {

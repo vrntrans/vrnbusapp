@@ -64,7 +64,7 @@ class SelectStationDialog {
 
                 val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-                val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, stationsList.map { it.name })
+                val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, stationsList.map { it.title })
                 val nameEdit = dialogView.findViewById<ClearableAutoCompleteTextView>(R.id.autoComplete)
                 nameEdit.setAdapter(namesAdapter)
                 imm.hideSoftInputFromWindow(nameEdit.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
@@ -76,20 +76,21 @@ class SelectStationDialog {
                     run {
                         val name = view.findViewById<TextView>(android.R.id.text1)
                         val stationName = name.text
-                        val station = stationsList.firstOrNull { it.name == stationName }
+                        val station = stationsList.firstOrNull { it.title == stationName }
                         imm.hideSoftInputFromWindow(nameEdit.windowToken, 0)
                         hide(activity)
-                        station?.let { nameEdit.postDelayed({selected(station)}, 250)}
+                        station?.let { nameEdit.postDelayed({selected(StationOnMap(station.title, station.id, station.latitude, station.longitude))}, 250)}
                     }
                 }
 
                 nameEdit.setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                        val stations = stationsList.filter { it.name.toLowerCase().contains(nameEdit.text.toString().toLowerCase()) }
+                        val stations = stationsList.filter { it.title.toLowerCase().contains(nameEdit.text.toString().toLowerCase()) }
                         if (stations.size==1) {
                             imm.hideSoftInputFromWindow(nameEdit.windowToken, 0)
                             hide(activity)
-                            nameEdit.postDelayed({selected(stations.first())}, 250)
+                            var f= stations.first()
+                            nameEdit.postDelayed({selected(StationOnMap(f.title, f.id, f.latitude, f.longitude))}, 250)
                         }
                         true
                     } else
@@ -99,7 +100,7 @@ class SelectStationDialog {
 
                 var favorites = SettingsManager.getIntArray(Consts.SETTINGS_FAVORITE_STATIONS)
                 if (favorites==null) favorites = listOf()
-                val routesAdapter = StationsAdapter(activity, stationsList.sortedByDescending { r -> favorites.contains(r.id) }, favorites) {
+                val routesAdapter = StationsAdapter(activity, stationsList.sortedByDescending { r -> favorites.contains(r.id) }.map { s-> StationOnMap(s.title, s.id, s.latitude, s.longitude) }, favorites) {
                     imm.hideSoftInputFromWindow(nameEdit.windowToken, 0)
                     hide(activity)
                     it?.let { nameEdit.postDelayed({selected(it)}, 250)}

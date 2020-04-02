@@ -41,7 +41,7 @@ class Station(
                 calendar.time = date
 
                 val bus = Bus()
-                bus.route = it.bus.route
+               /* bus.route = it.bus.route
                 bus.number = it.bus.number
                 bus.nextStationName = it.bus.busStation
                 bus.lastStationTime = it.bus.lastStationTime
@@ -50,12 +50,11 @@ class Station(
                 bus.lat = detail.lat
                 bus.lon = detail.lon
                 bus.lastLat = it.bus.lastLat
-                bus.lastLon = it.bus.lastLon
+                bus.lastLon = it.bus.lastLon*/
                 bus.timeLeft = it.timeLeft
                 bus.distance = it.distance
-                bus.lowFloor = it.bus.lowFloor == 1
-                bus.busType = it.bus.busType
-                bus.azimuth = it.bus.azimuth
+              /*  bus.lowFloor = it.bus.lowFloor == 1
+                bus.busType = it.bus.busType*/
                 bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
                 bus.localServerTimeDifference = difference
                 bus.init()
@@ -66,7 +65,7 @@ class Station(
             val possibleRoutes: List<Bus> = detail.routes.asSequence().filter { it.isNotBlank() }.map { Bus(it) }.toList()
 
             possibleRoutes.forEach {
-                val nextBus = routes.firstOrNull { bus -> it.route == bus.route }
+                val nextBus = routes.firstOrNull { bus -> it.bus.routeId == bus.bus.routeId }
                 if (nextBus == null) routes.add(it)
             }
             routes.sortBy { it.timeLeft }
@@ -89,7 +88,7 @@ class Station(
                 }.map {
                     Bus(it[0])
                 }.filter {
-                    it.route.isNotEmpty()
+                    it.bus.routeName.isNotEmpty()
                 }
             }.flatten().toMutableList()
 
@@ -102,7 +101,7 @@ class Station(
                 possibleRoutes = info.text.substring(index).trim().split(" ").filter { !it.isEmpty() }.map { Bus(it) }
             }
             possibleRoutes.forEach {
-                val nextBus = routes.firstOrNull { bus -> it.route == bus.route }
+                val nextBus = routes.firstOrNull { bus -> it.bus.routeName == bus.bus.routeName }
                 if (nextBus == null) routes.add(it)
             }
             routes.sortedBy { it.timeLeft }

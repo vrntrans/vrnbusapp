@@ -37,6 +37,7 @@ import kotlinx.android.synthetic.main.activity_drawer.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.*
 import ru.boomik.vrnbus.dal.DataServices
+import ru.boomik.vrnbus.dal.remote.RequestStatus
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.SelectStationDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
@@ -204,7 +205,6 @@ class MapsActivity : AppCompatActivity() {
             AnalyticsManager.logEvent("zoom", "out")
         }
 
-        DataBus.subscribe<String>(Consts.SETTINGS_REFERER) { DataService.setReferer(it.data) }
         DataBus.subscribe<Bus>(DataBus.BusClick) { onBusClicked(it.data) }
         DataBus.subscribe<StationOnMap>(DataBus.StationClick) { onStationClicked(it.data) }
         DataBus.subscribe<Boolean>(Consts.SETTINGS_ZOOM) { zoomButtons.visibility = if (it.data) View.VISIBLE else View.GONE }
@@ -223,8 +223,8 @@ class MapsActivity : AppCompatActivity() {
             GlobalScope.launch {
                 val stations = DataServices.CoddPersistentDataService.stations()
                 val s= stations
-                val buses = DataServices.CoddDataService.getBusesByRouteId("123")
-                val buses2 = DataServices.CoddDataService.getBusesByRouteId("456")
+                val buses = DataServices.CoddDataService.getBusesForRoutes("123")
+                val buses2 = DataServices.CoddDataService.getBusesForRoutes("456")
                 val s2= buses2
             }
         }
@@ -294,7 +294,7 @@ class MapsActivity : AppCompatActivity() {
     private fun setUiMode(data: String?, needRecreate: Boolean = false) {
         val mode = when (data?.toIntOrNull()) {
             0 -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            1 -> AppCompatDelegate.MODE_NIGHT_AUTO
+            1 -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
             2 -> AppCompatDelegate.MODE_NIGHT_NO
             3 -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -355,15 +355,29 @@ class MapsActivity : AppCompatActivity() {
         GlobalScope.async(Dispatchers.Main) {
             var dialog: AlertDialog? = null
             try {
-                 dialog = progressDialog(this@MapsActivity)
-                DataManager.load(this@MapsActivity.applicationContext)
-                _loaded = true
+                dialog = progressDialog(this@MapsActivity)
+
+                val stations = DataServices.CoddPersistentDataService.stations()
+                val stationsLoaded = stations.status == RequestStatus.Ok && stations.data != null
+                val routes = DataServices.CoddPersistentDataService.routes()
+                val routesLoaded = routes.status == RequestStatus.Ok && routes.data != null
+                val tracks = DataServices.CoddPersistentDataService.tracks()
+                val tracksLoaded = tracks.status == RequestStatus.Ok && tracks.data != null
+                _loaded = tracksLoaded && stationsLoaded && routesLoaded
+
+                val routesList = routes.data?.toList()
+                DataManager.stations = stations.data
+                DataManager.routes = routesList
+                DataManager.routeNames = routesList?.map { r->r.name }
+                DataManager.tracks = tracks.data
             } catch (e: Throwable) {
                 _loaded = false
                 // if one of the long operation throw, this should be called once, even if multiple long operations failed.
 
                 Log.e("something went wrong", e)
             }
+
+
             dialog?.dismiss()
             showBusStations()
             _loading = false
@@ -387,7 +401,7 @@ class MapsActivity : AppCompatActivity() {
 
 
     private fun onBusClicked(bus: Bus) {
-        Toast.makeText(this, "Маршрут: ${bus.route}\n${bus.getSnippet()}", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Маршрут: ${bus.bus.routeName}\n${bus.getSnippet()}", Toast.LENGTH_LONG).show()
     }
 
 
@@ -417,7 +431,7 @@ class MapsActivity : AppCompatActivity() {
     public override fun onDestroy() {
         super.onDestroy()
         DataBus.unsubscribeAll()
-        val map = supportFragmentManager?.findFragmentById(R.id.map)
+        val map = supportFragmentManager.findFragmentById(R.id.map)
         if (map != null) supportFragmentManager.beginTransaction().remove(map).commit()
     }
 
@@ -463,7 +477,7 @@ class MapsActivity : AppCompatActivity() {
 
             GlobalScope.async(Dispatchers.Main) {
                 progress.startAnimate()
-                val stationInfo = DataService.loadArrivalInfoAsync(stationId).await()
+                val stationInfo = BusService.loadArrivalInfoAsync(stationId).await()
                 if (stationInfo != null) {
                     val buses = stationInfo.buses
                     DataBus.sendEvent(DataBus.BusToMap, buses)
@@ -490,25 +504,29 @@ class MapsActivity : AppCompatActivity() {
         try {
             progress.startAnimate()
             mapManager.clearRoutes()
-            if (!q.contains(',')) {
-                DataService.loadRouteByName(this, q.trim()) {
-                    runOnUiThread {
-                        if (it != null) mapManager.showRoute(it)
+            if (!q.contains(',') && q != "*") {
+
+                GlobalScope.async(Dispatchers.Main) {
+                    val route = BusService.loadRouteByNameAsync(q.trim())
+                    if (route != null) runOnUiThread {
+                        mapManager.showRoute(route)
                     }
                 }
             }
             Toast.makeText(this, "Поиск маршрутов:\n$q", Toast.LENGTH_SHORT).show()
-            DataService.loadBusInfo(q) {
-                if (it != null) {
-                    if (it.count() == 0)
-                        Toast.makeText(this, "Не найдено МТС на выбранных маршрутах", Toast.LENGTH_SHORT).show()
-                    runOnUiThread {
-                        mapManager.showBusesOnMap(it, clearRoute = false)
+            GlobalScope.async(Dispatchers.Main) {
+                val buses = BusService.loadBusInfoAsync(q)
+                    if (buses != null) {
+                        runOnUiThread {
+                            if (buses.count() == 0)
+                                Toast.makeText(this@MapsActivity, "Не найдено МТС на выбранных маршрутах", Toast.LENGTH_SHORT).show()
+                            mapManager.showBusesOnMap(buses, clearRoute = false)
+                        }
+                    } else {
+                        Toast.makeText(this@MapsActivity, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
-                }
-                progress.stopAnimate()
+                    progress.stopAnimate()
+
             }
         } catch (exception: Throwable) {
             Log.e("Hm..", exception)
@@ -521,10 +539,13 @@ class MapsActivity : AppCompatActivity() {
         try {
             GlobalScope.async(Dispatchers.Main) {
                 delay(500)
-                val data = DataManager.loadBusStations(this@MapsActivity)
+                val data = DataServices.CoddPersistentDataService.stations()
 
-                runOnUiThread {
-                    mapManager.showStations(data)
+                if (data.status == RequestStatus.Ok && data.data!=null) {
+                    val stations = data.data!!.map { s -> StationOnMap(s.title, s.id, s.latitude, s.longitude) }
+                    runOnUiThread {
+                        mapManager.showStations(stations)
+                    }
                 }
             }
         } catch (exception: Throwable) {

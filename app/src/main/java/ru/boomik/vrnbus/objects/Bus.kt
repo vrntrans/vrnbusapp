@@ -1,6 +1,7 @@
 package ru.boomik.vrnbus.objects
 
 import com.google.android.gms.maps.model.LatLng
+import ru.boomik.vrnbus.dal.businessObjects.BusObject
 import ru.boomik.vrnbus.utils.toPluralValue
 import java.text.SimpleDateFormat
 import java.util.*
@@ -20,46 +21,23 @@ enum class BusType {
 }
 
 class Bus {
-    var route: String = ""
-    var number: String? = null
-    var nextStationName: String? = null
-    var lastStationTime: String? = null
-    var lastSpeed: Int = 0
-    var time: Calendar? = null
-    var lat: Double = .0
-    var lon: Double = .0
-    var lastLat: Double = .0
-    var lastLon: Double = .0
+    var bus : BusObject = BusObject()
     var timeLeft: Double = Double.MAX_VALUE
     var distance: Double = .0
-    var lowFloor: Boolean = false
-    var busType: Int = -1
     var timeDifference: Long = 0
     var localServerTimeDifference: Long = 0
-    var azimuth: Int = 0
-
 
     constructor()
 
     constructor(route: String) {
-        this.route = route
+        bus.routeName = route
     }
 
     var timeToArrival: Long = 0
     var arrivalTime: Date? = null
 
-    var type: BusType = BusType.Unknown
 
     fun init() {
-        type = when {
-            route.startsWith("Т") -> BusType.Trolleybus
-            lowFloor -> BusType.BigLowFloor
-            busType == 3 -> BusType.Medium
-            busType == 4 -> BusType.Big
-            busType == -1 -> BusType.Unknown
-            else -> BusType.Small
-        }
-
         timeToArrival = (System.currentTimeMillis() + timeLeft * 60 * 1000).toLong()
         if (timeLeft != Double.MAX_VALUE) {
             val cal = Calendar.getInstance()
@@ -71,32 +49,35 @@ class Bus {
 
     fun getSnippet(): String? {
 
-        val typeString = when (type) {
-            BusType.Small -> "Автобус малой вместимости\n"
-            BusType.Medium -> "Автобус средней вместимости\n"
-            BusType.Big -> "Автобус большой вместимости\n"
-            BusType.BigLowFloor -> "Низкопольный автобус большой вместимости\n"
-            BusType.Trolleybus -> "Троллейбус\n"
+        var typeString = when (bus.busType) {
+            BusObject.BusType.Small -> "Автобус малой вместимости\n"
+            BusObject.BusType.Medium -> "Автобус средней вместимости\n"
+            BusObject.BusType.Big -> "Автобус большой вместимости\n"
+            BusObject.BusType.Trolleybus -> "Троллейбус\n"
             else -> ""
         }
 
-        val station = if (nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n\t$nextStationName\n\n"
-        val speed = "Скорость: $lastSpeed км/ч"
+        if (bus.busType == BusObject.BusType.Big && bus.lowFloor) typeString="Низкопольный автобус большой вместимости\n"
+
+
+
+        val station = if (bus.nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n\t${bus.nextStationName}\n\n"
+        val speed = "Скорость: ${bus.lastSpeed} км/ч"
         var updateTime = ""
         var gosnumber = ""
 
-        if (!number.isNullOrBlank()) gosnumber = "\nГосномер: $number"
+        if (!bus.licensePlate.isNullOrBlank()) gosnumber = "\nГосномер: ${bus.licensePlate}"
 
-        if (time != null) {
+        if (bus.lastTime != null) {
 
             var difference = timeDifference
-            if (time!=null) {
-                val addidionalDifference = (Calendar.getInstance().timeInMillis - time!!.timeInMillis)/1000 - localServerTimeDifference
+            if (bus.lastTime!=null) {
+                val addidionalDifference = (Calendar.getInstance().timeInMillis - bus.lastTime!!.timeInMillis)/1000 - localServerTimeDifference
                 difference = addidionalDifference
             }
 
 
-            val date = time!!.time
+            val date = bus.lastTime!!.time
             val format1 = SimpleDateFormat("HH:mm:ss", Locale("ru"))
             val timeString = if (abs(difference) >=60*5) {
                 toPluralValue((difference/60).toInt(), "минуту", "минуты", "минут")
@@ -108,7 +89,7 @@ class Bus {
     }
 
     fun getPosition(): LatLng {
-        return LatLng(lastLat, lastLon)
+        return LatLng(bus.lastLatitude, bus.lastLongitude)
     }
 
     fun getAzimuth(): Double {
@@ -116,10 +97,10 @@ class Bus {
         //val x = lat - lastLat
         //val y = lon - lastLon
         //return floor(atan2(y, x) * 180 / Math.PI)
-        return azimuth.toDouble()
+        return bus.azimuth.toDouble()
     }
 
     override fun toString(): String {
-        return "$route  $timeLeft"
+        return "${bus.routeName}  $timeLeft"
     }
 }

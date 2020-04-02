@@ -16,7 +16,7 @@ class CoddDataService(private val service: ICoddApi) : BaseRemoteDataService<ICo
         return makeRequestWithConverter(::getBusesBySpecificStationId, converters::toStationBuses)
     }
 
-    suspend fun getBusesByRouteId(routesId : String?): RequestResultWithData<List<BusObject>> {
+    suspend fun getBusesForRoutes(routesId : String?): RequestResultWithData<List<BusObject>> {
         suspend fun getBusesBySpecificRouteIdId(): ObjectOnlineResponse? {
             return service.getCurrentObjectsOnline(routesId)
         }

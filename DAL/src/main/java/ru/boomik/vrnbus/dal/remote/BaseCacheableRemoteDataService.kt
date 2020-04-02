@@ -3,17 +3,17 @@ package ru.boomik.vrnbus.dal.remote
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KSuspendFunction0
 
-open class BaseCacheableRemoteDataService<T : Any>(override val serviceClass: T, cachePath: String, private val cacheTime: Long) : BaseRemoteDataService<T>(serviceClass) {
+open class BaseCacheableRemoteDataService<T : Any>(override val serviceClass: T, cachePath: String, val cacheTime: Long) : BaseRemoteDataService<T>(serviceClass) {
 
-    private val cache = LocalFileCache(cachePath)
+    val cache = LocalFileCache(cachePath)
 
-    suspend fun <T, TR> makeRequestWithCacheAndConverter(loadingFun: KSuspendFunction0<T>, converterFun: KFunction1<T?, TR>, cacheName: String, cacheClass: Class<TR>, cacheTime: Long = 0L, invalidateCache: Boolean = false): RequestResultWithData<TR?> {
+    suspend inline fun <T, reified TR> makeRequestWithCacheAndConverter(loadingFun: KSuspendFunction0<T>, converterFun: KFunction1<T?, TR>, cacheName: String, cacheTime: Long = 0L, invalidateCache: Boolean = false, isList : Boolean = false): RequestResultWithData<TR?> {
 
         var tmpCacheTime = cacheTime
         if (tmpCacheTime == 0L) tmpCacheTime = this.cacheTime
         var cachedResult: TR? = null
         if (!invalidateCache)
-            cachedResult = cache.get(cacheName, cacheClass)
+            cachedResult = cache.get<TR>(cacheName)
 
         if (!invalidateCache && cachedResult != null) {
             return RequestResultWithData(cachedResult, RequestStatus.Ok)
@@ -29,12 +29,11 @@ open class BaseCacheableRemoteDataService<T : Any>(override val serviceClass: T,
         } catch (e: Throwable) {
             RequestResultWithData(null, statusFromException(e), e.localizedMessage)
         }
-
     }
 
 
-    protected fun <TR> makeRequestFromCache(cacheName: String, cacheClass: Class<TR>): RequestResultWithData<TR?> {
-        val cachedResult = cache.get(cacheName, cacheClass)
+    protected inline fun <reified TR> makeRequestFromCache(cacheName: String, cacheClass: Class<TR>): RequestResultWithData<TR?> {
+        val cachedResult = cache.get<TR>(cacheName)
         return if (cachedResult != null)
             RequestResultWithData(cachedResult, RequestStatus.Ok)
         else RequestResultWithData(null, RequestStatus.NotFound)

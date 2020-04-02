@@ -95,7 +95,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun clearCache() {
-        DataManager.prepareForReload()
         activity?.finish()
         context?.startActivity( Intent(context, MapsActivity::class.java))
     }

@@ -1,10 +1,10 @@
 package ru.boomik.vrnbus.dal.remote
 
+import com.daveanthonythomas.moshipack.MoshiPack
 import com.google.gson.Gson
+import com.squareup.moshi.Moshi
 import java.io.File
-import java.io.OutputStreamWriter
 import java.net.URLEncoder
-import java.nio.charset.Charset
 import java.util.*
 
 
@@ -12,15 +12,16 @@ import java.util.*
 class LocalFileCache(cachePath: String) {
 
     var gson: Gson = Gson()
-    private var cacheDir: File = File(cachePath, "Responses")
-    private val ext = ".json"
+    val moshiPack = MoshiPack(moshi = Moshi.Builder().build())
+    var cacheDir: File = File(cachePath, "Responses")
+    val ext = ".msg"
 
     init {
         cacheDir.mkdirs()
     }
 
 
-    fun <T> write(key : String, data : T, cacheTime : Long? = null) {
+    inline fun <reified T> write(key : String, data : T, cacheTime : Long? = null) {
             try {
                 val cacheKey = URLEncoder.encode(key, "UTF-8")
                 val currentFile = getFileNameByKey(cacheKey)
@@ -32,12 +33,15 @@ class LocalFileCache(cachePath: String) {
                 val fileName = "${key}#${validUntil}${ext}"
                 val file = File(cacheDir, fileName)
 
-                val value = gson.toJson(data)
+                val value = moshiPack.pack(data)
+                val valueStream = value.inputStream()
 
                 val outputStream = file.outputStream()
-                val osw = OutputStreamWriter(outputStream)
-                osw.write(value)
-                osw.close()
+
+                valueStream.copyTo(outputStream)
+                outputStream.close()
+                valueStream.close()
+
             }
             catch (e : Throwable) {
                 //ignored
@@ -46,7 +50,7 @@ class LocalFileCache(cachePath: String) {
 
     }
 
-    private fun delete(fileName : String) {
+    fun delete(fileName : String) {
         if (fileName.isNotBlank()) {
             val file = File(cacheDir, fileName)
             if(file.exists()) file.delete()
@@ -60,7 +64,7 @@ class LocalFileCache(cachePath: String) {
     }
 
 
-    fun <T> get(key : String, cacheClass : Class<T>) : T? {
+    inline fun <reified T> get(key : String) : T? {
         try {
             val cacheKey = URLEncoder.encode(key, "UTF-8")
 
@@ -77,9 +81,7 @@ class LocalFileCache(cachePath: String) {
                     val buffer = ByteArray(size)
                     inputStream.read(buffer)
                     inputStream.close()
-                    val valueString = String(buffer, Charset.forName("UTF-8"))
-                    value = gson.fromJson<T>(valueString, cacheClass)
-
+                   value = moshiPack.unpack(buffer)
                 }
                 catch (e : Throwable) {
                     println(e)
@@ -94,7 +96,7 @@ class LocalFileCache(cachePath: String) {
         }
     }
 
-    private fun getValidUntilFromFile(key : String, fileName : String) : Long {
+    fun getValidUntilFromFile(key : String, fileName : String) : Long {
         try {
             val time = fileName.replace(ext, "").replace(key, "").replace("#", "")
             if (time.isNotBlank()) {
@@ -113,14 +115,14 @@ class LocalFileCache(cachePath: String) {
     }
 
 
-    private fun checkItemValid(fileName : String, validUntil : Long) : Boolean {
+    fun checkItemValid(fileName : String, validUntil : Long) : Boolean {
         if (validUntil >= Date().time)
             return true
         delete(fileName)
         return false
     }
 
-    private fun getFileNameByKey(key : String) : String? {
+    fun getFileNameByKey(key : String) : String? {
         return cacheDir.listFiles()?.firstOrNull { it.name.startsWith("$key#") }?.name
     }
 

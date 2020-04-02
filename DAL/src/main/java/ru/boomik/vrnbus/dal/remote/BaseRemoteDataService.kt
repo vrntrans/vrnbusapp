@@ -33,7 +33,7 @@ open class BaseRemoteDataService<T : Any>(open val serviceClass: T) {
         }
     }
 
-    internal fun statusFromException(e: Throwable): RequestStatus {
+    fun statusFromException(e: Throwable): RequestStatus {
         if (e is JsonSyntaxException) return RequestStatus.SerializationError
         if (e is HttpException) return requestStatusFromHttpCode(e.code())
         return RequestStatus.Unknown
@@ -47,7 +47,7 @@ open class BaseRemoteDataService<T : Any>(open val serviceClass: T) {
         }
     }
 
-    internal suspend fun <T1> invokeWithRetry(loadingFun: KSuspendFunction0<T1>): T1? {
+    suspend fun <T1> invokeWithRetry(loadingFun: KSuspendFunction0<T1>): T1? {
         var exception: Throwable?
         var result: T1? = null
         var retryRemained = RetryCount

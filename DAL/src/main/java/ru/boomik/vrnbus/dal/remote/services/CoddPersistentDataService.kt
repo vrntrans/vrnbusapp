@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package ru.boomik.vrnbus.dal.remote.services
 
 import ru.boomik.vrnbus.dal.api.ICoddApi
@@ -12,14 +10,14 @@ import ru.boomik.vrnbus.dal.remote.RequestResultWithData
 class CoddPersistentDataService(private val service: ICoddApi, cachePath: String, cacheTime: Long) : BaseCacheableRemoteDataService<ICoddApi>(service, cachePath, cacheTime) {
 
     suspend fun stations(): RequestResultWithData<List<StationObject>?> {
-        return makeRequestWithCacheAndConverter(service::stations, converters::toStationsObject, "stations", List::class.java as Class<List<StationObject>>)
+        return makeRequestWithCacheAndConverter(service::stations, converters::toStationsObject, "stations")
     }
 
     suspend fun routes(): RequestResultWithData<List<RoutesObject>?> {
-        return makeRequestWithCacheAndConverter(service::allActiveRoutesWithStations, converters::toRoutesObject, "routes", List::class.java as Class<List<RoutesObject>>)
+        return makeRequestWithCacheAndConverter(service::allActiveRoutesWithStations, converters::toRoutesObject, "routes")
     }
 
     suspend fun tracks(): RequestResultWithData<List<TrackObject>?> {
-        return makeRequestWithCacheAndConverter(service::tracks, converters::toTracks, "routes", List::class.java as Class<List<TrackObject>>)
+        return makeRequestWithCacheAndConverter(service::tracks, converters::toTracks, "routes")
     }
 }

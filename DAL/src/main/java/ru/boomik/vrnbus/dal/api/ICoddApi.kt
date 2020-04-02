@@ -7,7 +7,7 @@ import ru.boomik.vrnbus.dal.dto.*
 
 interface ICoddApi {
 
-    @GET("oldBusStations")
+    @GET("busStations")
     suspend fun stations(): List<BusStationDto?>?
 
     @GET("objects/online")
@@ -19,7 +19,7 @@ interface ICoddApi {
     @GET("routes/withStations")
     suspend fun allActiveRoutesWithStations():List<RouteWithStationsDto>?
 
-    @GET("/tracks")
+    @GET("tracks")
     suspend fun tracks():List<TrackDto>?
 
     @GET("routes/path")

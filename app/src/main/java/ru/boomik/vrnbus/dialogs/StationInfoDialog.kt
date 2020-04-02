@@ -82,11 +82,11 @@ class StationInfoDialog {
 
             list.setOnItemClickListener { parent, _, position, _ ->
                 val item = parent.adapter.getItem(position) as Bus
-                DataBus.sendEvent(DataBus.AddRoutes, item.route)
+                DataBus.sendEvent(DataBus.AddRoutes, item.bus.routeName)
             }
             list.setOnItemLongClickListener { parent, _, position, _ ->
                 val item = parent.adapter.getItem(position) as Bus
-                DataBus.sendEvent(DataBus.ResetRoutes, item.route)
+                DataBus.sendEvent(DataBus.ResetRoutes, item.bus.routeName)
                 dialog.dismiss()
                 DataManager.activeStationId = 0
                 true
@@ -136,7 +136,7 @@ class StationInfoDialog {
                             progressIndeterminate.visibility = View.VISIBLE
                             progress.visibility = View.GONE
 
-                            val stationInfo = DataService.loadArrivalInfoAsync(station.id).await()
+                            val stationInfo = BusService.loadArrivalInfoAsync(station.id).await()
                             if (stationInfo != null) {
                                 time.text = stationInfo.time
 
@@ -145,8 +145,8 @@ class StationInfoDialog {
                                 val favorites = SettingsManager.getStringArray(Consts.SETTINGS_FAVORITE_ROUTE)
                                 var sortedRoutes: MutableList<Bus>
                                 if (favorites != null) {
-                                    val favRoutes = routes.filter { favorites.contains(it.route) && it.arrivalTime != null }
-                                    val noFavRoutes = routes.filterNot { favorites.contains(it.route) && it.arrivalTime != null }.sortedByDescending { it.arrivalTime != null }
+                                    val favRoutes = routes.filter { favorites.contains(it.bus.routeName) && it.arrivalTime != null }
+                                    val noFavRoutes = routes.filterNot { favorites.contains(it.bus.routeName) && it.arrivalTime != null }.sortedByDescending { it.arrivalTime != null }
                                     sortedRoutes = mutableListOf()
                                     sortedRoutes.addAll(favRoutes)
                                     sortedRoutes.addAll(noFavRoutes)

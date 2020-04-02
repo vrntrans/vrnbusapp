@@ -53,7 +53,6 @@ object SettingsManager {
         val currentVersion = PackageInfoCompat.getLongVersionCode(activity.packageManager.getPackageInfo(activity.packageName, 0))
 
         if (lastCode==0L || currentVersion>lastCode) {
-            DataManager.prepareForReload()
             mPreferences.edit().putBoolean(Consts.SETTINGS_ROTATE, true).apply()
             mPreferences.edit().putBoolean(Consts.SETTINGS_ZOOM, true).apply()
             mPreferences.edit().putLong(LAST_VERSION_CODE, currentVersion).apply()

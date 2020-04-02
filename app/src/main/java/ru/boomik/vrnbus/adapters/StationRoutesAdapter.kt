@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
+import ru.boomik.vrnbus.dal.businessObjects.BusObject
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.BusType
@@ -54,7 +55,7 @@ class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) :
 
     fun dataEquals(routes: String): Boolean {
         if (routes.isBlank()) return true
-        val dataRoutes = busesList.asSequence().map { it.route }.map { it.trim() }.distinct().toList()
+        val dataRoutes = busesList.asSequence().map { it.bus.routeName }.map { it.trim() }.distinct().toList()
         val routesList = routes.split(',').asSequence().map { it.trim() }.distinct().toList()
         if (routesList.size != dataRoutes.size) return false
         return dataRoutes.firstOrNull { !routesList.contains(it) } == null
@@ -77,7 +78,7 @@ class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) :
 
         val bus = getItem(position) as Bus
 
-        vh.tvTitle.text = bus.route
+        vh.tvTitle.text = bus.bus.routeName
 
         vh.tvAbsoluteTime.includeFontPadding = false
         vh.tvContent.includeFontPadding = false
@@ -91,7 +92,7 @@ class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) :
             vh.tvAbsoluteTime.text = "${context.getString(R.string.arrival_at)}$absoluteTime"
         } else vh.tvAbsoluteTime.text = null
 
-        if (bus.lowFloor) {
+        if (bus.bus.lowFloor) {
             vh.ivLowFloor.setImageDrawable(wheelchair)
             vh.ivLowFloor.visibility = View.VISIBLE
         } else {
@@ -99,19 +100,18 @@ class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) :
             vh.ivLowFloor.visibility = View.GONE
         }
 
-        val icon = when {
-            bus.type == BusType.Small -> small
-            bus.type == BusType.Medium -> medium
-            bus.type == BusType.Big -> big
-            bus.type == BusType.BigLowFloor -> big
-            bus.type == BusType.Trolleybus -> trolleybus
-            bus.type == BusType.Unknown -> null
+        val icon = when (bus.bus.busType) {
+            BusObject.BusType.Small -> small
+            BusObject.BusType.Medium -> medium
+            BusObject.BusType.Big -> big
+            BusObject.BusType.Trolleybus -> trolleybus
+            BusObject.BusType.Unknown -> null
             else -> big
         }
 
         vh.ivBusType.visibility = if (icon==null) View.GONE else View.VISIBLE
         vh.ivBusType.setImageDrawable(icon)
-        vh.ivBusType.tag=bus.type
+        vh.ivBusType.tag=bus.bus.busType
 
         (vh.tvTitle.tag as? ValueAnimator)?.cancel()
 
@@ -128,12 +128,12 @@ class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) :
             vh.tvTitle.tag = anim
         }
 
-        var inFavorite = favorites?.contains(bus.route) ?: false
+        var inFavorite = favorites?.contains(bus.bus.routeName) ?: false
         vh.btnFavorite.setImageResource(if (inFavorite) R.drawable.ic_star else R.drawable.ic_no_star)
 
         vh.btnFavorite.setOnClickListener {
             inFavorite=!inFavorite
-            DataBus.sendEvent(DataBus.FavoriteRoute, Pair(bus.route, inFavorite))
+            DataBus.sendEvent(DataBus.FavoriteRoute, Pair(bus.bus.routeName, inFavorite))
             vh.btnFavorite.setImageResource(if (inFavorite) R.drawable.ic_star else R.drawable.ic_no_star)
         }
 
