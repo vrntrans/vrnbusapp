@@ -9,14 +9,14 @@ import ru.boomik.vrnbus.dal.remote.RequestResultWithData
 
 class CoddDataService(private val service: ICoddApi) : BaseRemoteDataService<ICoddApi>(service) {
 
-    suspend fun getBusesByStationId(busStationId : Long): RequestResultWithData<List<BusObject>> {
+    suspend fun getBusesByStationId(busStationId: Int): RequestResultWithData<List<BusObject>> {
         suspend fun getBusesBySpecificStationId(): ObjectOnlineForStationResponse? {
             return service.getObjectsOnlineForStation(busStationId)
         }
         return makeRequestWithConverter(::getBusesBySpecificStationId, converters::toStationBuses)
     }
 
-    suspend fun getBusesForRoutes(routesId : String?): RequestResultWithData<List<BusObject>> {
+    suspend fun getBusesForRoutes(routesId: String?): RequestResultWithData<List<BusObject>> {
         suspend fun getBusesBySpecificRouteIdId(): ObjectOnlineResponse? {
             return service.getCurrentObjectsOnline(routesId)
         }

@@ -1,102 +1,115 @@
 package ru.boomik.vrnbus.dal.remote
 
-import com.daveanthonythomas.moshipack.MoshiPack
-import com.google.gson.Gson
-import com.squareup.moshi.Moshi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.OutputStreamWriter
 import java.net.URLEncoder
+import java.nio.charset.Charset
 import java.util.*
-
+import kotlin.reflect.KFunction1
 
 @Suppress("unused")
 class LocalFileCache(cachePath: String) {
 
-    var gson: Gson = Gson()
-    val moshiPack = MoshiPack(moshi = Moshi.Builder().build())
+    //var gson: Gson = Gson()
+    //val moshiPack = MoshiPack(moshi = Moshi.Builder().build())
     var cacheDir: File = File(cachePath, "Responses")
-    val ext = ".msg"
+    val ext = ".json"
 
     init {
         cacheDir.mkdirs()
     }
 
+    inline fun <reified T: Any> write(key: String, data: T, cacheTime: Long? = null, logFunc: KFunction1<String, Unit>? = null) {
+        try {
+            val cacheKey = URLEncoder.encode(key, "UTF-8")
+            val currentFile = getFileNameByKey(cacheKey)
+            if (currentFile != null) delete(currentFile)
 
-    inline fun <reified T> write(key : String, data : T, cacheTime : Long? = null) {
-            try {
-                val cacheKey = URLEncoder.encode(key, "UTF-8")
-                val currentFile = getFileNameByKey(cacheKey)
-                if (currentFile!=null) delete(currentFile)
+            val date = Date()
 
-                val date = Date()
-
-                val validUntil = if (cacheTime!=null) date.time+cacheTime else Long.MAX_VALUE
-                val fileName = "${key}#${validUntil}${ext}"
-                val file = File(cacheDir, fileName)
-
-                val value = moshiPack.pack(data)
-                val valueStream = value.inputStream()
-
-                val outputStream = file.outputStream()
-
-                valueStream.copyTo(outputStream)
-                outputStream.close()
-                valueStream.close()
-
-            }
-            catch (e : Throwable) {
-                //ignored
-                val z = e
-            }
-
-    }
-
-    fun delete(fileName : String) {
-        if (fileName.isNotBlank()) {
+            val validUntil = if (cacheTime != null) date.time + cacheTime else Long.MAX_VALUE
+            val fileName = "${key}#${validUntil}${ext}"
+            logFunc?.invoke(key+" Cache write: "+fileName)
             val file = File(cacheDir, fileName)
-            if(file.exists()) file.delete()
+
+            val json =  Json.encodeToString(data)
+            logFunc?.invoke(key+"Cache Write:" +json)
+
+            val outputStream = file.outputStream()
+            val osw = OutputStreamWriter(outputStream)
+            osw.write(json)
+            osw.close()
+
+        } catch (e: Throwable) {
+            //ignored
+            logFunc?.invoke("Cache Write:" +e.message+"\n"+e.stackTrace)
+            val z = e
         }
     }
 
-    fun getValidUntil(key : String) : Long {
+
+    fun delete(fileName: String) {
+        if (fileName.isNotBlank()) {
+            val file = File(cacheDir, fileName)
+            if (file.exists()) file.delete()
+        }
+    }
+
+    fun getValidUntil(key: String): Long {
         val cacheKey = URLEncoder.encode(key, "UTF-8")
         val fileName = getFileNameByKey(cacheKey) ?: return 0
         return getValidUntilFromFile(cacheKey, fileName)
     }
 
+    @Serializable
+    class CacheFileClass<T> (val data : T)
 
-    inline fun <reified T> get(key : String) : T? {
+
+    inline fun <reified T : Any> get(key: String, logFunc: KFunction1<String, Unit>? = null): T? {
         try {
             val cacheKey = URLEncoder.encode(key, "UTF-8")
+            logFunc?.invoke(key+" Cache start: "+cacheKey)
 
             val fileName = getFileNameByKey(cacheKey) ?: return null
             val validUntil = getValidUntilFromFile(cacheKey, fileName)
             val valid = checkItemValid(fileName, validUntil)
-            var value : T? = null
+            var value: T? = null
+            var valueString: String = ""
+            logFunc?.invoke(key+" Cache valid: "+valid)
             if (valid) {
                 try {
                     val file = File(cacheDir, fileName)
-
                     val inputStream = file.inputStream()
                     val size = inputStream.available()
                     val buffer = ByteArray(size)
                     inputStream.read(buffer)
                     inputStream.close()
-                   value = moshiPack.unpack(buffer)
+                    valueString = String(buffer, Charset.forName("UTF-8"))
+                    logFunc?.invoke("valueString:\n"+valueString)
+                } catch (e: Throwable) {
+                    logFunc?.invoke(e.message+"\n"+e.stackTrace)
                 }
-                catch (e : Throwable) {
-                    println(e)
+                try {
+                    value = Json.decodeFromString<T>(valueString)
+                } catch (e: Throwable) {
+                    logFunc?.invoke(e.message+"\n"+e.stackTrace)
                 }
             }
 
-            return value
-        }
-        catch  (e : Throwable) {
+            logFunc?.invoke(key+" Cache result: "+value)
+            return value as? T
+        } catch (e: Throwable) {
             val z = e
+            logFunc?.invoke(e.message+"\n"+e.stackTrace)
             return null
         }
     }
 
-    fun getValidUntilFromFile(key : String, fileName : String) : Long {
+    fun getValidUntilFromFile(key: String, fileName: String): Long {
         try {
             val time = fileName.replace(ext, "").replace(key, "").replace("#", "")
             if (time.isNotBlank()) {
@@ -105,8 +118,7 @@ class LocalFileCache(cachePath: String) {
                     return Date().time + validUntilLong
                 }
             }
-        }
-        catch (e : Throwable) {
+        } catch (e: Throwable) {
             val z = e
             //ignored
         }
@@ -115,20 +127,20 @@ class LocalFileCache(cachePath: String) {
     }
 
 
-    fun checkItemValid(fileName : String, validUntil : Long) : Boolean {
+    fun checkItemValid(fileName: String, validUntil: Long): Boolean {
         if (validUntil >= Date().time)
             return true
         delete(fileName)
         return false
     }
 
-    fun getFileNameByKey(key : String) : String? {
+    fun getFileNameByKey(key: String): String? {
         return cacheDir.listFiles()?.firstOrNull { it.name.startsWith("$key#") }?.name
     }
 
 
     fun clear() {
-          cacheDir.deleteRecursively()
+        cacheDir.deleteRecursively()
     }
 
 }

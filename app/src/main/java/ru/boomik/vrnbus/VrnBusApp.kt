@@ -8,10 +8,12 @@ import com.android.installreferrer.api.InstallReferrerClient.newBuilder
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
+import kotlinx.serialization.ImplicitReflectionSerializer
 import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.managers.AnalyticsManager
 
 
+@ImplicitReflectionSerializer
 class VrnBusApp : MultiDexApplication(), InstallReferrerStateListener {
     private lateinit var preferences: Preferences
     private lateinit var mReferrerClient: InstallReferrerClient
@@ -29,7 +31,11 @@ class VrnBusApp : MultiDexApplication(), InstallReferrerStateListener {
         } catch (e: Exception) {
             //ignored
         }
-        DataServices.init(cacheDir.absolutePath)
+        DataServices.init(cacheDir.absolutePath, ::log)
+    }
+
+    fun log(str : String) {
+        Log.e("VRNBUS DAL", str)
     }
 
     override fun onInstallReferrerSetupFinished(responseCode: Int) {

@@ -16,6 +16,8 @@ import com.orhanobut.dialogplus.ViewHolder
 import kotlinx.coroutines.*
 import ru.boomik.vrnbus.*
 import ru.boomik.vrnbus.adapters.StationRoutesAdapter
+import ru.boomik.vrnbus.dal.DataServices
+import ru.boomik.vrnbus.dal.remote.RequestStatus
 import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.Bus
@@ -136,8 +138,9 @@ class StationInfoDialog {
                             progressIndeterminate.visibility = View.VISIBLE
                             progress.visibility = View.GONE
 
-                            val stationInfo = BusService.loadArrivalInfoAsync(station.id).await()
-                            if (stationInfo != null) {
+                            val stationInfoResult = DataServices.CoddDataService.getBusesByStationId(station.id)
+                            if (stationInfoResult.status == RequestStatus.Ok && stationInfoResult.data!=null) {
+                                val stationInfo = stationInfoResult.data
                                 time.text = stationInfo.time
 
                                 mBuses = stationInfo.buses

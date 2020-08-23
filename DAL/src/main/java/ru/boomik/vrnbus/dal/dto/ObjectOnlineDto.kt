@@ -12,74 +12,108 @@
 package ru.boomik.vrnbus.dal.dto
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 import java.util.*
+
 
 /**
  * ObjectOnlineDto
  */
-class ObjectOnlineDto {
+@Serializable
+public class ObjectOnlineDto {
     @SerializedName("averageSpeed")
     val averageSpeed: Double = .0
+
     @SerializedName("minutesLeftToBusStop")
     val minutesLeftToBusStop: Double = .0
+
     @SerializedName("id")
     val id: Int = 0
+
     @SerializedName("name")
     val name: String? = null
+
     @SerializedName("objId")
     val objId: Int = 0
+
     @SerializedName("lastTime")
     val lastTime: String = ""
+
     @SerializedName("lastLongitude")
     val lastLongitude: Double = .0
+
     @SerializedName("lastLatitude")
     val lastLatitude: Double = .0
+
     @SerializedName("lastSpeed")
     val lastSpeed: Double = .0
+
     @SerializedName("projectId")
     val projectId: Int = 0
+
     @SerializedName("lastStationId")
     val lastStationId: Int = 0
+
     @SerializedName("lastStationTime")
     val lastStationTime: String? = null
+
     @SerializedName("lastRouteId")
     val lastRouteId: Int = 0
+
     @SerializedName("carTypeId")
     val carTypeId: Int = 0
+
     @SerializedName("azimuth")
     val azimuth: Int = 0
+
     @SerializedName("providerId")
     val providerId: Int = 0
+
     @SerializedName("carBrandId")
     val carBrandId: Int = 0
+
     @SerializedName("userComment")
     val userComment: String? = null
+
     @SerializedName("dateInserted")
     val dateInserted: String? = null
+
     @SerializedName("objectOutput")
     val objectOutput: Boolean? = null
+
     @SerializedName("objectOutputDate")
     val objectOutputDate: String? = null
+
     @SerializedName("phone")
     val phone: Long? = null
+
     @SerializedName("yearRelease")
     val yearRelease: Int = 0
+
     @SerializedName("dispRouteId")
     val dispRouteId: Int = 0
+
     @SerializedName("lastAddInfo")
     val lastAddInfo: Int = 0
+
     @SerializedName("lowfloor")
     val lowfloor: Boolean = false
+
     @SerializedName("statusName")
     val statusName: String? = null
+
     @SerializedName("carBrand")
     val carBrand: CarBrandDto? = null
+
     @SerializedName("provider")
     val provider: ProviderDto? = null
+
     @SerializedName("route")
     val route: RouteDto? = null
+
     @SerializedName("project")
     val project: ProjectDto? = null
+
     @SerializedName("block")
     val block: GranitDto? = null
 

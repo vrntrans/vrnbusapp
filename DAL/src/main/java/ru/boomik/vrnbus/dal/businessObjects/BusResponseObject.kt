@@ -1,3 +1,6 @@
 package ru.boomik.vrnbus.dal.businessObjects
 
-class BusResponseObject (time : String, buses : List<BusObject>)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class BusResponseObject(val time: String, val buses: List<BusObject>)

@@ -10,7 +10,9 @@ class DataConverter {
     fun toStationsObject(data: List<BusStationDto?>?): List<StationObject> {
         if (data == null || data.isEmpty()) return listOf()
         var num = 0
-        return data.mapNotNull { it }.map { StationObject(it.id, it.name, it.latitude, it.longitude, it.azimuth ?: 0, num++) }
+        return data.mapNotNull { it }.map {
+            StationObject(it.id, it.name, it.latitude, it.longitude, it.azimuth, num++)
+        }
     }
 
 
@@ -61,7 +63,7 @@ class DataConverter {
     }
 
     fun toStationBuses(data: ObjectOnlineForStationResponse?): List<BusObject> {
-        if (data?.buses == null || data.buses.isEmpty()) return listOf()
+        if (data?.buses == null || data.buses.isNullOrEmpty()) return listOf()
         // return data.mapNotNull { it }.map { StationObject(it.id, it.name) }
         return listOf()
     }

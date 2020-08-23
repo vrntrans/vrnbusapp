@@ -14,13 +14,13 @@ interface ICoddApi {
     suspend fun getCurrentObjectsOnline(@Query("routeIds") routeIds: String?): ObjectOnlineResponse?
 
     @GET("objects/online/station/{busStationId}")
-    suspend fun getObjectsOnlineForStation(@Path("busStationId") busStationId: Long?): ObjectOnlineForStationResponse?
+    suspend fun getObjectsOnlineForStation(@Path("busStationId") busStationId: Int): ObjectOnlineForStationResponse?
 
     @GET("routes/withStations")
-    suspend fun allActiveRoutesWithStations():List<RouteWithStationsDto>?
+    suspend fun allActiveRoutesWithStations(): List<RouteWithStationsDto>?
 
     @GET("tracks")
-    suspend fun tracks():List<TrackDto>?
+    suspend fun tracks(): List<TrackDto>?
 
     @GET("routes/path")
     suspend fun getPathForStations(@Query("startStationId") startStationId: Int?, @Query("endStationId") endStationId: Int?): FindPathDto?

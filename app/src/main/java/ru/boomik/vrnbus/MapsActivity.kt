@@ -435,8 +435,8 @@ class MapsActivity : AppCompatActivity() {
         if (map != null) supportFragmentManager.beginTransaction().remove(map).commit()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         AnalyticsManager.logPermission(requestCode, permissions, grantResults)
         when (requestCode) {
             Consts.LOCATION_PERMISSION_REQUEST -> {

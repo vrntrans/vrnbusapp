@@ -5,16 +5,12 @@ import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dal.DataServices
-import ru.boomik.vrnbus.dal.businessObjects.RouteType
 import ru.boomik.vrnbus.dal.remote.RequestStatus
 import ru.boomik.vrnbus.dto.ArrivalDto
-import ru.boomik.vrnbus.dto.BusInfoDto
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
 import ru.boomik.vrnbus.objects.StationOnMap
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

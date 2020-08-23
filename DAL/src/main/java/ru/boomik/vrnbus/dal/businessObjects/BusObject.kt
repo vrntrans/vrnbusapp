@@ -1,5 +1,7 @@
 package ru.boomik.vrnbus.dal.businessObjects
 
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.util.*
 
 /*
@@ -36,12 +38,14 @@ import java.util.*
 }
  */
 
+@Serializable
 class BusObject {
     var id: Int = 0
     var routeId: Int = 0
     var routeName: String = ""
     var minutesLeftToBusStop: Double = .0
     var licensePlate: String? = null
+    @Contextual
     var lastTime: Calendar? = null
     var lastLongitude: Double = .0
     var lastLatitude: Double = .0
@@ -51,6 +55,7 @@ class BusObject {
     var averageSpeed: Double = .0
     var lastSpeed: Double = .0
     var lastStationId: Int = -1
+    @Contextual
     var lastStationTime: Date = Date()
     var providerId: Int = 0
     var projectId: Int = 0

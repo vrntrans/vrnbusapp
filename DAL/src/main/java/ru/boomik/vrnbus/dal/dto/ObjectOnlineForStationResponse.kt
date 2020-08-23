@@ -12,18 +12,29 @@
 package ru.boomik.vrnbus.dal.dto
 
 import com.google.gson.annotations.SerializedName
-import java.util.*
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import java.util.*
+
 /**
- * ObjectOnlineResponse
+ * ObjectOnlineForStationResponse
  */
 @Serializable
-class ObjectOnlineResponse {
-    @SerializedName("serverTime")
-    val serverTime: String = ""
+data class ObjectOnlineForStationResponse(
+        /**
+         * Get serverTime
+         *
+         * @return serverTime
+         */
+        @SerializedName("serverTime")
+        @Contextual
+        val serverTime: Date,
 
-    @SerializedName("buses")
-    val buses: List<ObjectOnlineDto>? = null
+        @SerializedName("routeIds")
+        val routeIds: List<Int>,
+
+        @SerializedName("buses") var buses: List<ObjectOnlineDto>
+) {
 
     override fun equals(o: Any?): Boolean {
         if (this === o) {
@@ -32,19 +43,21 @@ class ObjectOnlineResponse {
         if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val objectOnlineResponse = o as ObjectOnlineResponse
-        return serverTime == objectOnlineResponse.serverTime &&
-                buses == objectOnlineResponse.buses
+        val objectOnlineForStationResponse = o as ObjectOnlineForStationResponse
+        return serverTime == objectOnlineForStationResponse.serverTime &&
+                routeIds == objectOnlineForStationResponse.routeIds &&
+                buses == objectOnlineForStationResponse.buses
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(serverTime, buses)
+        return Objects.hash(serverTime, routeIds, buses)
     }
 
     override fun toString(): String {
         val sb = StringBuilder()
-        sb.append("class ObjectOnlineResponse {\n")
+        sb.append("class ObjectOnlineForStationResponse {\n")
         sb.append("    serverTime: ").append(toIndentedString(serverTime)).append("\n")
+        sb.append("    routeIds: ").append(toIndentedString(routeIds)).append("\n")
         sb.append("    buses: ").append(toIndentedString(buses)).append("\n")
         sb.append("}")
         return sb.toString()

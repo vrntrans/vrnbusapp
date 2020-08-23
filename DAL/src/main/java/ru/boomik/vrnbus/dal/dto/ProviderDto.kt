@@ -12,18 +12,38 @@
 package ru.boomik.vrnbus.dal.dto
 
 import com.google.gson.annotations.SerializedName
-import java.util.*
 import kotlinx.serialization.Serializable
+import java.util.*
+
 /**
- * ObjectOnlineResponse
+ * ProviderDto
  */
 @Serializable
-class ObjectOnlineResponse {
-    @SerializedName("serverTime")
-    val serverTime: String = ""
+class ProviderDto {
+    /**
+     * Get id
+     *
+     * @return id
+     */
+    @SerializedName("id")
+    var id: Int? = null
 
-    @SerializedName("buses")
-    val buses: List<ObjectOnlineDto>? = null
+    /**
+     * Get name
+     *
+     * @return name
+     */
+    @SerializedName("name")
+    var name: String? = null
+    fun id(id: Int?): ProviderDto {
+        this.id = id
+        return this
+    }
+
+    fun name(name: String?): ProviderDto {
+        this.name = name
+        return this
+    }
 
     override fun equals(o: Any?): Boolean {
         if (this === o) {
@@ -32,20 +52,20 @@ class ObjectOnlineResponse {
         if (o == null || javaClass != o.javaClass) {
             return false
         }
-        val objectOnlineResponse = o as ObjectOnlineResponse
-        return serverTime == objectOnlineResponse.serverTime &&
-                buses == objectOnlineResponse.buses
+        val providerDto = o as ProviderDto
+        return id == providerDto.id &&
+                name == providerDto.name
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(serverTime, buses)
+        return Objects.hash(id, name)
     }
 
     override fun toString(): String {
         val sb = StringBuilder()
-        sb.append("class ObjectOnlineResponse {\n")
-        sb.append("    serverTime: ").append(toIndentedString(serverTime)).append("\n")
-        sb.append("    buses: ").append(toIndentedString(buses)).append("\n")
+        sb.append("class ProviderDto {\n")
+        sb.append("    id: ").append(toIndentedString(id)).append("\n")
+        sb.append("    name: ").append(toIndentedString(name)).append("\n")
         sb.append("}")
         return sb.toString()
     }

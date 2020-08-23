@@ -12,8 +12,7 @@ class ApiClient {
     init {
         val logging = HttpLoggingInterceptor()
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC)
-        okBuilder = OkHttpClient.Builder()
-                .addInterceptor(logging)
+        okBuilder = OkHttpClient.Builder().addInterceptor(logging)
         val baseUrl = Consts.SERVER_URL
         adapterBuilder = Retrofit.Builder()
                 .baseUrl(baseUrl)

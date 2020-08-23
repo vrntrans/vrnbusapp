@@ -8,7 +8,7 @@ import android.widget.Filterable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutoCompleteContainArrayAdapter extends ArrayAdapter implements Filterable {
+public class AutoCompleteContainArrayAdapter extends ArrayAdapter<String> implements Filterable {
 
     List<String> allCodes;
     List<String> originalCodes;
@@ -24,7 +24,7 @@ public class AutoCompleteContainArrayAdapter extends ArrayAdapter implements Fil
         return allCodes==null ? 0 : allCodes.size();
     }
 
-    public Object getItem(int position) {
+    public String getItem(int position) {
         return allCodes==null ? null : allCodes.get(position);
     }
 
