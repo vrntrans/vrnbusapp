@@ -35,7 +35,7 @@ public class AutoCompleteContainArrayAdapter extends ArrayAdapter<String> implem
     private class StringFilter extends Filter {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-
+            if (constraint==null) return new FilterResults();
             String filterString = constraint.toString().toLowerCase();
             FilterResults results = new FilterResults();
             final List<String> list = originalCodes;

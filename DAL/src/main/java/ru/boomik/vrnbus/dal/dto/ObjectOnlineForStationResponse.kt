@@ -28,7 +28,7 @@ data class ObjectOnlineForStationResponse(
          */
         @SerializedName("serverTime")
         @Contextual
-        val serverTime: Date,
+        val serverTime: String,
 
         @SerializedName("routeIds")
         val routeIds: List<Int>,

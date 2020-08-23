@@ -35,26 +35,12 @@ class Station(
 
 
             val buses = detail.arrivalBuses.asSequence().map {
-
                 val date = dateFormat.parse(it.bus.time)
                 val calendar = Calendar.getInstance()
                 calendar.time = date
-
                 val bus = Bus()
-               /* bus.route = it.bus.route
-                bus.number = it.bus.number
-                bus.nextStationName = it.bus.busStation
-                bus.lastStationTime = it.bus.lastStationTime
-                bus.lastSpeed = it.bus.lastSpeed
-                bus.time = calendar
-                bus.lat = detail.lat
-                bus.lon = detail.lon
-                bus.lastLat = it.bus.lastLat
-                bus.lastLon = it.bus.lastLon*/
                 bus.timeLeft = it.timeLeft
                 bus.distance = it.distance
-              /*  bus.lowFloor = it.bus.lowFloor == 1
-                bus.busType = it.bus.busType*/
                 bus.timeDifference = (timeInMills - calendar.timeInMillis) / 1000
                 bus.localServerTimeDifference = difference
                 bus.init()

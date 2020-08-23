@@ -102,21 +102,6 @@ public class ObjectOnlineDto {
     @SerializedName("statusName")
     val statusName: String? = null
 
-    @SerializedName("carBrand")
-    val carBrand: CarBrandDto? = null
-
-    @SerializedName("provider")
-    val provider: ProviderDto? = null
-
-    @SerializedName("route")
-    val route: RouteDto? = null
-
-    @SerializedName("project")
-    val project: ProjectDto? = null
-
-    @SerializedName("block")
-    val block: GranitDto? = null
-
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -151,16 +136,11 @@ public class ObjectOnlineDto {
                 dispRouteId == objectOnlineDto.dispRouteId &&
                 lastAddInfo == objectOnlineDto.lastAddInfo &&
                 lowfloor == objectOnlineDto.lowfloor &&
-                statusName == objectOnlineDto.statusName &&
-                carBrand == objectOnlineDto.carBrand &&
-                provider == objectOnlineDto.provider &&
-                route == objectOnlineDto.route &&
-                project == objectOnlineDto.project &&
-                block == objectOnlineDto.block
+                statusName == objectOnlineDto.statusName
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(averageSpeed, minutesLeftToBusStop, id, name, objId, lastTime, lastLongitude, lastLatitude, lastSpeed, projectId, lastStationId, lastStationTime, lastRouteId, carTypeId, azimuth, providerId, carBrandId, userComment, dateInserted, objectOutput, objectOutputDate, phone, yearRelease, dispRouteId, lastAddInfo, lowfloor, statusName, carBrand, provider, route, project, block)
+        return Objects.hash(averageSpeed, minutesLeftToBusStop, id, name, objId, lastTime, lastLongitude, lastLatitude, lastSpeed, projectId, lastStationId, lastStationTime, lastRouteId, carTypeId, azimuth, providerId, carBrandId, userComment, dateInserted, objectOutput, objectOutputDate, phone, yearRelease, dispRouteId, lastAddInfo, lowfloor, statusName)
     }
 
     override fun toString(): String {
@@ -193,11 +173,6 @@ public class ObjectOnlineDto {
         sb.append("    lastAddInfo: ").append(toIndentedString(lastAddInfo)).append("\n")
         sb.append("    lowfloor: ").append(toIndentedString(lowfloor)).append("\n")
         sb.append("    statusName: ").append(toIndentedString(statusName)).append("\n")
-        sb.append("    carBrand: ").append(toIndentedString(carBrand)).append("\n")
-        sb.append("    provider: ").append(toIndentedString(provider)).append("\n")
-        sb.append("    route: ").append(toIndentedString(route)).append("\n")
-        sb.append("    project: ").append(toIndentedString(project)).append("\n")
-        sb.append("    block: ").append(toIndentedString(block)).append("\n")
         sb.append("}")
         return sb.toString()
     }

@@ -213,20 +213,10 @@ class MapsActivity : AppCompatActivity() {
         DataBus.subscribe<String>(DataBus.AddRoutes) { addRoutes(it.data) }
         settingsManager.loadPreferences()
 
-
         val routes = SettingsManager.getString("routes")
         if (routes != null) {
             mRoutes = routes
             updateBuses()
-        }
-        Thread().run {
-            GlobalScope.launch {
-                val stations = DataServices.CoddPersistentDataService.stations()
-                val s= stations
-                val buses = DataServices.CoddDataService.getBusesForRoutes("123")
-                val buses2 = DataServices.CoddDataService.getBusesForRoutes("456")
-                val s2= buses2
-            }
         }
     }
 

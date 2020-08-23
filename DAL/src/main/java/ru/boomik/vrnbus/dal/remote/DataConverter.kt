@@ -1,5 +1,6 @@
 package ru.boomik.vrnbus.dal.remote
 
+import kotlinx.serialization.Contextual
 import ru.boomik.vrnbus.dal.businessObjects.*
 import ru.boomik.vrnbus.dal.dto.*
 import java.text.SimpleDateFormat
@@ -17,12 +18,16 @@ class DataConverter {
 
 
     fun toBuses(data: ObjectOnlineResponse?): List<BusObject> {
-        if (data?.buses == null || data.buses.isEmpty()) return listOf()
+        return toBuses(data?.buses, data?.serverTime)
+    }
+
+    private fun toBuses(buses : List<ObjectOnlineDto>?, serverTime : String?): List<BusObject> {
+        if (buses == null || buses.isEmpty()) return listOf()
 
         val pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX"
 
         val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
-        val serverDate = dateFormat.parse(data.serverTime)
+        val serverDate = dateFormat.parse(serverTime)
         val serverCalendar = Calendar.getInstance()
 
         val calendarNow = Calendar.getInstance()
@@ -33,7 +38,7 @@ class DataConverter {
         val busPattern = "yyyy-MM-dd'T'HH:mm:ss"
         val busDateFormat = SimpleDateFormat(busPattern, Locale("ru"))
 
-        return data.buses.map {
+        return buses.map {
             val date = busDateFormat.parse(it.lastTime)
             val calendar = Calendar.getInstance()
             calendar.time = date
@@ -62,10 +67,15 @@ class DataConverter {
         }
     }
 
-    fun toStationBuses(data: ObjectOnlineForStationResponse?): List<BusObject> {
-        if (data?.buses == null || data.buses.isNullOrEmpty()) return listOf()
-        // return data.mapNotNull { it }.map { StationObject(it.id, it.name) }
-        return listOf()
+    fun toStationBuses(data: ObjectOnlineForStationResponse?): BusesOnStationObject? {
+        if (data?.buses == null || data.buses.isNullOrEmpty()) return null
+        val pattern = "yyyy-MM-dd'T'HH:mm:ss"
+        val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
+        val serverDate = data.serverTime
+        val serverCalendar = Calendar.getInstance()
+        serverCalendar.time = dateFormat.parse(serverDate)
+        val buses: List<BusObject> = toBuses(data.buses, data.serverTime)
+        return BusesOnStationObject(-1, "", serverCalendar, buses, data.routeIds)
     }
 
     fun toRoutesObject(data: List<RouteWithStationsDto>?): List<RoutesObject> {

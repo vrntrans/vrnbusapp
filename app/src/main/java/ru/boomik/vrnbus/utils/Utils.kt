@@ -4,20 +4,20 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.*
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import ru.boomik.vrnbus.Log
-import java.io.IOException
-import java.nio.charset.Charset
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import ru.boomik.vrnbus.Log
 import java.io.File
+import java.io.IOException
 import java.io.OutputStreamWriter
+import java.nio.charset.Charset
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -194,4 +194,14 @@ fun requestPermission(activity: Activity, permission: String, requestCode: Int):
         // Permission has already been granted
         return true
     }
+}
+
+fun calculateDistanceBetweenPoints(
+        x1: Double,
+        y1: Double,
+        x2: Double,
+        y2: Double): Double {
+    val ac = Math.abs(y2 - y1)
+    val cb = Math.abs(x2 - x1)
+    return Math.hypot(ac, cb)
 }
