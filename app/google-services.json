@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "425910191992-38fm65i76ch0sjhm2u1pcj6ekht05jh1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.boomik.vrnbus",
+            "certificate_hash": "b246945fae44ec4f17954fed2f2e01d515be7604"
+          }
+        },
+        {
+          "client_id": "425910191992-ivfo449a55euf26cf6gf51rtf1f9a0dm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.boomik.vrnbus",
+            "certificate_hash": "ff0433a4a01f3a781e4f10a8e13b574ce3d15965"
+          }
+        },
+        {
           "client_id": "425910191992-uf8aeeiar8qnbdeo6gdatadrkl7vtbt4.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -25,15 +41,21 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425910191992-uf8aeeiar8qnbdeo6gdatadrkl7vtbt4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "425910191992-27599bhpd6iffvvm9p43pe07ppadqssc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stereopark.vrnbus",
+                "app_store_id": "1436397112"
+              }
+            }
+          ]
         }
       }
     }

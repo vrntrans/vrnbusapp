@@ -33,6 +33,15 @@
             android:hint="@string/enter_routes"
             android:inputType="textMultiLine" />
 
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/route_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:completionThreshold="1"
+            android:hint="@string/enter_routes"
+            android:inputType="textMultiLine" />
+
             <Button
                 android:id="@+id/search"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
@@ -42,133 +51,102 @@
                 android:text="@string/search"
                 android:textAlignment="center"
                 android:textColor="@color/textColor" />
-    </LinearLayout>
 
+
+    </LinearLayout>
+    
+<HorizontalScrollView
+    android:background="@drawable/corner_background"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginStart="16dp"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:layout_marginEnd="16dp"
+    android:scrollbarStyle="outsideOverlay"
+    android:scrollbarThumbHorizontal="@null">
 
     <LinearLayout
         android:id="@+id/favorites"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/corner_background"
-        android:orientation="horizontal">
+        android:padding="0dp"
+        android:orientation="horizontal"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <androidx.appcompat.widget.AppCompatImageButton
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:id="@+id/imageButton_home"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_home" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_home" />
 
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/imageButton_work"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_work" />
-
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_work" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/imageButton_man"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_man" />
-
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_man" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/imageButton1"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_number_one" />
-
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_number_one" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/imageButton2"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_number_two" />
-
-
-        <View
-            android:visibility="gone"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_number_two" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:visibility="gone"
             android:id="@+id/imageButton3"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_number_three" />
-
-
-        <View
-            android:visibility="gone"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_number_three" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:visibility="gone"
             android:id="@+id/imageButton4"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_number_four" />
-
-
-        <View
-            android:visibility="gone"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/background" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_number_four" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:visibility="gone"
             android:id="@+id/imageButton5"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:src="@drawable/ic_number_five" />
+            android:background="?selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_number_five" />
 
     </LinearLayout>
+
+</HorizontalScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"

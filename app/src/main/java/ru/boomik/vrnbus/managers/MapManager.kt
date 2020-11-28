@@ -56,6 +56,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private var medium: Drawable?
     private var big: Drawable?
     private var bigFloor: Drawable?
+    private var middleFloor: Drawable?
+    private var smallFloor: Drawable?
     private var trolleybus: Drawable?
 
     init {
@@ -79,6 +81,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         medium = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_middle)
         big = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_large)
         bigFloor = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_large_low_floor)
+        middleFloor = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_middle_low_floor)
+        smallFloor = ContextCompat.getDrawable(mActivity, R.drawable.ic_bus_small_low_floor)
         trolleybus = ContextCompat.getDrawable(mActivity, R.drawable.ic_trolleybus)
     }
 
@@ -307,6 +311,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 else -> big
             }
             if (it.bus.busType == BusObject.BusType.Big && it.bus.lowFloor) typeIcon= bigFloor
+            if (it.bus.busType == BusObject.BusType.Medium && it.bus.lowFloor) typeIcon= middleFloor
+            if (it.bus.busType == BusObject.BusType.Small && it.bus.lowFloor) typeIcon= smallFloor
 
             val color = when (it.bus.busType) {
                 BusObject.BusType.Small -> Consts.COLOR_BUS_SMALL

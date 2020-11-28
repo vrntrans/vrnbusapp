@@ -3,6 +3,7 @@ package ru.boomik.vrnbus.adapters
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
+import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.text.format.DateFormat
@@ -12,6 +13,8 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import ru.boomik.vrnbus.Consts
 import ru.boomik.vrnbus.DataBus
 import ru.boomik.vrnbus.R
@@ -46,11 +49,11 @@ class StationRoutesAdapter(private val context: Activity, BussList: List<Bus>) :
 
         val color  = R.color.textColor.color(context)
 
-        small.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-        medium.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-        big.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-        trolleybus.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-        wheelchair.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        small.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
+        medium.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
+        big.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
+        trolleybus.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
+        wheelchair.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
     }
 
     fun dataEquals(routes: String): Boolean {

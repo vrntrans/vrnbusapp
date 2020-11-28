@@ -47,17 +47,19 @@ class Bus {
     }
 
 
-    fun getSnippet(): String? {
+    fun getSnippet(): String {
 
         var typeString = when (bus.busType) {
-            BusObject.BusType.Small -> "Автобус малой вместимости\n"
-            BusObject.BusType.Medium -> "Автобус средней вместимости\n"
-            BusObject.BusType.Big -> "Автобус большой вместимости\n"
+            BusObject.BusType.Small -> "Автобус малого класса\n"
+            BusObject.BusType.Medium -> "Автобус среднего класса\n"
+            BusObject.BusType.Big -> "Автобус большого класса\n"
             BusObject.BusType.Trolleybus -> "Троллейбус\n"
             else -> ""
         }
 
-        if (bus.busType == BusObject.BusType.Big && bus.lowFloor) typeString="Низкопольный автобус большой вместимости\n"
+        if (bus.busType == BusObject.BusType.Big && bus.lowFloor) typeString="Низкопольный автобус большого класса\n"
+        if (bus.busType == BusObject.BusType.Medium && bus.lowFloor) typeString="Низкопольный автобус среднего класса\n"
+        if (bus.busType == BusObject.BusType.Small && bus.lowFloor) typeString="Низкопольный автобус малого класса\n"
 
 
 

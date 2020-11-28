@@ -62,10 +62,9 @@ object SettingsManager {
     private fun initRemoteConfig() {
         val remoteConfig = FirebaseRemoteConfig.getInstance()
         val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(BuildConfig.DEBUG)
                 .build()
         remoteConfig.setConfigSettingsAsync(configSettings)
-        remoteConfig.setDefaults(R.xml.remote_config_defaults)
+        remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
         remoteConfig.fetch(60*60*24).addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.e("Fetch Succeeded")

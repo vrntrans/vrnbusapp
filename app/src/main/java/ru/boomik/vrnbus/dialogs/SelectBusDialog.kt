@@ -3,18 +3,26 @@ package ru.boomik.vrnbus.dialogs
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.provider.ContactsContract.CommonDataKinds.Phone
+import android.text.Editable
 import android.text.InputType
+import android.text.Spanned
+import android.text.TextWatcher
+import android.text.style.ImageSpan
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
+import com.google.android.material.chip.ChipDrawable
 import com.hootsuite.nachos.NachoTextView
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler
 import ru.boomik.vrnbus.Consts
@@ -24,6 +32,7 @@ import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.RoutesAdapter
 import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
+import java.security.AccessController.getContext
 
 
 class SelectBusDialog {
@@ -59,6 +68,36 @@ class SelectBusDialog {
                 dialogView.setOnClickListener {
                     decorView.removeView(dialogView)
                 }
+
+
+                val routeEditText = dialogView.findViewById<AppCompatEditText>(R.id.route_edit_text)
+                routeEditText.imeOptions = EditorInfo.IME_ACTION_SEARCH
+                routeEditText.setRawInputType(InputType.TYPE_CLASS_TEXT)
+
+                fun createChip(text : String) : ChipDrawable {
+                    val chip = ChipDrawable.createFromResource(activity, R.xml.chip)
+                    chip.text=text
+                    chip.setBounds(0, 0, chip.intrinsicWidth, chip.intrinsicHeight)
+                    return chip
+                }
+
+                routeEditText.doAfterTextChanged {
+                    val text = it.toString()
+                    val splitByComma = text.split(',')
+                    val splitBySpace = text.split(' ')
+                    val splitBySemicolon = text.split(';')
+                    val texts : List<String>
+                    texts = when {
+                        splitByComma.size>1 -> splitByComma
+                        splitBySpace.size>1 -> splitBySpace
+                        splitBySemicolon.size>1 -> splitBySemicolon
+                        else -> emptyList()
+                    }
+                    if (texts.size < 2) return@doAfterTextChanged
+
+                }
+
+
 
 
                 val nachosAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, routesList)

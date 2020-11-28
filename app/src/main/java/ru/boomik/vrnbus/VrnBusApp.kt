@@ -8,12 +8,10 @@ import com.android.installreferrer.api.InstallReferrerClient.newBuilder
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
-import kotlinx.serialization.ImplicitReflectionSerializer
 import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.managers.AnalyticsManager
 
 
-@ImplicitReflectionSerializer
 class VrnBusApp : MultiDexApplication(), InstallReferrerStateListener {
     private lateinit var preferences: Preferences
     private lateinit var mReferrerClient: InstallReferrerClient
@@ -73,7 +71,7 @@ class VrnBusApp : MultiDexApplication(), InstallReferrerStateListener {
     private fun setUiMode(data: String?) {
         val mode = when (data?.toIntOrNull()) {
             0 -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            1 -> AppCompatDelegate.MODE_NIGHT_AUTO
+            1 -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
             2 -> AppCompatDelegate.MODE_NIGHT_NO
             3 -> AppCompatDelegate.MODE_NIGHT_YES
             else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
