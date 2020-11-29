@@ -165,18 +165,14 @@ class StationInfoDialog {
                                 stationInfo.id = station.id
                                 stationInfo.title = station.title
 
-
-
-                                val possibleRoutes = stationInfo.routeIds.mapNotNull {
-                                    routes.data!!.firstOrNull { rId -> it == rId.id }
-                                }.map {
+                                val possibleRoutes = DataManager.stationRoutes?.filter { it.key==stationOnMap.id }?.flatMap { it.value }?.map {
                                     Bus().apply {
                                         bus = BusObject().apply {
                                             routeId = it.id
                                             routeName = it.name
                                         }
                                     }
-                                }
+                                }?.toList() ?: listOf()
 
                                 val timeInMills =  stationInfo.time.timeInMillis
                                 val calendarNow = Calendar.getInstance()
@@ -184,11 +180,12 @@ class StationInfoDialog {
 
 
                                 val buses = stationInfo.buses.asSequence().map {
-
-                                    val toStation  = stations.data?.firstOrNull { s->s.id == it.lastStationId }
-                                    val busRoute  = routes.data?.firstOrNull { s->s.id == it.routeId }
-                                    if (busRoute!=null) it.routeName = busRoute.name
-
+                                    // TODO: Fix station id
+                                    val toStation  = stations.data?.firstOrNull { s->s.id == station.id }
+                                    if (it.routeName.isNotBlank()) {
+                                       val busRoute = routes.data?.firstOrNull { s -> s.name == it.routeName }
+                                       if (busRoute != null) it.routeId = busRoute.id
+                                    }
                                     val distance = if (toStation!=null) calculateDistanceBetweenPoints(station.latitude, station.longitude, it.lastLatitude, it.lastLongitude) else .0
 
                                     val bus = Bus()

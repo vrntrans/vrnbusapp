@@ -54,7 +54,6 @@ class BusObject {
     var busType: BusType = BusType.Unknown
     var averageSpeed: Double = .0
     var lastSpeed: Double = .0
-    var lastStationId: Int = -1
     @Contextual
     var lastStationTime: Date = Date()
     var providerId: Int = 0

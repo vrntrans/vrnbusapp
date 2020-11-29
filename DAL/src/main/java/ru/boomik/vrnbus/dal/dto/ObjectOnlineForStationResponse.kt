@@ -30,10 +30,7 @@ data class ObjectOnlineForStationResponse(
         @Contextual
         val serverTime: String,
 
-        @SerializedName("routeIds")
-        val routeIds: List<Int>,
-
-        @SerializedName("buses") var buses: List<ObjectOnlineDto>
+        @SerializedName("arrivalBuses") var buses: List<ObjectOnlineDto>
 ) {
 
     override fun equals(o: Any?): Boolean {
@@ -45,19 +42,17 @@ data class ObjectOnlineForStationResponse(
         }
         val objectOnlineForStationResponse = o as ObjectOnlineForStationResponse
         return serverTime == objectOnlineForStationResponse.serverTime &&
-                routeIds == objectOnlineForStationResponse.routeIds &&
                 buses == objectOnlineForStationResponse.buses
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(serverTime, routeIds, buses)
+        return Objects.hash(serverTime, buses)
     }
 
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("class ObjectOnlineForStationResponse {\n")
         sb.append("    serverTime: ").append(toIndentedString(serverTime)).append("\n")
-        sb.append("    routeIds: ").append(toIndentedString(routeIds)).append("\n")
         sb.append("    buses: ").append(toIndentedString(buses)).append("\n")
         sb.append("}")
         return sb.toString()

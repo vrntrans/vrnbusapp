@@ -36,7 +36,8 @@ object BusService {
         return try {
             buses.data!!.map { busObject ->
                 val route = routes.firstOrNull { it.id == busObject.routeId }
-                val station = stations.firstOrNull { it.id == busObject.lastStationId }
+                //TODO: next station id
+                val station = stations.firstOrNull { it.id == busObject.id }
                 busObject.routeName = route?.name ?: ""
                 busObject.nextStationName = station?.title ?: ""
                 val bus = Bus()

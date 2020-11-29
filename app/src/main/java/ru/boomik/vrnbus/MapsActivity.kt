@@ -347,19 +347,9 @@ class MapsActivity : AppCompatActivity() {
             try {
                 dialog = progressDialog(this@MapsActivity)
 
-                val stations = DataServices.CoddPersistentDataService.stations()
-                val stationsLoaded = stations.status == RequestStatus.Ok && stations.data != null
-                val routes = DataServices.CoddPersistentDataService.routes()
-                val routesLoaded = routes.status == RequestStatus.Ok && routes.data != null
-                val tracks = DataServices.CoddPersistentDataService.tracks()
-                val tracksLoaded = tracks.status == RequestStatus.Ok && tracks.data != null
-                _loaded = tracksLoaded && stationsLoaded && routesLoaded
+                DataManager.loadData()
 
-                val routesList = routes.data?.toList()
-                DataManager.stations = stations.data
-                DataManager.routes = routesList
-                DataManager.routeNames = routesList?.map { r->r.name }
-                DataManager.tracks = tracks.data
+                _loaded = DataManager.loaded
             } catch (e: Throwable) {
                 _loaded = false
                 // if one of the long operation throw, this should be called once, even if multiple long operations failed.
@@ -401,7 +391,7 @@ class MapsActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         try {
             super.onRestoreInstanceState(savedInstanceState)
             restoreInstanceState(savedInstanceState)

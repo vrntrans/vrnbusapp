@@ -10,6 +10,5 @@ data class BusesOnStationObject(
         var title: String,
         @Contextual
         var time: Calendar,
-        var buses: List<BusObject>,
-        var routeIds: List<Int>,
+        var buses: List<BusObject>
 )

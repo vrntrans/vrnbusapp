@@ -1,6 +1,5 @@
 package ru.boomik.vrnbus.dal.remote
 
-import kotlinx.serialization.Contextual
 import ru.boomik.vrnbus.dal.businessObjects.*
 import ru.boomik.vrnbus.dal.dto.*
 import java.text.SimpleDateFormat
@@ -39,19 +38,22 @@ class DataConverter {
         val busDateFormat = SimpleDateFormat(busPattern, Locale("ru"))
 
         return buses.map {
+
+            if (it.lastTime.isBlank()) it.lastTime = "2020-11-29T15:00:57"
+            if (it.lastStationTime.isNullOrBlank()) it.lastStationTime = "2020-11-29T15:00:57"
+
             val date = busDateFormat.parse(it.lastTime)
             val calendar = Calendar.getInstance()
             calendar.time = date
 
             BusObject().apply {
-                routeId = it.lastRouteId
                 licensePlate = it.name
                 lastStationTime = busDateFormat.parse(it.lastStationTime)
-                lastStationId = it.lastStationId
                 lastSpeed = it.lastSpeed
+                routeName = it.routeName
                 averageSpeed = it.averageSpeed
-                lastLatitude = it.lastLatitude
-                lastLongitude = it.lastLongitude
+                lastLatitude = if (it.lastLatitude != .0) it.lastLatitude else it.latitude
+                lastLongitude = if (it.lastLongitude != .0) it.lastLongitude else it.longitude
                 lastTime = calendar
                 azimuth = it.azimuth
                 lowFloor = it.lowfloor
@@ -75,7 +77,7 @@ class DataConverter {
         val serverCalendar = Calendar.getInstance()
         serverCalendar.time = dateFormat.parse(serverDate)
         val buses: List<BusObject> = toBuses(data.buses, data.serverTime)
-        return BusesOnStationObject(-1, "", serverCalendar, buses, data.routeIds)
+        return BusesOnStationObject(-1, "", serverCalendar, buses)
     }
 
     fun toRoutesObject(data: List<RouteWithStationsDto>?): List<RoutesObject> {
