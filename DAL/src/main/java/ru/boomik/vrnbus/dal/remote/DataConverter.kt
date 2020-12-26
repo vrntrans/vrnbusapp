@@ -70,7 +70,7 @@ class DataConverter {
     }
 
     fun toStationBuses(data: ObjectOnlineForStationResponse?): BusesOnStationObject? {
-        if (data?.buses == null || data.buses.isNullOrEmpty()) return null
+        if (data == null) return null
         val pattern = "yyyy-MM-dd'T'HH:mm:ss"
         val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
         val serverDate = data.serverTime

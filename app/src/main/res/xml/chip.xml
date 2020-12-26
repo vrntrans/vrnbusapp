@@ -4,4 +4,4 @@
     android:textAppearance="@style/ChipTextAppearance"
     app:chipBackgroundColor="@color/colorAccent"
     app:closeIconEnabled="true"
-    app:closeIconTint="@android:color/white" />
+    app:closeIconTint="@color/chip_default_text_color" />

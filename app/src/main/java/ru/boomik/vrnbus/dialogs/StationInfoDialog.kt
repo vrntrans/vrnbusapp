@@ -152,13 +152,15 @@ class StationInfoDialog {
 
                             val station = stations.data?.firstOrNull { s->s.id == stationOnMap.id }
 
-                            if (stations.data==null || routes.data==null || station==null) return@async
+                            if (stations.data==null) return@async
+                            if (routes.data==null) return@async
+                            if (station==null) return@async
 
                             val stationInfoResult = DataServices.CoddDataService.getBusesByStationId(stationOnMap.id)
                             if (stationInfoResult.status == RequestStatus.Ok && stationInfoResult.data!=null) {
                                 val stationInfo = stationInfoResult.data!!
                                 val format1 = SimpleDateFormat("dd.MMM.yyyy в kk.mm.ss")
-                                  val formatted = format1.format(stationInfo.time.time)
+                                val formatted = format1.format(stationInfo.time.time)
 
                                 time.text = "Время обновления: $formatted"
 

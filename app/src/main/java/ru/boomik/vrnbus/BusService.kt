@@ -7,6 +7,7 @@ import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.dal.remote.RequestStatus
 import ru.boomik.vrnbus.dto.ArrivalDto
+import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.Station
@@ -82,38 +83,60 @@ object BusService {
 
     suspend fun loadRouteByNameAsync(routeName: String, forward: Boolean = false): Route? {
         try {
-            if (routeName.isBlank()) return null;
-            val data = DataServices.CoddPersistentDataService.routes().data?.firstOrNull() { it.name == routeName }
-            val tracks = DataServices.CoddPersistentDataService.tracks().data
-            val stations = DataServices.CoddPersistentDataService.stations().data
+            if (routeName.isBlank()) return null
+            var route = DataManager.routesCalculated.getOrDefault(routeName, null)
+            if (route!=null) return route
+            val data = DataManager.routes?.firstOrNull { it.name == routeName }
+            val tracks = DataManager.tracks
+            val stations = DataManager.stations
             if (data == null || tracks.isNullOrEmpty() || stations.isNullOrEmpty()) return null
+            val circle = data.type == 2
             var needForward = if (data.type == 1) true else forward
             if (!needForward && data.backward.isEmpty()) needForward = true
             val stationsIds = if (needForward) data.forward else data.backward
+            val stationsIdsReverse = if (!needForward) data.forward else data.backward
             if (stationsIds.isEmpty()) return null
-            val routeStations = mutableListOf<StationOnMap>()
+            val allStationIds = stations.map { it.id }.toList()
 
-            val route = Route(data.name, stations.filter { s -> stationsIds.contains(s.id) }.map { s -> StationOnMap(s.title, s.id, s.latitude, s.longitude) })
-
-            for ((i, first) in route.stations.withIndex()) {
-                if (stations.size <= i + 1) {
-                    routeStations.add(first)
-                    break
+            fun getStations(ids: List<Int>): List<StationOnMap> {
+                return ids.filter { s -> allStationIds.contains(s) }.map { id ->
+                    val s = stations.first { it.id == id }
+                    StationOnMap(s.title, s.id, s.latitude, s.longitude)
                 }
-
-                val second = stations[i + 1]
-                val currentEdges = tracks.firstOrNull { it.from == first.id && it.to == second.id }
-                if (currentEdges == null) {
-                    routeStations.add(first)
-                    continue
-                }
-                routeStations.add(first)
-                val intermediatePoints = currentEdges.coords.map { point -> StationOnMap("", 0, point.lat, point.lon) }
-                routeStations.addAll(intermediatePoints)
-                route.allStations = routeStations
             }
 
-            return Route(data.name, routeStations)
+            route = Route(data.name, getStations(stationsIds), getStations(stationsIdsReverse))
+            fun getRouteStations(stationsList: List<StationOnMap>): List<StationOnMap> {
+                val routeStations = mutableListOf<StationOnMap>()
+                for ((i, first) in stationsList.withIndex()) {
+
+                    fun addPoints(second : StationOnMap) {
+                        val currentEdges = tracks.firstOrNull { it.from == first.id && it.to == second.id }
+                        if (currentEdges == null) {
+                            routeStations.add(first)
+                            return
+                        }
+                        routeStations.add(first)
+                        val intermediatePoints = currentEdges.coords.map { point -> StationOnMap("", 0, point.lat, point.lon) }
+                        routeStations.addAll(intermediatePoints)
+                    }
+
+                    if (stationsList.size <= i + 1) {
+                        routeStations.add(first)
+                        if (circle) addPoints(stationsList[0])
+                        break
+                    }
+
+                    val second = stationsList[i + 1]
+                    addPoints(second)
+                }
+                return routeStations.toList()
+            }
+
+            route.allStations = getRouteStations(route.stations)
+            route.allStationsReverse = getRouteStations(route.stationsReverse)
+            DataManager.routesCalculated[routeName] = route
+            return route
 
         } catch (exception: Throwable) {
             Log.e("VrnBus", "Hm..", exception)

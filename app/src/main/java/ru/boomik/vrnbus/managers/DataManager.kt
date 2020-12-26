@@ -7,6 +7,7 @@ import ru.boomik.vrnbus.dal.businessObjects.StationObject
 import ru.boomik.vrnbus.dal.businessObjects.TrackObject
 import ru.boomik.vrnbus.dal.remote.RequestResultWithData
 import ru.boomik.vrnbus.dal.remote.RequestStatus
+import ru.boomik.vrnbus.objects.Route
 
 object DataManager {
 
@@ -18,6 +19,7 @@ object DataManager {
     var routes: List<RoutesObject>? = null
     var tracks: List<TrackObject>? = null
     var stationRoutes: Map<Int, List<RoutesObject>>? = null
+    val routesCalculated: MutableMap<String, Route> = mutableMapOf()
 
     var activeStationId: Int = 0
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate);
@@ -43,7 +45,6 @@ object DataManager {
             DataManager.loaded = tracksLoaded && stationsLoaded && routesLoaded
 
             val routesList = routes.data?.toList()
-            DataManager.stations = stations.data
             DataManager.routes = routesList
             DataManager.routeNames = routesList?.map { r->r.name }
             DataManager.tracks = tracks.data
@@ -54,9 +55,10 @@ object DataManager {
             stations.data?.forEach { station ->
                 val stationId = station.id
                 val routes = routesList.filter {  it.forward.contains(stationId) || it.backward.contains(stationId) }.toList()
-                stationRoutes[stationId] = routes
+                if (routes.isNotEmpty()) stationRoutes[stationId] = routes
             }
             DataManager.stationRoutes=stationRoutes.toMap()
+            DataManager.stations = stations.data?.filter { stationRoutes.containsKey(it.id) }?.toList()
         }
 
     }

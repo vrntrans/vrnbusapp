@@ -17,6 +17,7 @@ object DataBus {
     const val Update = "Update"
     const val FavoriteRoute = "FavoriteRoute"
     const val ClickRoute = "ClickRoute"
+    const val LongClickRoute = "LongClickRoute"
     const val FavoriteStation = "FavoriteStation"
     const val Settings = "Settings"
     const val ResetRoutes = "ResetRoutes"

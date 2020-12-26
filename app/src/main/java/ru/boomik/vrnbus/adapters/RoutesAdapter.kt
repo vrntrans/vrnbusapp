@@ -54,6 +54,10 @@ class RoutesViewHolder (view: View) : RecyclerView.ViewHolder(view) {
             mCheckBoxSelected.let{it.isChecked = !it.isChecked}
             DataBus.sendEvent(DataBus.ClickRoute, Pair(mCheckBoxSelected.tag as String, mCheckBoxSelected.isChecked))
         }
+        view.setOnLongClickListener { _ ->
+            DataBus.sendEvent(DataBus.LongClickRoute, mCheckBoxSelected.tag as String)
+            true
+        }
 
         mCheckBoxSelected.setOnCheckedChangeListener { checkBox, isChecked ->
             if(!checkBox.isPressed) return@setOnCheckedChangeListener

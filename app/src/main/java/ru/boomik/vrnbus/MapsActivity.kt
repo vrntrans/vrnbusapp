@@ -27,14 +27,14 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_drawer.*
-import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.*
 import ru.boomik.vrnbus.dal.DataServices
 import ru.boomik.vrnbus.dal.remote.RequestStatus
@@ -47,6 +47,7 @@ import ru.boomik.vrnbus.objects.Bus
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.color
 import ru.boomik.vrnbus.utils.requestPermission
+import ru.boomik.vrnbus.views.RectangleContourProgressView
 import ru.codemybrainsout.ratingdialog.RatingDialog
 import java.util.*
 import android.widget.TextView as WidgetTextView
@@ -54,6 +55,7 @@ import android.widget.TextView as WidgetTextView
 
 class MapsActivity : AppCompatActivity() {
 
+    private lateinit var progress: RectangleContourProgressView
     private var _loaded: Boolean = false
     private var _loading: Boolean = false
     private lateinit var menuManager: MenuManager
@@ -89,11 +91,18 @@ class MapsActivity : AppCompatActivity() {
         val container = findViewById<ConstraintLayout>(R.id.container)
         val activityView = findViewById<ConstraintLayout>(R.id.activityView)
         val zoomButtons = findViewById<LinearLayout>(R.id.zoomButtons)
+        val myLocation = findViewById<FloatingActionButton>(R.id.myLocation)
+        val stationsButton = findViewById<FloatingActionButton>(R.id.stationsButton)
+        val busButton = findViewById<FloatingActionButton>(R.id.busButton)
         val plus = findViewById<FloatingActionButton>(R.id.plus)
         val minus = findViewById<FloatingActionButton>(R.id.minus)
         val appVersion = findViewById<WidgetTextView>(R.id.app_version)
         val osmCopyright = findViewById<WidgetTextView>(R.id.osmCopyright)
         val fragmentParent = findViewById<FrameLayout>(R.id.fragmentParent)
+        val menu = findViewById<FloatingActionButton>(R.id.menu)
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val navView = findViewById<NavigationView>(R.id.nav_view)
+        progress = findViewById(R.id.progress)
 
         mActivityView = activityView
 
@@ -127,7 +136,7 @@ class MapsActivity : AppCompatActivity() {
                 params.topMargin = insets.systemWindowInsetTop
                 params.rightMargin = insets.systemWindowInsetRight
                 params.bottomMargin = insets.systemWindowInsetBottom
-                app_version.setPadding((16 * d).toInt(), 0, 0, (insets.systemWindowInsetBottom + 16 * d).toInt())
+                appVersion.setPadding((16 * d).toInt(), 0, 0, (insets.systemWindowInsetBottom + 16 * d).toInt())
                 val rect = Rect(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
                 mapManager.padding = rect
                 fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
@@ -160,7 +169,7 @@ class MapsActivity : AppCompatActivity() {
         }
 
         menu.setOnClickListener {
-            if (drawer_layout.isDrawerOpen(GravityCompat.START)) drawer_layout.closeDrawer(GravityCompat.START) else drawer_layout.openDrawer(GravityCompat.START)
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) drawerLayout.closeDrawer(GravityCompat.START) else drawerLayout.openDrawer(GravityCompat.START)
         }
 
         myLocation.setOnClickListener {
@@ -186,7 +195,7 @@ class MapsActivity : AppCompatActivity() {
         }
 
         menuManager = MenuManager(this)
-        menuManager.initialize(nav_view)
+        menuManager.initialize(navView)
 
         timer = Timer()
         timer.schedule(object : TimerTask() {
@@ -519,10 +528,10 @@ class MapsActivity : AppCompatActivity() {
         try {
             GlobalScope.async(Dispatchers.Main) {
                 delay(500)
-                val data = DataServices.CoddPersistentDataService.stations()
+                val data = DataManager.stations
 
-                if (data.status == RequestStatus.Ok && data.data!=null) {
-                    val stations = data.data!!.map { s -> StationOnMap(s.title, s.id, s.latitude, s.longitude) }
+                if (data!=null) {
+                    val stations = data.map { s -> StationOnMap(s.title, s.id, s.latitude, s.longitude) }
                     runOnUiThread {
                         mapManager.showStations(stations)
                     }

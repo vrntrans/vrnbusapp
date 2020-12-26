@@ -52,7 +52,7 @@
     </style>
 
     <style name="ChipTextAppearance" parent="TextAppearance.MaterialComponents.Chip">
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColor">#FFFFFF</item>
     </style>
 
 </resources>

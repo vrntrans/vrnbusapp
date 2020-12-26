@@ -2,14 +2,15 @@ package ru.boomik.vrnbus.whatsnew.adapter
 
 import android.app.Activity
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.RecyclerView
 import io.github.tonnyl.whatsnew.item.WhatsNewItem
-import kotlinx.android.synthetic.main.whatsnew_item.view.*
 import ru.boomik.vrnbus.R
 
 /**
@@ -24,29 +25,29 @@ override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
     if (position <= mData.size) {
             with(holder as ItemViewHolder) {
-                with(itemView) {
-                    mData[position].imageRes?.let {
-                        val drawable =  ContextCompat.getDrawable(mContext, it)
-                        drawable?.setColorFilter(titleColor, PorterDuff.Mode.SRC_ATOP)
-                        itemTitleTextView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
-                    }
-                    itemTitleTextView.compoundDrawablePadding = 16
-                    itemTitleTextView.text = mData[position].title
-                    itemTitleTextView.setTextColor(titleColor)
-
-
-                    itemContentTextView.text = mData[position].content
-                    itemContentTextView.setTextColor(contentColor)
+                mData[position].imageRes?.let {
+                    val drawable =  ContextCompat.getDrawable(mContext, it)
+                    drawable?.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(titleColor, BlendModeCompat.SRC_ATOP)
+                    title.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
                 }
+                title.compoundDrawablePadding = 16
+                title.text = mData[position].title
+                title.setTextColor(titleColor)
+
+                content.text = mData[position].content
+                content.setTextColor(contentColor)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ItemViewHolder(LayoutInflater.from(mContext).inflate(R.layout.whatsnew_item, parent, false))
+        val view = LayoutInflater.from(mContext).inflate(R.layout.whatsnew_item, parent, false)
+        val title = view.findViewById<TextView>(R.id.itemTitleTextView)
+        val content = view.findViewById<TextView>(R.id.itemContentTextView)
+        return ItemViewHolder(view, title, content)
     }
 
     override fun getItemCount(): Int = mData.size
 
-    inner class ItemViewHolder(mItemView: View) : RecyclerView.ViewHolder(mItemView)
+    inner class ItemViewHolder(val view: View, val title: TextView, val content: TextView) : RecyclerView.ViewHolder(view)
 }

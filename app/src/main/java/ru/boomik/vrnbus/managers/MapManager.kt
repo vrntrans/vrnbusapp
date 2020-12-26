@@ -17,6 +17,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -28,7 +29,6 @@ import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.dal.businessObjects.BusObject
 import ru.boomik.vrnbus.objects.Bus
-import ru.boomik.vrnbus.objects.BusType
 import ru.boomik.vrnbus.objects.Route
 import ru.boomik.vrnbus.objects.StationOnMap
 import ru.boomik.vrnbus.utils.CustomUrlTileProvider
@@ -49,7 +49,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     private lateinit var mReadyCallback: () -> Unit
 
     private var mBusesMarkers: List<Marker>? = null
-    private var mRouteOnMap: Polyline? = null
+    private var mRouteOnMap: String? = null
+    private var mRoutesOnMap: List<Polyline>? = null
     private var mTraffic: Boolean = false
 
     private var small: Drawable?
@@ -218,7 +219,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 if (location != null && it.isSuccessful) {
                     val latLng = LatLng(location.latitude, location.longitude)
                     val distance = distanceBetween(latLng, LatLng(51.673909, 39.207646))
-                    if (distance<20000)
+                    if (distance < 20000)
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
                 }
             }
@@ -253,7 +254,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
         var showSmall = false
 
-       if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
+        if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
         mShowSmall = showSmall
 
         showBusesOnMap(mBuses, false, false)
@@ -270,13 +271,13 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     fun clearBusesOnMap() {
         mBusesMarkers?.forEach { it.remove() }
         mBusesMarkers = null
-        mBuses=null
+        mBuses = null
         mBusesMarkerType = -1
     }
 
     private var mBuses: List<Bus>? = null
 
-    fun showBusesOnMap(buses: List<Bus>?, ignoreType : Boolean = true, clearRoute : Boolean = true) {
+    fun showBusesOnMap(buses: List<Bus>?, ignoreType: Boolean = true, clearRoute: Boolean = true) {
 
         if (clearRoute) clearRoutes()
 
@@ -310,9 +311,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 BusObject.BusType.Trolleybus -> trolleybus
                 else -> big
             }
-            if (it.bus.busType == BusObject.BusType.Big && it.bus.lowFloor) typeIcon= bigFloor
-            if (it.bus.busType == BusObject.BusType.Medium && it.bus.lowFloor) typeIcon= middleFloor
-            if (it.bus.busType == BusObject.BusType.Small && it.bus.lowFloor) typeIcon= smallFloor
+            if (it.bus.busType == BusObject.BusType.Big && it.bus.lowFloor) typeIcon = bigFloor
+            if (it.bus.busType == BusObject.BusType.Medium && it.bus.lowFloor) typeIcon = middleFloor
+            if (it.bus.busType == BusObject.BusType.Small && it.bus.lowFloor) typeIcon = smallFloor
 
             val color = when (it.bus.busType) {
                 BusObject.BusType.Small -> Consts.COLOR_BUS_SMALL
@@ -324,7 +325,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
 
 
             val options = MarkerOptions().position(it.getPosition()).title(it.bus.routeName).zIndex(1.0f).flat(true)
-            if (it.getSnippet() != null) options.snippet(it.getSnippet())
+            options.snippet(it.getSnippet())
             try {
                 options.icon(BitmapDescriptorFactory.fromBitmap(createImageRoundedBitmap(neededType, typeIcon, size, it.bus.routeName, it.getAzimuth(), color)))
             } catch (e: Throwable) {
@@ -342,8 +343,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 options.infoWindowAnchor(.5f, .2f)
             }
             var difference = it.timeDifference
-            if (it.bus.lastTime!=null) {
-                val additionalDifference = (Calendar.getInstance().timeInMillis - it.bus.lastTime!!.timeInMillis)/1000 - it.localServerTimeDifference
+            if (it.bus.lastTime != null) {
+                val additionalDifference = (Calendar.getInstance().timeInMillis - it.bus.lastTime!!.timeInMillis) / 1000 - it.localServerTimeDifference
                 difference = additionalDifference
             }
 
@@ -369,8 +370,6 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         var showSmall = false
 
         if (mMap.cameraPosition.zoom >= stationVisibleZoomSmall) showSmall = true
-
-
 
         val iconSmall: BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_station_small)
 
@@ -409,9 +408,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         val rotate = SettingsManager.getBool(Consts.SETTINGS_ROTATE)
 
         if (rotate) {
-             mMap.uiSettings.isCompassEnabled = true
-             mMap.uiSettings.isRotateGesturesEnabled = true
-             mMap.uiSettings.isTiltGesturesEnabled = true
+            mMap.uiSettings.isCompassEnabled = true
+            mMap.uiSettings.isRotateGesturesEnabled = true
+            mMap.uiSettings.isTiltGesturesEnabled = true
         } else {
             mMap.uiSettings.isCompassEnabled = false
             mMap.uiSettings.isRotateGesturesEnabled = false
@@ -455,23 +454,39 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     }
 
     fun clearRoutes() {
-        mRouteOnMap?.remove()
+        mRoutesOnMap?.forEach { it.remove() }
+        mRouteOnMap = null
     }
 
 
-    fun showRoute(route: Route) {
-        mRouteOnMap?.remove()
-        val stations = route.allStations ?: route.stations
-        if (stations.isEmpty()) return
+    fun getRoute(stations: List<StationOnMap>?,@ColorRes color: Int): PolylineOptions? {
+        if (stations.isNullOrEmpty()) return null
         val line = PolylineOptions()
         val points = stations.map { LatLng(it.lat, it.lon) }
         line.addAll(points)
         val d = mActivity.resources.displayMetrics.density
         line.width(2 * d)
-        line.color(Color.BLUE)
+        val clr = ContextCompat.getColor(mActivity, color)
+        line.color(clr)
         line.zIndex(1f)
-        PolylineOptions()
-        mRouteOnMap = mMap.addPolyline(line)
+        return line
+    }
+
+    fun showRoute(route: Route) {
+        if (mRouteOnMap == route.name) return
+        mRoutesOnMap?.forEach { it.remove() }
+        mRouteOnMap = null
+
+        if (route.allStations != null) {
+            val lines = mutableListOf<Polyline>()
+            val line1 = getRoute(route.allStations, R.color.route)
+            val line2 = getRoute(route.allStationsReverse, R.color.routeReverse)
+            if (line2 != null) lines.add(mMap.addPolyline(line2))
+            if (line1 != null) lines.add(mMap.addPolyline(line1))
+            if (lines.isNotEmpty()) mRoutesOnMap = lines.toList()
+            mRouteOnMap = route.name
+        } else mRoutesOnMap = listOf(mMap.addPolyline(getRoute(route.stations, R.color.route)))
+
     }
 
 
@@ -534,8 +549,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     }
 
     fun goToStation(station: StationOnMap) {
-        if (station.lat<=0) return
-        val latLng = LatLng(station.lat-0.0006, station.lon)
+        if (station.lat <= 0) return
+        val latLng = LatLng(station.lat - 0.0006, station.lon)
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18f))
     }
 }
