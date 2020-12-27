@@ -5,10 +5,12 @@ import android.content.Context
 import android.os.Build
 import android.text.InputType
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,14 +25,13 @@ import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.RoutesAdapter
 import ru.boomik.vrnbus.managers.DataManager
+import ru.boomik.vrnbus.managers.FaveManager
 import ru.boomik.vrnbus.managers.SettingsManager
 
 
 class SelectBusDialog {
 
     companion object {
-
-
         fun show(activity: Activity, mRoutes: String, mInsets: WindowInsetsCompat, selected: (String) -> Unit) {
 
             val routesList = DataManager.routeNames
@@ -106,8 +107,24 @@ class SelectBusDialog {
                 routeEditText.setAdapter(nachosAdapter)
 */
 
+
+                val favesButton = mutableListOf<AppCompatImageButton>()
+                favesButton.add(dialogView.findViewById(R.id.fave_home))
+                favesButton.add(dialogView.findViewById(R.id.fave_work))
+                favesButton.add(dialogView.findViewById(R.id.fave_man))
+                favesButton.add(dialogView.findViewById(R.id.fave_one))
+                favesButton.add(dialogView.findViewById(R.id.fave_two))
+                favesButton.add(dialogView.findViewById(R.id.fave_three))
+                favesButton.add(dialogView.findViewById(R.id.fave_four))
+                favesButton.add(dialogView.findViewById(R.id.fave_five))
+
+                val faveClick = View.OnClickListener { v -> if (v!=null) FaveManager.faveClick(v.tag as String) }
+                favesButton.forEach { it.setOnClickListener(faveClick) }
+
+
+
                 val nachosAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, routesList)
-                val nachos = dialogView.findViewById<NachoTextView>(R.id.nacho_text_view)
+                val nachos = dialogView.findViewById<NachoTextView>(R.id.nachoRoutes)
                 nachos.setAdapter(nachosAdapter)
                 nachos.addChipTerminator(',', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)
                 nachos.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL)

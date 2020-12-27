@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -91,20 +90,6 @@ suspend fun saveStringToFile(file: File, value: String) = withContext(Dispatcher
     }
 }
 
-
-fun loadStringFromNetworkAsync(url: String) = GlobalScope.async(Dispatchers.IO) {
-    suspendCoroutine<String?> { cont ->
-       try {
-           url.httpGet().responseString(Charsets.UTF_8) { _, response, result ->
-               Log.e("Request", response.statusCode.toString() + "(" + response.url + ")")
-               if (result.component2() != null) cont.resumeWithException(result.component2()!!)
-               else cont.resume(result.component1())
-           }
-       } catch (e: Throwable) {
-           cont.resumeWithException(e)
-       }
-    }
-}
 
 fun createImageRoundedBitmap(type: Int, icon: Drawable?, size: Int, name: String, azimuth: Double, color: Int): Bitmap {
 

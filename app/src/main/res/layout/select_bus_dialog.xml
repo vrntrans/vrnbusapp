@@ -25,7 +25,7 @@
 
 
         <com.hootsuite.nachos.NachoTextView
-            android:id="@+id/nacho_text_view"
+            android:id="@+id/nachoRoutes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -80,69 +80,77 @@
         <androidx.appcompat.widget.AppCompatImageButton
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:id="@+id/imageButton_home"
+            android:id="@+id/fave_home"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_home" />
+            app:srcCompat="@drawable/ic_home"
+            android:tag="home" />
 
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton_work"
+            android:id="@+id/fave_work"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_work" />
+            app:srcCompat="@drawable/ic_work"
+            android:tag="work" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton_man"
+            android:id="@+id/fave_man"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_man" />
+            app:srcCompat="@drawable/ic_man"
+            android:tag="man" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton1"
+            android:id="@+id/fave_one"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_one" />
+            app:srcCompat="@drawable/ic_number_one"
+            android:tag="one" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton2"
+            android:id="@+id/fave_two"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_two" />
+            app:srcCompat="@drawable/ic_number_two"
+            android:tag="two" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton3"
+            android:id="@+id/fave_three"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_three" />
+            app:srcCompat="@drawable/ic_number_three"
+            android:tag="three" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/fave_four"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_four" />
+            app:srcCompat="@drawable/ic_number_four"
+            android:tag="four" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/imageButton5"
+            android:id="@+id/fave_five"
             android:layout_width="64dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_five" />
+            app:srcCompat="@drawable/ic_number_five"
+            android:tag="five" />
 
     </LinearLayout>
 

@@ -36,8 +36,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
-import ru.boomik.vrnbus.dal.DataServices
-import ru.boomik.vrnbus.dal.remote.RequestStatus
 import ru.boomik.vrnbus.dialogs.SelectBusDialog
 import ru.boomik.vrnbus.dialogs.SelectStationDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
@@ -146,7 +144,9 @@ class MapsActivity : AppCompatActivity() {
                     if (!showWhatsNew(this@MapsActivity, insets)) onPrepareForReady()
                 }
 
+                FaveManager.initialize(this, mInsets)
                 insets.consumeSystemWindowInsets()
+
             }
         } else {
             mInsets = WindowInsetsCompat(null)
@@ -318,9 +318,7 @@ class MapsActivity : AppCompatActivity() {
     }
 
     private fun onStationClicked(stationOnMap: StationOnMap) {
-        StationInfoDialog.show(this, mInsets, stationOnMap) {
-            onQuerySubmit(it)
-        }
+        StationInfoDialog.show(this, mInsets, stationOnMap)
     }
 
 
@@ -332,7 +330,7 @@ class MapsActivity : AppCompatActivity() {
         val stationId = DataManager.searchStationId
         if (!mAutoUpdateRoutes || (mRoutes.isBlank() && stationId > 0) || !mActive) return
         if (stationId > 0) runOnUiThread { showBusesFromStation(stationId) }
-        else if (!mRoutes.isBlank()) runOnUiThread { showBuses(mRoutes) }
+        else if (mRoutes.isNotBlank()) runOnUiThread { showBuses(mRoutes) }
     }
 
 
@@ -466,11 +464,11 @@ class MapsActivity : AppCompatActivity() {
 
             GlobalScope.async(Dispatchers.Main) {
                 progress.startAnimate()
-                val stationInfo = BusService.loadArrivalInfoAsync(stationId).await()
+                /*val stationInfo = BusService.loadArrivalInfoAsync(stationId).await()
                 if (stationInfo != null) {
                     val buses = stationInfo.buses
                     DataBus.sendEvent(DataBus.BusToMap, buses)
-                }
+                }*/
                 progress.stopAnimate()
             }
 

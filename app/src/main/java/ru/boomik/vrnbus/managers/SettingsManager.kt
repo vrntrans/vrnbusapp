@@ -6,6 +6,9 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.ironz.binaryprefs.BinaryPreferencesBuilder
 import com.ironz.binaryprefs.Preferences
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import ru.boomik.vrnbus.*
 
 
@@ -138,6 +141,9 @@ object SettingsManager {
     }
     fun setStringArray(key : String, value :List<String>?) {
         mPreferences.edit().putString(key, listOfStringToString(value)).apply()
+    }
+    fun setObject(key : String, value : Any) {
+        mPreferences.edit().putString(key, Json.encodeToString(value)).apply()
     }
 
     //region Internals

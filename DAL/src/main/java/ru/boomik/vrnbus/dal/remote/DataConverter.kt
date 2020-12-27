@@ -49,10 +49,10 @@ class DataConverter {
             BusObject().apply {
                 licensePlate = it.name
                 lastStationTime = busDateFormat.parse(it.lastStationTime)
-                lastSpeed = it.lastSpeed
+                lastSpeed = if (it.lastSpeed>.0) it.lastSpeed else if (it.speed>.0) it.speed else if (it.averageSpeed>.0) it.averageSpeed else .0
                 routeName = it.routeName
                 routeId = it.lastRouteId
-                averageSpeed = it.averageSpeed
+                averageSpeed = it.speed
                 lastLatitude = if (it.lastLatitude != .0) it.lastLatitude else it.latitude
                 lastLongitude = if (it.lastLongitude != .0) it.lastLongitude else it.longitude
                 lastTime = calendar

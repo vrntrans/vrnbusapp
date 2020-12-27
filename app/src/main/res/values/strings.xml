@@ -63,4 +63,7 @@
     <string name="rating_dialog_suggestions">Предложите нам, что пошло не так, и мы поработаем над этим!</string>
     <string name="rating_dialog_feedback_submitted">Спасибо! Ваш отзыв отправлен.</string>
     <string name="enter_station_name">Введите остановку</string>
+    <string name="save">Сохранить</string>
+    <string name="fave_edit">Для дальнейшего редактирования удерживайте палец на иконке избранного маршрута.</string>
+    <string name="fave_delete">Удалить?</string>
 </resources>

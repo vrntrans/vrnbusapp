@@ -22,6 +22,8 @@ import java.util.*
 @Serializable
 public class ObjectOnlineDto {
     @SerializedName("speed")
+    val speed: Double = .0
+    @SerializedName("averageSpeed")
     val averageSpeed: Double = .0
 
     @SerializedName("minutesArrival")
@@ -81,7 +83,7 @@ public class ObjectOnlineDto {
             return false
         }
         val objectOnlineDto = other as ObjectOnlineDto
-        return averageSpeed == objectOnlineDto.averageSpeed &&
+        return speed == objectOnlineDto.speed &&
                 minutesLeftToBusStop == objectOnlineDto.minutesLeftToBusStop &&
                 id == objectOnlineDto.id &&
                 name == objectOnlineDto.name &&
@@ -97,13 +99,13 @@ public class ObjectOnlineDto {
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(averageSpeed, minutesLeftToBusStop, id, name, lastTime, longitude, lastLatitude, lastSpeed, lastStationTime, azimuth, carTypeId, routeName, lowfloor)
+        return Objects.hash(speed, minutesLeftToBusStop, id, name, lastTime, longitude, lastLatitude, lastSpeed, lastStationTime, azimuth, carTypeId, routeName, lowfloor)
     }
 
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("class ObjectOnlineDto {\n")
-        sb.append("    averageSpeed: ").append(toIndentedString(averageSpeed)).append("\n")
+        sb.append("    averageSpeed: ").append(toIndentedString(speed)).append("\n")
         sb.append("    minutesLeftToBusStop: ").append(toIndentedString(minutesLeftToBusStop)).append("\n")
         sb.append("    id: ").append(toIndentedString(id)).append("\n")
         sb.append("    name: ").append(toIndentedString(name)).append("\n")

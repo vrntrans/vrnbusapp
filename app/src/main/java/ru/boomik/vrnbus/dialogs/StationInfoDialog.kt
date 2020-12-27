@@ -34,7 +34,7 @@ import java.util.*
 
 class StationInfoDialog {
     companion object {
-        fun show(activity: Activity, mInsets: WindowInsetsCompat, station: StationOnMap, selected: (String) -> Unit) {
+        fun show(activity: Activity, mInsets: WindowInsetsCompat, station: StationOnMap) {
 
             DataManager.activeStationId = station.id
             val dialogView = View.inflate(activity, R.layout.station_view, null) as LinearLayout

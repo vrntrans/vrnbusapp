@@ -23,10 +23,10 @@
 
 
 
-        <com.hootsuite.nachos.ClearableAutoCompleteTextView
+        <ru.boomik.vrnbus.views.ClearableMultiAutoCompleteTextView
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
-            android:id="@+id/autoComplete"
+            android:id="@+id/busesAutoComplete"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:completionThreshold="1"

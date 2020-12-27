@@ -33,7 +33,7 @@ class LocalFileCache(cachePath: String) {
 
             val validUntil = if (cacheTime != null) date.time + cacheTime else Long.MAX_VALUE
             val fileName = "${key}#${validUntil}${ext}"
-            logFunc?.invoke(key+" Cache write: "+fileName)
+            logFunc?.invoke("$key Cache write: $fileName")
             val file = File(cacheDir, fileName)
 
             val json =  Json.encodeToString(data)
@@ -47,7 +47,6 @@ class LocalFileCache(cachePath: String) {
         } catch (e: Throwable) {
             //ignored
             logFunc?.invoke("Cache Write:" +e.message+"\n"+e.stackTrace)
-            val z = e
         }
     }
 
@@ -72,14 +71,14 @@ class LocalFileCache(cachePath: String) {
     inline fun <reified T : Any> get(key: String, logFunc: KFunction1<String, Unit>? = null): T? {
         try {
             val cacheKey = URLEncoder.encode(key, "UTF-8")
-            logFunc?.invoke(key+" Cache start: "+cacheKey)
+            logFunc?.invoke("$key Cache start: $cacheKey")
 
             val fileName = getFileNameByKey(cacheKey) ?: return null
             val validUntil = getValidUntilFromFile(cacheKey, fileName)
             val valid = checkItemValid(fileName, validUntil)
             var value: T? = null
-            var valueString: String = ""
-            logFunc?.invoke(key+" Cache valid: "+valid)
+            var valueString = ""
+            logFunc?.invoke("$key Cache valid: $valid")
             if (valid) {
                 try {
                     val file = File(cacheDir, fileName)
@@ -89,7 +88,7 @@ class LocalFileCache(cachePath: String) {
                     inputStream.read(buffer)
                     inputStream.close()
                     valueString = String(buffer, Charset.forName("UTF-8"))
-                    logFunc?.invoke("valueString:\n"+valueString)
+                    logFunc?.invoke("valueString:\n$valueString")
                 } catch (e: Throwable) {
                     logFunc?.invoke(e.message+"\n"+e.stackTrace)
                 }
@@ -100,10 +99,9 @@ class LocalFileCache(cachePath: String) {
                 }
             }
 
-            logFunc?.invoke(key+" Cache result: "+value)
-            return value as? T
+            logFunc?.invoke("$key Cache result: $value")
+            return value
         } catch (e: Throwable) {
-            val z = e
             logFunc?.invoke(e.message+"\n"+e.stackTrace)
             return null
         }
@@ -119,7 +117,6 @@ class LocalFileCache(cachePath: String) {
                 }
             }
         } catch (e: Throwable) {
-            val z = e
             //ignored
         }
 

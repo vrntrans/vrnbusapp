@@ -1,7 +1,5 @@
 package ru.boomik.vrnbus
 
-import com.github.kittinunf.fuel.gson.responseObject
-import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dal.DataServices
@@ -54,31 +52,6 @@ object BusService {
 
     }
 
-    suspend fun loadArrivalInfoAsync(station: Int) = GlobalScope.async {
-        suspendCoroutine<Station?> { cont ->
-            try {
-                Consts.API_ARRIVAL.httpGet(listOf(Pair("id", station))).responseObject<ArrivalDto> { request, response, result ->
-                    Log.d("log", request.toString())
-                    Log.d("log", response.toString())
-                    val (_, error) = result
-                    if (error == null) {
-                        try {
-                            val info = result.get()
-                            val stationObject = Station.parseDto(info)
-                            cont.resume(stationObject)
-                        } catch (exception: Throwable) {
-                            Log.e("VrnBus", "Hm..", exception)
-                            cont.resumeWithException(exception)
-                        }
-                    } else {
-                        cont.resumeWithException(error)
-                    }
-                }
-            } catch (e: Throwable) {
-                cont.resumeWithException(e)
-            }
-        }
-    }
 
 
     suspend fun loadRouteByNameAsync(routeName: String, forward: Boolean = false): Route? {
