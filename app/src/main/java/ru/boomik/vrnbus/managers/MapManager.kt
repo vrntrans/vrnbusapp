@@ -323,6 +323,30 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 else -> Consts.COLOR_BUS
             }
 
+                val route = DataManager.routes?.firstOrNull { r -> r.id == it.bus.routeId }
+                if (route != null) {
+                    it.bus.routeName = route.name
+
+                    if (it.bus.nextStationName.isNullOrEmpty()) {
+                        var forward = true
+                        var index = route.forward.indexOfFirst { r -> r == it.bus.lastStationId }
+                        if (index < 0) {
+                            index = route.backward.indexOfFirst { r -> r == it.bus.lastStationId }
+                            forward = false
+                        }
+                        if (index >= 0) {
+                            val nextIndex = ++index
+                            val next = if (forward && route.forward.size > nextIndex) route.forward[nextIndex]
+                            else if (!forward && route.backward.size > nextIndex) route.backward[nextIndex]
+                            else 0
+
+                            val station = DataManager.stations?.firstOrNull { r -> r.id == next }
+                            if (station != null) it.bus.nextStationName = station.title
+                        }
+                    }
+                }
+
+
 
             val options = MarkerOptions().position(it.getPosition()).title(it.bus.routeName).zIndex(1.0f).flat(true)
             options.snippet(it.getSnippet())

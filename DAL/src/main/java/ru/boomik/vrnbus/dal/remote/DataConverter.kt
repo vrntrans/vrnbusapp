@@ -51,12 +51,14 @@ class DataConverter {
                 lastStationTime = busDateFormat.parse(it.lastStationTime)
                 lastSpeed = it.lastSpeed
                 routeName = it.routeName
+                routeId = it.lastRouteId
                 averageSpeed = it.averageSpeed
                 lastLatitude = if (it.lastLatitude != .0) it.lastLatitude else it.latitude
                 lastLongitude = if (it.lastLongitude != .0) it.lastLongitude else it.longitude
                 lastTime = calendar
                 azimuth = it.azimuth
                 lowFloor = it.lowfloor
+                lastStationId = it.lastStationId
                 localServerTimeDifference = difference
                 minutesLeftToBusStop = it.minutesLeftToBusStop
                 busType = when (it.carTypeId) {

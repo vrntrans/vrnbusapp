@@ -63,6 +63,12 @@ public class ObjectOnlineDto {
     @SerializedName("routeName")
     val routeName: String = ""
 
+    @SerializedName("lastRouteId")
+    val lastRouteId: Int = 0
+
+    @SerializedName("lastStationId")
+    val lastStationId: Int = 0
+
     @SerializedName("lowfloor")
     val lowfloor: Boolean = false
 

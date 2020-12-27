@@ -56,6 +56,7 @@ class BusObject {
     var lastSpeed: Double = .0
     @Contextual
     var lastStationTime: Date = Date()
+    var lastStationId: Int = 0
     var providerId: Int = 0
     var projectId: Int = 0
     var carBrandId: Int = 0
