@@ -20,12 +20,14 @@ import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import com.hootsuite.nachos.ClearableAutoCompleteTextView
 import ru.boomik.vrnbus.Consts
+import ru.boomik.vrnbus.views.ClearableMultiAutoCompleteTextView
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.StationsAdapter
 import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.SettingsManager
 import ru.boomik.vrnbus.objects.StationOnMap
+import java.util.*
 
 
 class SelectStationDialog {
@@ -72,9 +74,9 @@ class SelectStationDialog {
                 nameEdit.imeOptions = EditorInfo.IME_ACTION_SEARCH
                 nameEdit.setRawInputType(InputType.TYPE_CLASS_TEXT)
 
-                nameEdit.setOnItemClickListener { _, view, _, _ ->
+                nameEdit.setOnItemClickListener { _, editView, _, _ ->
                     run {
-                        val name = view.findViewById<TextView>(android.R.id.text1)
+                        val name = editView.findViewById<TextView>(android.R.id.text1)
                         val stationName = name.text
                         val station = stationsList.firstOrNull { it.title == stationName }
                         imm.hideSoftInputFromWindow(nameEdit.windowToken, 0)
@@ -82,14 +84,17 @@ class SelectStationDialog {
                         station?.let { nameEdit.postDelayed({selected(StationOnMap(station.title, station.id, station.latitude, station.longitude))}, 250)}
                     }
                 }
+                nameEdit.setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) (v as ClearableAutoCompleteTextView).showDropDown()
+                }
 
                 nameEdit.setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                        val stations = stationsList.filter { it.title.toLowerCase().contains(nameEdit.text.toString().toLowerCase()) }
+                        val stations = stationsList.filter { it.title.toLowerCase(Locale.ROOT).contains(nameEdit.text.toString().toLowerCase(Locale.ROOT)) }
                         if (stations.size==1) {
                             imm.hideSoftInputFromWindow(nameEdit.windowToken, 0)
                             hide(activity)
-                            var f= stations.first()
+                            val f= stations.first()
                             nameEdit.postDelayed({selected(StationOnMap(f.title, f.id, f.latitude, f.longitude))}, 250)
                         }
                         true

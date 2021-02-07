@@ -66,4 +66,13 @@
     <string name="save">Сохранить</string>
     <string name="fave_edit">Для дальнейшего редактирования удерживайте палец на иконке избранного маршрута.</string>
     <string name="fave_delete">Удалить?</string>
+
+    <string name="fave_item_home">Домой</string>
+    <string name="fave_item_work">На работу</string>
+    <string name="fave_item_man">К человеку</string>
+    <string name="fave_item_one">Первый</string>
+    <string name="fave_item_two">Второй</string>
+    <string name="fave_item_three">Третий</string>
+    <string name="fave_item_four">Четвертый</string>
+    <string name="fave_item_five">Пятый</string>
 </resources>

@@ -44,6 +44,7 @@ android {
             signingConfig signingConfigs.release
             ext.enableCrashlytics = true
             shrinkResources true
+            debuggable false
         }
         debug {
             signingConfig signingConfigs.release
@@ -55,7 +56,21 @@ android {
             debuggable true
             minifyEnabled false
             jniDebuggable = true
-            multiDexEnabled = true
+        }
+    }
+
+    flavorDimensions "stage", "mode"
+
+    productFlavors {
+        dev {
+            dimension "stage"
+
+            versionNameSuffix "-dev"
+            resConfigs "ru", "xxhdpi"
+        }
+
+        prod {
+            dimension "mode"
         }
     }
     lintOptions {
@@ -76,8 +91,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(path: ':DAL')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.30"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2-native-mt'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2-native-mt'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
@@ -85,21 +100,21 @@ dependencies {
 
     implementation 'com.google.android.material:material:1.2.1'
 
-    implementation "com.google.android.gms:play-services-base:17.5.0"
+    implementation "com.google.android.gms:play-services-base:17.6.0"
     implementation "com.google.android.gms:play-services-maps:17.0.0"
     implementation "com.google.android.gms:play-services-location:17.1.0"
     implementation 'com.android.installreferrer:installreferrer:2.2'
 
-    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-core:18.0.2'
     implementation 'com.google.firebase:firebase-messaging:21.0.1'
-    implementation 'com.google.firebase:firebase-config:20.0.2'
+    implementation 'com.google.firebase:firebase-config:20.0.3'
 //    implementation 'com.google.firebase:firebase-perf:19.0.0'
 
     // Add the Firebase Crashlytics SDK.
-    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
 
     // Recommended: Add the Google Analytics SDK.
-    implementation 'com.google.firebase:firebase-analytics:18.0.0'
+    implementation 'com.google.firebase:firebase-analytics:18.0.2'
 
 
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -122,6 +137,6 @@ dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 
-   implementation 'androidx.navigation:navigation-fragment-ktx:2.3.2'
-   implementation 'androidx.navigation:navigation-ui-ktx:2.3.2'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.3'
 }

@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         //noinspection DifferentKotlinGradleVersion
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.30"
     }
 }
 repositories {
@@ -36,8 +36,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     //noinspection DifferentStdlibGradleVersion
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.21"
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.30"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2-native-mt'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
 

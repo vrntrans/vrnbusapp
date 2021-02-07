@@ -118,7 +118,10 @@ class SelectBusDialog {
                 favesButton.add(dialogView.findViewById(R.id.fave_four))
                 favesButton.add(dialogView.findViewById(R.id.fave_five))
 
-                val faveClick = View.OnClickListener { v -> if (v!=null) FaveManager.faveClick(v.tag as String) }
+                val faveClick = View.OnClickListener { v -> if (v!=null) {
+                    hide(activity)
+                    FaveManager.faveClick(v.tag as String)
+                }}
                 favesButton.forEach { it.setOnClickListener(faveClick) }
 
 
@@ -135,6 +138,9 @@ class SelectBusDialog {
                     nachos.setText(routes)
                 }
 
+                nachos.setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) (v as NachoTextView).showDropDown()
+                }
 
                 nachos.imeOptions = EditorInfo.IME_ACTION_SEARCH
                 nachos.setRawInputType(InputType.TYPE_CLASS_TEXT)
@@ -255,15 +261,10 @@ class SelectBusDialog {
             nachos.clearFocus()
         }
 
-        private fun getNachos(nachos: NachoTextView, routesList: List<String>): MutableList<String> {
+        private fun getNachos(nachos: NachoTextView, routesList: List<String>): List<String> {
             nachos.chipifyAllUnterminatedTokens()
             val routes = nachos.chipValues.asSequence().distinct().toMutableList()
-            val newRoutes = mutableListOf<String>()
-            for (route in routes) {
-                if (routesList.contains(route)) newRoutes.add(route)
-            }
-           // if (routes.size>1 && routes.contains("*")) routes.remove("*")
-            return newRoutes
+            return routes.filter { routesList.contains(it) }.toList()
         }
 
         private fun updateSelectedInAdapter(adapter: RoutesAdapter, nachos: NachoTextView) {

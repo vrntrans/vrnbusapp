@@ -85,7 +85,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_home"
+            app:srcCompat="@drawable/ic_fave_home"
             android:tag="home" />
 
 
@@ -95,7 +95,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_work"
+            app:srcCompat="@drawable/ic_fave_work"
             android:tag="work" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -104,7 +104,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_man"
+            app:srcCompat="@drawable/ic_fave_man"
             android:tag="man" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -113,7 +113,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_one"
+            app:srcCompat="@drawable/ic_fave_one"
             android:tag="one" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -122,7 +122,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_two"
+            app:srcCompat="@drawable/ic_fave_two"
             android:tag="two" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -131,7 +131,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_three"
+            app:srcCompat="@drawable/ic_fave_three"
             android:tag="three" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -140,7 +140,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_four"
+            app:srcCompat="@drawable/ic_fave_four"
             android:tag="four" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -149,7 +149,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_number_five"
+            app:srcCompat="@drawable/ic_fave_five"
             android:tag="five" />
 
     </LinearLayout>

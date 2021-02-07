@@ -20,6 +20,12 @@ public class AutoCompleteContainArrayAdapter extends ArrayAdapter<String> implem
         originalCodes=keys;
     }
 
+    public void setNewData(List<String> keys) {
+        allCodes=keys;
+        originalCodes=keys;
+        notifyDataSetChanged();
+    }
+
     public int getCount() {
         return allCodes==null ? 0 : allCodes.size();
     }

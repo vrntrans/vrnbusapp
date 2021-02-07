@@ -277,8 +277,7 @@ class MapsActivity : AppCompatActivity() {
     }
 
     private fun addRoutes(route: String) {
-        val searchRoutes: String
-        searchRoutes = if (mRoutes.isNotEmpty()) {
+        val searchRoutes = if (mRoutes.isNotEmpty()) {
             val routesString = "$mRoutes, $route"
             val routes = routesString.split(',').asSequence().distinct().map { it.trim() }.toList()
             routes.joinToString()
@@ -416,7 +415,9 @@ class MapsActivity : AppCompatActivity() {
     }
 
     public override fun onDestroy() {
+        FaveManager.destroy(this)
         super.onDestroy()
+        timer.cancel()
         DataBus.unsubscribeAll()
         val map = supportFragmentManager.findFragmentById(R.id.map)
         if (map != null) supportFragmentManager.beginTransaction().remove(map).commit()
