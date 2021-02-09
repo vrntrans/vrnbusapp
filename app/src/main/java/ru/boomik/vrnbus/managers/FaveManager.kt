@@ -6,10 +6,12 @@ import androidx.core.view.WindowInsetsCompat
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import ru.boomik.vrnbus.Log
 import ru.boomik.vrnbus.dialogs.FaveParamsDialog
 import ru.boomik.vrnbus.dialogs.StationInfoDialog
 import ru.boomik.vrnbus.dialogs.alertQuestion
 import ru.boomik.vrnbus.objects.Fave
+import ru.boomik.vrnbus.objects.FaveFull
 import ru.boomik.vrnbus.objects.StationOnMap
 import java.lang.ref.WeakReference
 
@@ -39,6 +41,10 @@ object FaveManager {
             val stationOnMap = StationOnMap(station.title, stationId, station.latitude, station.longitude)
             StationInfoDialog.show(act, mInsets, stationOnMap)
         }
+    }
+
+    fun getAvailableFaveForStation(id : Int) : List<FaveFull> {
+        return faves.map{it.value}.filter { it.stationId == id}.map { FaveFull(it, getIconRes(it.type), getLocalizedFaveName(it.type)) }.toList()
     }
 
     private fun getLocalizedFaveName(type: String) : String {
@@ -82,6 +88,8 @@ object FaveManager {
                 SettingsManager.setString("Favorites", result)
             if (mActivity.get()!=null) Toast.makeText(mActivity.get(), "Избранное сохранено", Toast.LENGTH_SHORT).show()
         } catch (e: Throwable) {
+            if (mActivity.get()!=null) Toast.makeText(mActivity.get(), "Избранное не сохранено: $e", Toast.LENGTH_SHORT).show()
+            Log.e(e.localizedMessage, e)
             //ignore
         }
     }

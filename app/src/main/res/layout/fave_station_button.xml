@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/showBuses"
+    style="@style/Widget.AppCompat.ImageButton"
+    android:layout_width="52dp"
+    android:layout_height="match_parent"
+    android:background="?selectableItemBackgroundBorderless"
+    android:contentDescription="@string/fave_item_home"
+    android:paddingStart="8dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp"
+    android:src="@drawable/ic_fave_home" />

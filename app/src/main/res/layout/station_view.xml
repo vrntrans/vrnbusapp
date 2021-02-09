@@ -122,11 +122,10 @@
             android:paddingTop="8dp"
             android:paddingEnd="8dp"
             android:paddingBottom="8dp"
+            android:src="@drawable/ic_map"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/favorite"
-            app:layout_constraintTop_toBottomOf="@+id/list"
-            app:layout_constraintVertical_bias="0.533"
-            android:src="@drawable/ic_map" />
+            app:layout_constraintTop_toBottomOf="@+id/list" />
 
         <ImageButton
             android:id="@+id/more"
@@ -155,6 +154,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:src="@drawable/ic_station" />
+
+        <LinearLayout
+            android:id="@+id/faves_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/station_progress"
+            app:layout_constraintEnd_toStartOf="@+id/time"
+            app:layout_constraintStart_toEndOf="@+id/showBuses"
+            app:layout_constraintTop_toBottomOf="@+id/list"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
