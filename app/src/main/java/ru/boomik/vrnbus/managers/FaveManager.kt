@@ -30,9 +30,9 @@ object FaveManager {
         val name = getLocalizedFaveName(type)
         val icon = getIconRes(type)
         if (!faves.containsKey(type)) {
-            alertQuestion(act, "Избранное", "Данный пункт ибранного не настроен. Настроить?", "Да", "Нет") {
-                if (it) return@alertQuestion
-                FaveParamsDialog.show(act, type, name, icon, mInsets)
+            alertQuestion(act, "Избранное", "Данный пункт избранного не настроен. Настроить?", "Да", "Нет") {
+                if (it)
+                    FaveParamsDialog.show(act, type, name, icon, mInsets)
             }
         } else {
             val fave = faves[type]!!
@@ -47,7 +47,7 @@ object FaveManager {
         val name = getLocalizedFaveName(type)
         val icon = getIconRes(type)
         if (!faves.containsKey(type)) {
-            alertQuestion(act, "Избранное", "Данный пункт ибранного не настроен. Настроить?", "Да", "Нет") {
+            alertQuestion(act, "Избранное", "Данный пункт избранного не настроен. Настроить?", "Да", "Нет") {
                 if (it) return@alertQuestion
                 FaveParamsDialog.show(act, type, name, icon, mInsets)
             }

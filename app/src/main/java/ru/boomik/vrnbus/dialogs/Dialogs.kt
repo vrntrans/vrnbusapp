@@ -123,8 +123,8 @@ fun alertQuestion(activity: Activity, title: String, desc: String, positive: Str
             .setOnCancelListener {
                 selected(false)
             }
-            .setOnDismissListener {
+           /* .setOnDismissListener {
                 selected(false)
-            }
+            }*/
             .show()
 }
