@@ -6,20 +6,17 @@ import android.content.pm.PackageManager
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.TypedValue
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import ru.boomik.vrnbus.Log
 import java.io.File
 import java.io.IOException
 import java.io.OutputStreamWriter
 import java.nio.charset.Charset
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 @Suppress("DEPRECATION")
 fun Int.color(activity: Activity): Int {
@@ -189,4 +186,14 @@ fun calculateDistanceBetweenPoints(
     val ac = Math.abs(y2 - y1)
     val cb = Math.abs(x2 - x1)
     return Math.hypot(ac, cb)
+}
+
+fun View.addRipple() = with(TypedValue()) {
+    context.theme.resolveAttribute(android.R.attr.selectableItemBackground, this, true)
+    setBackgroundResource(resourceId)
+}
+
+fun View.addCircleRipple() = with(TypedValue()) {
+    context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, this, true)
+    setBackgroundResource(resourceId)
 }

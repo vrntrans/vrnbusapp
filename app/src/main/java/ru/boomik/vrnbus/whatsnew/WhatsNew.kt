@@ -75,7 +75,7 @@ class WhatsNew : DialogFragment() {
         with(view.findViewById<RecyclerView>(R.id.itemsRecyclerView)) {
             if (mItems != null && context != null) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = ItemsAdapter(mItems!!, activity!!).apply {
+                adapter = ItemsAdapter(mItems!!, requireActivity()).apply {
                     itemContentColor?.let { this.contentColor = it }
                     itemTitleColor?.let { this.titleColor = it }
                 }
@@ -153,7 +153,7 @@ class WhatsNew : DialogFragment() {
                                 }
 
                                 if (size >= 2) {
-                                    nowSecondNumOfVersionName = this[1].toInt()
+                                    nowSecondNumOfVersionName = this[1].filter { it.isDigit() }.toInt()
                                 }
                             }
 

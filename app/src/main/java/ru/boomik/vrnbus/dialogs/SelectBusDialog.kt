@@ -122,7 +122,14 @@ class SelectBusDialog {
                     hide(activity)
                     FaveManager.faveClick(v.tag as String)
                 }}
-                favesButton.forEach { it.setOnClickListener(faveClick) }
+                val faveLongClick = View.OnLongClickListener {
+                    hide(activity)
+                    return@OnLongClickListener FaveManager.faveLongClick(it.tag as String)
+                }
+                favesButton.forEach {
+                    it.setOnClickListener(faveClick)
+                    it.setOnLongClickListener(faveLongClick)
+                }
 
 
 

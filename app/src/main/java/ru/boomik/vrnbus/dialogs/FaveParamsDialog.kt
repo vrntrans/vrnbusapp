@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.text.InputType
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -22,11 +23,19 @@ import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.dal.businessObjects.StationObject
 import ru.boomik.vrnbus.managers.DataManager
 import ru.boomik.vrnbus.managers.FaveManager
+import ru.boomik.vrnbus.objects.Fave
 import java.util.*
 
 class FaveParamsDialog {
     companion object {
-        fun show(activity: Activity, type: String, name: String, @DrawableRes icon : Int, mInsets: WindowInsetsCompat) {
+        fun show(
+            activity: Activity,
+            type: String,
+            name: String,
+            @DrawableRes icon: Int,
+            mInsets: WindowInsetsCompat,
+            fave: Fave? = null
+        ) {
 
             val routesList = DataManager.routes
             val stationsList = DataManager.stations
@@ -56,23 +65,29 @@ class FaveParamsDialog {
                     decorView.removeView(dialogView)
                 }
 
-                view.findViewById<TextView>(R.id.delete).setOnClickListener {
+                val delete = view.findViewById<TextView>(R.id.delete);
+                if (fave==null) delete.visibility = View.GONE
+                delete.setOnClickListener {
                     alertQuestion(activity, "Избранное", "Удалить пункт ибранного \"$name\".", "Да", "Нет") {
-                        if (it) return@alertQuestion
-                        hide(activity)
+                        if (it) {
+                            FaveManager.deleteFave(type)
+                            hide(activity)
+                            return@alertQuestion
+                        }
                     }
                 }
+
                 val titleView = view.findViewById<TextView>(R.id.title)
                 val iconView = view.findViewById<ImageView>(R.id.icon)
                 titleView.text = name
                 iconView.setImageResource(icon)
                 view.findViewById<Button>(R.id.cancel).setOnClickListener {hide(activity)}
                 val nachosRoutes = dialogView.findViewById<NachoTextView>(R.id.nachoRoutes)
-                val nameEdit = dialogView.findViewById<ClearableAutoCompleteTextView>(R.id.busesAutoComplete)
+                val stationNameEdit = dialogView.findViewById<ClearableAutoCompleteTextView>(R.id.stationAutoComplete)
 
                 val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-                nameEdit.setOnFocusChangeListener { v, hasFocus ->
+                stationNameEdit.setOnFocusChangeListener { v, hasFocus ->
                     if (hasFocus) (v as ClearableAutoCompleteTextView).showDropDown()
                 }
 
@@ -80,11 +95,11 @@ class FaveParamsDialog {
                 val nachosAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, routesNames)
 
                 val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, stationsList.map { it.title })
-                nameEdit.setAdapter(namesAdapter)
-                imm.hideSoftInputFromWindow(nameEdit.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
+                stationNameEdit.setAdapter(namesAdapter)
+                imm.hideSoftInputFromWindow(stationNameEdit.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
 
-                nameEdit.imeOptions = EditorInfo.IME_ACTION_NEXT
-                nameEdit.setRawInputType(InputType.TYPE_CLASS_TEXT)
+                stationNameEdit.imeOptions = EditorInfo.IME_ACTION_NEXT
+                stationNameEdit.setRawInputType(InputType.TYPE_CLASS_TEXT)
 
 
                 fun findStation(name: String) : StationObject? {
@@ -108,7 +123,7 @@ class FaveParamsDialog {
 
                 }
 
-                nameEdit.setOnItemClickListener { _, view, _, _ ->
+                stationNameEdit.setOnItemClickListener { _, view, _, _ ->
                     run {
                         val stationNameView = view.findViewById<TextView>(android.R.id.text1)
                         val stationName = stationNameView.text.toString()
@@ -116,7 +131,7 @@ class FaveParamsDialog {
                     }
                 }
 
-                nameEdit.setOnEditorActionListener { tv, actionId, _ ->
+                stationNameEdit.setOnEditorActionListener { tv, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                         selectStation(tv.text.toString())
                         true
@@ -140,7 +155,6 @@ class FaveParamsDialog {
 
                 nachosRoutes.setOnEditorActionListener { v, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-
                        // SelectBusDialog.selectRoutes(nachos, routesList, selected)
                         imm.hideSoftInputFromWindow(nachosRoutes.windowToken, 0)
                         //SelectBusDialog.hide(activity)
@@ -158,9 +172,14 @@ class FaveParamsDialog {
                 }
 
 
+                fave?.let {
+                    nachosRoutes.setText(fave.routes)
+                    val station = stationsList.firstOrNull { s -> s.id == it.stationId }
+                    if (station != null) stationNameEdit.setText(station.title)
+                }
 
                 view.findViewById<Button>(R.id.save).setOnClickListener {
-                    val station = findStation(nameEdit.text.toString())
+                    val station = findStation(stationNameEdit.text.toString())
                     if (station==null) {
                         Toast.makeText(activity, "Выберите остановку", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
@@ -180,8 +199,8 @@ class FaveParamsDialog {
                     decorView.addView(dialogView)
 
                     decorView.postDelayed({
-                        nameEdit.requestFocus()
-                        nameEdit.showDropDown()
+                        stationNameEdit.requestFocus()
+                        stationNameEdit.showDropDown()
                     }, 500)
                     //nachos.requestFocus()
                     //imm.showSoftInput(nachos, InputMethodManager.SHOW_FORCED)

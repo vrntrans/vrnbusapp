@@ -20,7 +20,6 @@ import androidx.transition.Slide
 import androidx.transition.TransitionManager
 import com.hootsuite.nachos.ClearableAutoCompleteTextView
 import ru.boomik.vrnbus.Consts
-import ru.boomik.vrnbus.views.ClearableMultiAutoCompleteTextView
 import ru.boomik.vrnbus.R
 import ru.boomik.vrnbus.adapters.AutoCompleteContainArrayAdapter
 import ru.boomik.vrnbus.adapters.StationsAdapter
@@ -67,7 +66,7 @@ class SelectStationDialog {
                 val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
                 val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, stationsList.map { it.title })
-                val nameEdit = dialogView.findViewById<ClearableAutoCompleteTextView>(R.id.busesAutoComplete)
+                val nameEdit = dialogView.findViewById<ClearableAutoCompleteTextView>(R.id.stationAutoComplete)
                 nameEdit.setAdapter(namesAdapter)
                 imm.hideSoftInputFromWindow(nameEdit.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
 

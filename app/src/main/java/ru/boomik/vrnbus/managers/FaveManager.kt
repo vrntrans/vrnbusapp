@@ -39,7 +39,23 @@ object FaveManager {
             val stationId = fave.stationId
             val station = DataManager.stations?.firstOrNull { s -> s.id == stationId } ?: return
             val stationOnMap = StationOnMap(station.title, stationId, station.latitude, station.longitude)
-            StationInfoDialog.show(act, mInsets, stationOnMap)
+            StationInfoDialog.show(act, mInsets, stationOnMap, fave)
+        }
+    }
+    fun faveLongClick(type : String) : Boolean {
+        val act = mActivity.get() ?: return false
+        val name = getLocalizedFaveName(type)
+        val icon = getIconRes(type)
+        if (!faves.containsKey(type)) {
+            alertQuestion(act, "Избранное", "Данный пункт ибранного не настроен. Настроить?", "Да", "Нет") {
+                if (it) return@alertQuestion
+                FaveParamsDialog.show(act, type, name, icon, mInsets)
+            }
+            return false
+        } else {
+            val fave = faves[type]
+            FaveParamsDialog.show(act, type, name, icon, mInsets, fave)
+            return true
         }
     }
 
@@ -83,14 +99,25 @@ object FaveManager {
     fun save(type: String, id: Int, routes: List<String>) {
         faves[type] = Fave(type, id, routes)
 
+        saveFaves()
+    }
+
+    private fun saveFaves() {
         try {
-                val result = Json.encodeToString(faves)
-                SettingsManager.setString("Favorites", result)
+            val result = Json.encodeToString(faves)
+            SettingsManager.setString("Favorites", result)
             if (mActivity.get()!=null) Toast.makeText(mActivity.get(), "Избранное сохранено", Toast.LENGTH_SHORT).show()
         } catch (e: Throwable) {
             if (mActivity.get()!=null) Toast.makeText(mActivity.get(), "Избранное не сохранено: $e", Toast.LENGTH_SHORT).show()
             Log.e(e.localizedMessage, e)
             //ignore
+        }
+    }
+
+    fun deleteFave(fave: String) {
+        if (faves.containsKey(fave)) {
+            faves.remove(fave)
+            saveFaves()
         }
     }
 }
