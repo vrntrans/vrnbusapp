@@ -139,7 +139,7 @@ class MapsActivity : AppCompatActivity() {
                 mapManager.padding = rect
                 fragmentParent.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop, insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
 
-                GlobalScope.async(Dispatchers.Main) {
+                MainScope().launch {
                     delay(1000)
                     if (!showWhatsNew(this@MapsActivity, insets)) onPrepareForReady()
                 }
@@ -479,6 +479,7 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private fun showBuses(q: String) {
         SettingsManager.setString("routes", q)
@@ -494,7 +495,7 @@ class MapsActivity : AppCompatActivity() {
             mapManager.clearRoutes()
             if (!q.contains(',') && q != "*") {
 
-                GlobalScope.async(Dispatchers.Main) {
+                scope.launch {
                     val route = BusService.loadRouteByNameAsync(q.trim())
                     if (route != null) runOnUiThread {
                         mapManager.showRoute(route)
@@ -502,7 +503,7 @@ class MapsActivity : AppCompatActivity() {
                 }
             }
             Toast.makeText(this, "Поиск маршрутов:\n$q", Toast.LENGTH_SHORT).show()
-            GlobalScope.async(Dispatchers.Main) {
+            scope.launch {
                 val buses = BusService.loadBusInfoAsync(q)
                     if (buses != null) {
                         runOnUiThread {
@@ -511,7 +512,8 @@ class MapsActivity : AppCompatActivity() {
                             mapManager.showBusesOnMap(buses, clearRoute = false)
                         }
                     } else {
-                        Toast.makeText(this@MapsActivity, "Не найдено маршруток", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MapsActivity, "Ничего не нашлось", Toast.LENGTH_SHORT).show()
+                        mapManager.clearBusesOnMap()
                     }
                     progress.stopAnimate()
 

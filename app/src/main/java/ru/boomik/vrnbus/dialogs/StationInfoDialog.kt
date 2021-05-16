@@ -301,10 +301,10 @@ class StationInfoDialog {
     }
 
     private fun updateWithStationInfo(station: StationObject, stationInfo: BusesOnStationObject) {
-        val format1 = SimpleDateFormat("dd.MMM.yyyy в kk.mm.ss")
+        val format1 = SimpleDateFormat("dd MMM yyyy в kk:mm:ss")
         val formatted = format1.format(stationInfo.time.time)
 
-        mTime.text = "Время обновления: $formatted"
+        mTime.text = "Время обновления:\n$formatted"
 
         stationInfo.id = station.id
         stationInfo.title = station.title

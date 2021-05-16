@@ -45,6 +45,7 @@ object FaveManager {
     fun faveLongClick(type : String) : Boolean {
         val act = mActivity.get() ?: return false
         val name = getLocalizedFaveName(type)
+        
         val icon = getIconRes(type)
         if (!faves.containsKey(type)) {
             alertQuestion(act, "Избранное", "Данный пункт избранного не настроен. Настроить?", "Да", "Нет") {

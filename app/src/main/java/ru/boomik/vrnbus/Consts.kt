@@ -4,14 +4,6 @@ import com.google.android.gms.maps.model.LatLng
 
 
 object Consts{
-    const val API_URL="https://vrnbus.herokuapp.com"
-    const val API_BUS_INFO="/busmap"
-    const val API_ROUTES="/bus_stations.json"
-    const val API_BUS_LIST="/buslist"
-    const val API_STATIONS="/bus_stops"
-    const val API_ARRIVAL="/arrival_by_id"
-    const val API_ROUTE_EDGES="/bus_route_edges"
-
     const val SETTINGS_TRAFFIC_JAM = "traffic_jam"
     const val SETTINGS_FAVORITE_ROUTE = "favorite_route"
     const val SETTINGS_FAVORITE_STATIONS = "favorite_stations"

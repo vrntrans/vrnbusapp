@@ -8,6 +8,10 @@ open class BaseCacheableRemoteDataService<T : Any>(override val serviceClass: T,
 
     val cache = LocalFileCache(cachePath)
 
+    init {
+        cache.clear()
+    }
+
     suspend inline fun <T, reified TR : Any> makeRequestWithCacheAndConverter(loadingFun: KSuspendFunction0<T>, converterFun: KFunction1<T?, TR>, cacheName: String, cacheTime: Long = 0L, invalidateCache: Boolean = false, isList: Boolean = false, logFunc: KFunction1<String, Unit>? = null): RequestResultWithData<TR?> {
 
         var tmpCacheTime = cacheTime
@@ -21,7 +25,6 @@ open class BaseCacheableRemoteDataService<T : Any>(override val serviceClass: T,
             }
 
         if (!invalidateCache && cachedResult != null) {
-            logFunc?.invoke(cacheName+" Return from cache")
             return RequestResultWithData(cachedResult, RequestStatus.Ok)
         }
 
@@ -31,7 +34,6 @@ open class BaseCacheableRemoteDataService<T : Any>(override val serviceClass: T,
 
             if (tmpCacheTime > 0) cache.write(cacheName, data, tmpCacheTime, logFunc)
 
-            logFunc?.invoke(cacheName+" Return from network")
             RequestResultWithData(data, RequestStatus.Ok)
 
         } catch (e: Throwable) {

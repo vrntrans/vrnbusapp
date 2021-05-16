@@ -326,6 +326,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
                 val route = DataManager.routes?.firstOrNull { r -> r.id == it.bus.routeId }
                 if (route != null) {
                     it.bus.routeName = route.name
+                    if (route.name.startsWith("Т")) it.bus.busType = BusObject.BusType.Trolleybus
 
                     if (it.bus.nextStationName.isNullOrEmpty()) {
                         var forward = true

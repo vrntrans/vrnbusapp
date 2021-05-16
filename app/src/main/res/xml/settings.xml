@@ -32,12 +32,6 @@
             android:icon="@drawable/ic_cached"
             android:title="Очистить кэш"
             android:summary="Удалить данные о остановках и маршрутах, что бы получить актуальные. Автоматически обновляется раз в неделю (при запуске приложения)." />
-        <EditTextPreference
-            android:key="referer"
-            android:icon="@drawable/ic_referer"
-            android:singleLine="true"
-            android:summary="@string/enter_referer"
-            android:title="@string/Referer" />
         <SwitchPreference
             android:key="analytics"
             android:icon="@drawable/ic_privacy"

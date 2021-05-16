@@ -67,6 +67,7 @@ class DataConverter {
                     -1 -> BusObject.BusType.Unknown
                     else -> BusObject.BusType.Small
                 }
+                if (it.routeName.startsWith("Т")) busType = BusObject.BusType.Trolleybus
             }
         }
     }

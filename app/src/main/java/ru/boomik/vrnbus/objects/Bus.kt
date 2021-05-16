@@ -64,7 +64,7 @@ class Bus {
 
 
         val station = if (bus.nextStationName.isNullOrBlank()) "" else "Следующая остановка:\n\t${bus.nextStationName}\n\n"
-        val speed = "Скорость: ${bus.lastSpeed} км/ч"
+        val speed = "Скорость: ${bus.lastSpeed.toInt()} км/ч"
         var updateTime = ""
         var gosnumber = ""
 

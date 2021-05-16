@@ -65,7 +65,7 @@ class SelectStationDialog {
 
                 val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-                val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, stationsList.map { it.title })
+                val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_item_view, stationsList.map { it.title })
                 val nameEdit = dialogView.findViewById<ClearableAutoCompleteTextView>(R.id.stationAutoComplete)
                 nameEdit.setAdapter(namesAdapter)
                 imm.hideSoftInputFromWindow(nameEdit.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)

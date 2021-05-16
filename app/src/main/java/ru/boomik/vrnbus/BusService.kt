@@ -3,6 +3,7 @@ package ru.boomik.vrnbus
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import ru.boomik.vrnbus.dal.DataServices
+import ru.boomik.vrnbus.dal.businessObjects.BusObject
 import ru.boomik.vrnbus.dal.remote.RequestStatus
 import ru.boomik.vrnbus.dto.ArrivalDto
 import ru.boomik.vrnbus.managers.DataManager
@@ -37,7 +38,9 @@ object BusService {
                 val route = routes.firstOrNull { it.id == busObject.routeId }
                 //TODO: next station id
                 val station = stations.firstOrNull { it.id == busObject.id }
-                busObject.routeName = route?.name ?: ""
+                val routename = route?.name ?: ""
+                busObject.routeName = routename
+                if (routename.startsWith("Т")) busObject.busType = BusObject.BusType.Trolleybus
                 busObject.nextStationName = station?.title ?: ""
                 val bus = Bus()
                 bus.bus = busObject

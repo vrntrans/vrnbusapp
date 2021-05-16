@@ -14,6 +14,6 @@ object DataServices {
 
         val service = client.createService(ICoddApi::class.java)
         CoddDataService = CoddDataService(service)
-        CoddPersistentDataService = CoddPersistentDataService(service, cachePath, 3 * 24 * 60 * 60 * 1000/*3 days*/,logFunc)
+        CoddPersistentDataService = CoddPersistentDataService(service, cachePath, 1 * 12 * 60 * 60 * 1000/*12 hours*/,logFunc)
     }
 }

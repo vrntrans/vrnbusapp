@@ -95,6 +95,7 @@ class FaveParamsDialog {
                 val nachosAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, routesNames)
 
                 val namesAdapter = AutoCompleteContainArrayAdapter(activity, R.layout.bus_complete_view, stationsList.map { it.title })
+                namesAdapter.setDropDownViewResource(R.layout.bus_complete_view)
                 stationNameEdit.setAdapter(namesAdapter)
                 imm.hideSoftInputFromWindow(stationNameEdit.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
 

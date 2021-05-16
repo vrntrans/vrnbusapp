@@ -1,6 +1,9 @@
 package ru.boomik.vrnbus.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import android.text.Layout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,7 +58,7 @@ class StationsAdapter(val context: Context, var routes: List<StationOnMap>, var 
             cellView.setOnClickListener{
                 clickListener(view.tag as? StationOnMap)
             }
-            TextViewCompat.setAutoSizeTextTypeWithDefaults(mNameView,TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
+           // TextViewCompat.setAutoSizeTextTypeWithDefaults(mNameView,TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
             btnFavorite.setOnClickListener {
                 val station: StationOnMap = view.tag as? StationOnMap ?: return@setOnClickListener
                 var inFav = (btnFavorite.tag as Boolean)
@@ -63,6 +66,10 @@ class StationsAdapter(val context: Context, var routes: List<StationOnMap>, var 
                 btnFavorite.tag = inFav
                 DataBus.sendEvent(DataBus.FavoriteStation, Pair(station.id, inFav))
                 (it as ImageButton).setImageResource(if (inFav) R.drawable.ic_favorite else R.drawable.ic_no_favorite)
+            }
+            if (Build.VERSION.SDK_INT>=23) {
+                @SuppressLint("WrongConstant")
+                mNameView.breakStrategy = Layout.BREAK_STRATEGY_BALANCED
             }
         }
 

@@ -22,8 +22,6 @@
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
-
-
         <com.hootsuite.nachos.NachoTextView
             android:id="@+id/nachoRoutes"
             android:layout_width="match_parent"
@@ -32,138 +30,138 @@
             android:completionThreshold="1"
             android:hint="@string/enter_routes"
             android:inputType="textMultiLine" />
-<!--
-        <ru.boomik.vrnbus.views.ClearableMultiAutoCompleteTextView
-            android:id="@+id/route_edit_text"
+        <!--
+                <ru.boomik.vrnbus.views.ClearableMultiAutoCompleteTextView
+                    android:id="@+id/route_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:completionThreshold="1"
+                    android:hint="@string/enter_routes"
+                    android:inputType="text" />
+        -->
+        <Button
+            android:id="@+id/search"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:completionThreshold="1"
-            android:hint="@string/enter_routes"
-            android:inputType="text" />
--->
-            <Button
-                android:id="@+id/search"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:text="@string/search"
-                android:textAlignment="center"
-                android:textColor="@color/textColor" />
+            android:layout_weight="0"
+            android:text="@string/search"
+            android:textAlignment="center"
+            android:textColor="@color/textColor" />
 
 
     </LinearLayout>
-    
-<HorizontalScrollView
-    android:background="@drawable/corner_background"
-    android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginStart="16dp"
-    android:clipChildren="false"
-    android:clipToPadding="false"
-    android:layout_marginEnd="16dp"
-    android:scrollbarStyle="outsideOverlay"
-    android:scrollbarThumbHorizontal="@null">
 
-    <LinearLayout
-        android:id="@+id/favorites"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="wrap_content"
+    <HorizontalScrollView
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:padding="0dp"
-        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/corner_background"
         android:clipChildren="false"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbarThumbHorizontal="@null">
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <LinearLayout
+            android:id="@+id/favorites"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:id="@+id/fave_home"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_home"
-            android:tag="home" />
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_home"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:tag="home"
+                app:srcCompat="@drawable/ic_fave_home" />
 
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_work"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_work"
-            android:tag="work" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_work"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="work"
+                app:srcCompat="@drawable/ic_fave_work" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_man"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_man"
-            android:tag="man" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_man"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="man"
+                app:srcCompat="@drawable/ic_fave_man" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_one"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_one"
-            android:tag="one" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_one"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="one"
+                app:srcCompat="@drawable/ic_fave_one" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_two"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_two"
-            android:tag="two" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_two"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="two"
+                app:srcCompat="@drawable/ic_fave_two" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_three"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_three"
-            android:tag="three" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_three"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="three"
+                app:srcCompat="@drawable/ic_fave_three" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_four"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_four"
-            android:tag="four" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_four"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="four"
+                app:srcCompat="@drawable/ic_fave_four" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/fave_five"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            app:srcCompat="@drawable/ic_fave_five"
-            android:tag="five" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/fave_five"
+                android:layout_width="64dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless"
+                android:tag="five"
+                app:srcCompat="@drawable/ic_fave_five" />
 
-    </LinearLayout>
+        </LinearLayout>
 
-</HorizontalScrollView>
+    </HorizontalScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/corner_background">
+        android:background="@drawable/corner_background"
+        android:orientation="vertical">
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -172,7 +170,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             tools:itemCount="4"
-            tools:listitem="@layout/route_cell" >
+            tools:listitem="@layout/route_cell">
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -183,15 +181,30 @@
             android:layout_marginEnd="16dp"
             android:background="#666" />
 
-        <Button
-            android:id="@+id/all"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="@string/all"
-            android:textAlignment="center"
-            android:textColor="@color/textColor" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/all"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/all"
+                android:textAlignment="center"
+                android:textColor="@color/textColor" />
+            <Button
+                android:id="@+id/favorites_buses"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/favorites"
+                android:textAlignment="center"
+                android:textColor="@color/textColor" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

@@ -108,6 +108,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:text="@string/Cancel"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
                 android:textAlignment="center"
                 android:textColor="@color/textColor" />
 
