@@ -25,13 +25,11 @@ object DataManager {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate);
 
 
-    suspend fun loadData() {
+    suspend fun loadData(scope: CoroutineScope) {
 
-        scope.launch {
-
-            val stationsAsync = async {DataServices.CoddPersistentDataService.stations()}
-            val routesAsync = async {DataServices.CoddPersistentDataService.routes()}
-            val tracksAsync = async {DataServices.CoddPersistentDataService.tracks()}
+            val stationsAsync = scope.async {DataServices.CoddPersistentDataService.stations()}
+            val routesAsync = scope.async {DataServices.CoddPersistentDataService.routes()}
+            val tracksAsync = scope.async {DataServices.CoddPersistentDataService.tracks()}
 
             val list = listOf(stationsAsync, routesAsync, tracksAsync).awaitAll()
 
@@ -59,8 +57,6 @@ object DataManager {
             }
             DataManager.stationRoutes=stationRoutes.toMap()
             DataManager.stations = stations.data?.filter { stationRoutes.containsKey(it.id) }?.toList()
-        }
-
     }
 
 }

@@ -347,20 +347,31 @@ class MapsActivity : AppCompatActivity() {
         super.onStart()
 
         if (_loaded || _loading) return
+        loadData()
+    }
+
+    fun loadData() {
         _loading = true
-        GlobalScope.async(Dispatchers.Main) {
+        scope.launch {
             var dialog: AlertDialog? = null
             try {
                 dialog = progressDialog(this@MapsActivity)
 
-                DataManager.loadData()
+                DataManager.loadData(scope)
 
                 _loaded = DataManager.loaded
             } catch (e: Throwable) {
                 _loaded = false
                 // if one of the long operation throw, this should be called once, even if multiple long operations failed.
-
                 Log.e("something went wrong", e)
+
+                android.app.AlertDialog.Builder(this@MapsActivity)
+                    .setCancelable(false)
+                    .setTitle("Ошибка загрузки данных")
+                    .setMessage("Не удалось загрузить данные о маршрутах и остановках. Повторить?")
+                    .setPositiveButton("Повторить") { _, _ -> loadData() }
+                    .setNegativeButton("Выход") { _, _ -> this@MapsActivity.finish() }
+
             }
 
 
@@ -463,7 +474,7 @@ class MapsActivity : AppCompatActivity() {
         try {
             mapManager.clearRoutes()
 
-            GlobalScope.async(Dispatchers.Main) {
+            scope.async(Dispatchers.Main) {
                 progress.startAnimate()
                 /*val stationInfo = BusService.loadArrivalInfoAsync(stationId).await()
                 if (stationInfo != null) {
@@ -527,7 +538,7 @@ class MapsActivity : AppCompatActivity() {
     private fun showBusStations() {
 
         try {
-            GlobalScope.async(Dispatchers.Main) {
+            scope.launch {
                 delay(500)
                 val data = DataManager.stations
 

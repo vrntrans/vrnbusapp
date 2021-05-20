@@ -23,7 +23,7 @@ class DataConverter {
     private fun toBuses(buses : List<ObjectOnlineDto>?, serverTime : String?): List<BusObject> {
         if (buses == null || buses.isEmpty()) return listOf()
 
-        val pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX"
+        val pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS"
 
         val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
         val serverDate = dateFormat.parse(serverTime)
