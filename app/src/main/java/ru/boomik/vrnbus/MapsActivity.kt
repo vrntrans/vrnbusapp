@@ -223,7 +223,7 @@ class MapsActivity : AppCompatActivity() {
         settingsManager.loadPreferences()
 
         val routes = SettingsManager.getString("routes")
-        if (routes != null) {
+        if (routes != null && routes!="*") {
             mRoutes = routes
             updateBuses()
         }
@@ -374,11 +374,15 @@ class MapsActivity : AppCompatActivity() {
 
             }
 
+            try {
 
-            dialog?.dismiss()
-            showBusStations()
-            _loading = false
-            onPrepareForReady()
+                dialog?.dismiss()
+                showBusStations()
+                _loading = false
+                onPrepareForReady()
+            } catch (t: Throwable) {
+                Log.e("load data error")
+            }
         }
     }
 

@@ -33,11 +33,9 @@ class LocalFileCache(cachePath: String) {
 
             val validUntil = if (cacheTime != null) date.time + cacheTime else Long.MAX_VALUE
             val fileName = "${key}#${validUntil}${ext}"
-            logFunc?.invoke("$key Cache write: $fileName")
             val file = File(cacheDir, fileName)
 
             val json =  Json.encodeToString(data)
-            logFunc?.invoke(key+"Cache Write:" +json)
 
             val outputStream = file.outputStream()
             val osw = OutputStreamWriter(outputStream)
@@ -46,7 +44,7 @@ class LocalFileCache(cachePath: String) {
 
         } catch (e: Throwable) {
             //ignored
-            logFunc?.invoke("Cache Write:" +e.message+"\n"+e.stackTrace)
+            logFunc?.invoke("Cache Write error:" +e.message+"\n"+e.stackTrace)
         }
     }
 
@@ -71,38 +69,25 @@ class LocalFileCache(cachePath: String) {
     inline fun <reified T : Any> get(key: String, logFunc: KFunction1<String, Unit>? = null): T? {
         try {
             val cacheKey = URLEncoder.encode(key, "UTF-8")
-            logFunc?.invoke("$key Cache start: $cacheKey")
 
             val fileName = getFileNameByKey(cacheKey) ?: return null
             val validUntil = getValidUntilFromFile(cacheKey, fileName)
             val valid = checkItemValid(fileName, validUntil)
             var value: T? = null
             var valueString = ""
-            logFunc?.invoke("$key Cache valid: $valid")
             if (valid) {
-                try {
-                    val file = File(cacheDir, fileName)
-                    val inputStream = file.inputStream()
-                    val size = inputStream.available()
-                    val buffer = ByteArray(size)
-                    inputStream.read(buffer)
-                    inputStream.close()
-                    valueString = String(buffer, Charset.forName("UTF-8"))
-                    logFunc?.invoke("valueString:\n$valueString")
-                } catch (e: Throwable) {
-                    logFunc?.invoke(e.message+"\n"+e.stackTrace)
-                }
-                try {
-                    value = Json.decodeFromString<T>(valueString)
-                } catch (e: Throwable) {
-                    logFunc?.invoke(e.message+"\n"+e.stackTrace)
-                }
+                val file = File(cacheDir, fileName)
+                val inputStream = file.inputStream()
+                val size = inputStream.available()
+                val buffer = ByteArray(size)
+                inputStream.read(buffer)
+                inputStream.close()
+                valueString = String(buffer, Charset.forName("UTF-8"))
+                value = Json.decodeFromString<T>(valueString)
             }
-
-            logFunc?.invoke("$key Cache result: $value")
             return value
         } catch (e: Throwable) {
-            logFunc?.invoke(e.message+"\n"+e.stackTrace)
+            logFunc?.invoke(e.message + "\n" + e.stackTrace)
             return null
         }
     }

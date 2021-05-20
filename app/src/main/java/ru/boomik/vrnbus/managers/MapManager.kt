@@ -285,6 +285,8 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
             clearBusesOnMap()
             return
         }
+        if (!::mMap.isInitialized)
+            return
 
         var neededType = 0
         if (mMap.cameraPosition.zoom >= markerZoom) {
@@ -391,6 +393,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         if (::mAllStations.isInitialized && mAllStations.any()) return
 
         mAllStations = stationsOnMap
+
+        if (!::mMap.isInitialized)
+            return
 
         var showSmall = false
 
@@ -501,6 +506,9 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
         if (mRouteOnMap == route.name) return
         mRoutesOnMap?.forEach { it.remove() }
         mRouteOnMap = null
+
+        if (!::mMap.isInitialized)
+            return
 
         if (route.allStations != null) {
             val lines = mutableListOf<Polyline>()
