@@ -489,7 +489,7 @@ class MapManager(activity: Activity, mapFragment: SupportMapFragment) : OnMapRea
     }
 
 
-    fun getRoute(stations: List<StationOnMap>?,@ColorRes color: Int): PolylineOptions? {
+    private fun getRoute(stations: List<StationOnMap>?, @ColorRes color: Int): PolylineOptions? {
         if (stations.isNullOrEmpty()) return null
         val line = PolylineOptions()
         val points = stations.map { LatLng(it.lat, it.lon) }

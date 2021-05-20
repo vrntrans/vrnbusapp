@@ -60,7 +60,7 @@ object BusService {
     suspend fun loadRouteByNameAsync(routeName: String, forward: Boolean = false): Route? {
         try {
             if (routeName.isBlank()) return null
-            var route = DataManager.routesCalculated.getOrDefault(routeName, null)
+            var route = if (DataManager.routesCalculated.containsKey(routeName)) DataManager.routesCalculated[routeName] else null
             if (route!=null) return route
             val data = DataManager.routes?.firstOrNull { it.name == routeName }
             val tracks = DataManager.tracks
